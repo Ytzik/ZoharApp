@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZoharApp</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&display=swap');
+        :root { --rose: #fb7185; --slate: #475569; --bg: #f8fafc; --green: #10b981; --blue: #3b82f6; --amber: #f59e0b; --purple: #a855f7; }
+        * { box-sizing: border-box; font-family: 'Assistant', sans-serif; }
+        body { background-color: var(--bg); margin: 0; padding: 0; color: var(--slate); }
+        
+        .status-bar { background: #f1f5f9; padding: 5px 20px; text-align: center; font-size: 13px; font-weight: bold; color: #64748b; border-bottom: 1px solid #e2e8f0; }
+        .header { background: white; padding: 15px; text-align: center; border-radius: 0 0 30px 30px; border-bottom: 2px solid #ffe4e6; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .logo { font-size: 28px; font-weight: 900; color: var(--rose); font-style: italic; margin: 0; }
+        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
+        
+        /* Dashboard */
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .stat-box { text-align: center; }
+        .stat-box:first-child { border-left: 1px solid #f1f5f9; }
+        .label { font-size: 11px; font-weight: bold; color: #94a3b8; text-transform: uppercase; }
+        .value { font-size: 26px; font-weight: 800; margin: 5px 0; color: #1e293b; }
+        .detail { font-size: 14px; color: var(--rose); font-weight: 800; }
+
+        .btn { width: 100%; background: white; border: none; padding: 18px; border-radius: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 800; cursor: pointer; border-bottom: 4px solid #e2e8f0; }
+        .btn:active { transform: translateY(2px); border-bottom-width: 0; }
+
+        /* Stats Page */
+        .stats-card { background: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-right: 5px solid #eee; }
+        .mood-summary { font-size: 18px; font-weight: 800; color: var(--purple); line-height: 1.4; }
+
+        /* Day View Columns */
+        .day-columns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 15px; }
+        .col { background: white; border-radius: 8px; padding: 4px; min-height: 450px; border: 1px solid #e2e8f0; }
+        .col-title { font-size: 10px; font-weight: 900; text-align: center; padding: 5px 0; border-bottom: 2px solid #f1f5f9; margin-bottom: 5px; }
+        .log-item { font-size: 10px; background: #fef2f2; padding: 5px; border-radius: 5px; margin-bottom: 5px; border-right: 3px solid var(--rose); }
+        .diaper-item { background: #fffbeb; border-right-color: var(--amber); }
+        .bottle-item { background: #eff6ff; border-right-color: var(--blue); }
+        .mood-item { background: #faf5ff; border-right-color: var(--purple); }
+        .time-label { font-weight: 800; display: block; color: #1e293b; font-size: 9px; }
+
+        /* Calendar */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 15px; }
+        .cal-day { aspect-ratio: 1; border: 1px solid #eee; border-radius: 8px; background: white; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; }
+        .cal-today { background: #fde047 !important; border: 2px solid #facc15 !important; box-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .timer { font-size: 60px; font-family: monospace; font-weight: bold; color: var(--rose); margin: 20px 0; text-align: center; }
+        .nursing-btn { padding: 30px; border-radius: 20px; border: none; font-size: 20px; font-weight: 900; cursor: pointer; border-bottom: 5px solid #ddd; background: #f1f5f9; }
+        .nursing-active { background: var(--rose) !important; color: white !important; border-color: #be123c !important; }
+    </style>
+</head>
+<body>
+
+<div class="status-bar" id="live-clock">טוען זמן...</div>
+
+<div id="setup-screen" class="container" style="display: none; padding-top: 100px; text-align: center;">
+    <h1 class="logo">ZoharApp</h1>
+    <input type="text" id="baby-name-input" placeholder="שם התינוק/ת" style="width:100%; padding:15px; margin:20px 0; border-radius:15px; border:2px solid #eee; text-align:center; font-size:18px;">
+    <button onclick="saveName()" style="width:100%; background:#1e293b; color:white; padding:15px; border-radius:50px; font-weight:bold; border:none;">התחילי</button>
+</div>
+
+<div id="main-app" style="display: none;">
+    <div class="header">
+        <h1 class="logo">ZoharApp</h1>
+        <div id="display-name" style="font-size: 12px; color: #94a3b8; font-weight: bold; margin-top: 5px;"></div>
+    </div>
+
+    <div class="container">
+        <div id="home-view" class="screen active">
+            <div class="dashboard">
+                <div class="stat-box">
+                    <div class="label">ארוחה אחרונה</div>
+                    <div id="last-meal-time" class="value">--:--</div>
+                    <div id="last-meal-detail" class="detail">אין נתונים</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">חיתול אחרון</div>
+                    <div id="last-diaper-time" class="value">--:--</div>
+                    <div id="last-diaper-detail" class="detail" style="color: var(--amber)">אין נתונים</div>
+                </div>
+            </div>
+
+            <button class="btn" style="border-color:#fecdd3" onclick="showView('nursing-view')"><span>🤱 הנקה</span> <span>❯</span></button>
+            <button class="btn" style="border-color:#bfdbfe" onclick="addBottle()"><span>🍼 בקבוק</span> <span>❯</span></button>
+            <button class="btn" style="border-color:#fef08a" onclick="showView('diaper-view')"><span>✨ החלפה</span> <span>❯</span></button>
+            <button class="btn" style="border-color:#e9d5ff" onclick="showView('mood-view')"><span>🌈 מצב רוח</span> <span>❯</span></button>
+
+            <button onclick="showView('calendar-view')" style="display:block; width:100%; margin-top:20px; background:#1e293b; color:white; padding:15px; border-radius:50px; font-weight:bold; border:none;">📅 יומן פעילות</button>
+            <button onclick="showView('stats-view')" style="display:block; width:100%; margin-top:10px; background:white; color:#1e293b; padding:15px; border-radius:50px; font-weight:bold; border:2px solid #1e293b;">📊 ניתוח פעילות</button>
+        </div>
+
+        <div id="stats-view" class="screen">
+            <h2 style="text-align:center">📊 ניתוח 24 שעות אחרונות</h2>
+            
+            <div class="stats-card" style="border-right-color: var(--purple)">
+                <div class="label">סיכום מצב רוח</div>
+                <div id="mood-analysis" class="mood-summary">מחשב נתונים...</div>
+            </div>
+
+            <div class="stats-card" style="border-right-color: var(--rose)">
+                <div class="label">סה"כ זמן הנקה</div>
+                <div id="stat-nursing-total" class="value">0 דק'</div>
+            </div>
+
+            <div class="stats-card" style="border-right-color: var(--blue)">
+                <div class="label">סה"כ מ"ל בקבוק</div>
+                <div id="stat-bottle-total" class="value">0 מ"ל</div>
+            </div>
+
+            <div class="stats-card" style="border-right-color: var(--amber)">
+                <div class="label">חיתולים</div>
+                <div id="stat-diaper-summary" style="font-weight: bold;">פיפי: 0 | קקי: 0</div>
+            </div>
+
+            <button onclick="showView('home-view')" style="display:block; width:100%; margin-top:20px; background:#1e293b; color:white; padding:15px; border-radius:50px; font-weight:bold; border:none;">חזרה לדף הבית</button>
+        </div>
+
+        <div id="nursing-view" class="screen">
+            <h2 style="text-align:center">ניהול הנקה</h2>
+            <div style="background:#fff1f2; padding:20px; border-radius:20px; margin-bottom:15px; text-align:center">
+                <div class="label">הנקה אחרונה שתועדה:</div>
+                <div id="nursing-last-data" style="font-size:18px; font-weight:900; color:var(--rose)">--</div>
+            </div>
+            <div id="timer-display" class="timer">0:00</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                <button id="btn-right" class="nursing-btn"></button>
+                <button id="btn-left" class="nursing-btn"></button>
+            </div>
+            <button onclick="showView('home-view')" style="display:block; width:100%; margin-top:30px; background:#10b981; color:white; padding:20px; border-radius:20px; border:none; font-size:22px; font-weight:900; box-shadow: 0 4px 0 #059669;">✅ סיימנו לאכול!</button>
+        </div>
+
+        <div id="mood-view" class="screen">
+            <h2 style="text-align:center">איך Zohar מרגיש/ה?</h2>
+            <button class="btn" onclick="addLog('🌈 מצב רוח', 'בוכה')" style="background:#fff1f2">😭 בוכה</button>
+            <button class="btn" onclick="addLog('🌈 מצב רוח', 'לא רגוע')" style="background:#fff7ed">😟 לא רגוע</button>
+            <button class="btn" onclick="addLog('🌈 מצב רוח', 'עירני')" style="background:#f0fdf4">👀 עירני</button>
+            <button class="btn" onclick="addLog('🌈 מצב רוח', 'רגוע')" style="background:#ecfeff">😌 רגוע</button>
+            <button class="btn" onclick="addLog('🌈 מצב רוח', 'רדום')" style="background:#f5f3ff">😴 רדום</button>
+            <button onclick="showView('home-view')" style="display:block; width:100%; margin-top:20px; background:none; border:none; text-decoration:underline; color:#94a3b8;">חזרה</button>
+        </div>
+
+        <div id="calendar-view" class="screen">
+            <h2 style="text-align:center">יומן חודשי</h2>
+            <div class="calendar-grid" id="calendar-body"></div>
+            <button onclick="showView('home-view')" style="display:block; width:100%; margin-top:20px; background:#eee; padding:15px; border-radius:15px; border:none; font-weight:bold;">חזרה</button>
+        </div>
+        
+        <div id="day-view" class="screen">
+            <h2 id="day-title" style="text-align:center; margin-bottom:5px;"></h2>
+            <div class="day-columns">
+                <div class="col"><div class="col-title" style="color:var(--rose)">🤱 הנקה</div><div id="col-nursing"></div></div>
+                <div class="col"><div class="col-title" style="color:var(--amber)">✨ חיתול</div><div id="col-diaper"></div></div>
+                <div class="col"><div class="col-title" style="color:var(--blue)">🍼 בקבוק</div><div id="col-bottle"></div></div>
+                <div class="col"><div class="col-title" style="color:var(--purple)">🌈 מצב</div><div id="col-mood"></div></div>
+            </div>
+            <button onclick="showView('calendar-view')" style="display:block; width:100%; margin-top:20px; background:#eee; padding:15px; border-radius:15px; border:none; font-weight:bold;">חזרה</button>
+        </div>
+
+        <div id="diaper-view" class="screen">
+            <h2 style="text-align:center">מה היה בחיתול?</h2>
+            <button class="btn" onclick="addLog('✨ חיתול', 'פיפי')" style="background:#fefce8">💦 פיפי</button>
+            <button class="btn" onclick="addLog('✨ חיתול', 'קקי')" style="background:#fffbeb">💩 קקי</button>
+            <button class="btn" onclick="addLog('✨ חיתול', 'שניהם')" style="background:#fff7ed">🌈 שניהם</button>
+            <button onclick="showView('home-view')" style="display:block; width:100%; margin-top:20px; background:none; border:none; text-decoration:underline; color:#94a3b8;">חזרה</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let logs = JSON.parse(localStorage.getItem('z_logs') || '[]');
+    let babyName = localStorage.getItem('z_name');
+    let timer; let seconds = 0; let activeSide = null;
+
+    function init() {
+        startLiveClock();
+        if (!babyName) document.getElementById('setup-screen').style.display = 'block';
+        else { document.getElementById('main-app').style.display = 'block'; document.getElementById('display-name').innerText = 'היום של ' + babyName; updateDashboard(); }
+    }
+
+    function startLiveClock() {
+        const clockElement = document.getElementById('live-clock');
+        setInterval(() => {
+            const now = new Date();
+            clockElement.innerText = now.toLocaleDateString('he-IL').replace(/\//g, '.') + ' | ' + now.toLocaleTimeString('he-IL');
+        }, 1000);
+    }
+
+    function saveName() { const n = document.getElementById('baby-name-input').value; if(n) { localStorage.setItem('z_name', n); location.reload(); } }
+
+    function showView(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'calendar-view') renderCalendar();
+        if(id === 'nursing-view') setupNursing();
+        if(id === 'stats-view') calculateStats();
+    }
+
+    function addLog(type, detail, stayInView = false) {
+        const now = new Date();
+        const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+        const date = now.toLocaleDateString('he-IL').replace(/\//g,'.');
+        logs.unshift({ type, detail, time, date, timestamp: now.getTime() });
+        localStorage.setItem('z_logs', JSON.stringify(logs));
+        updateDashboard();
+        if(!stayInView) showView('home-view');
+        else setupNursing();
+    }
+
+    function calculateStats() {
+        const now = Date.now();
+        const last24h = logs.filter(l => now - l.timestamp < 24 * 60 * 60 * 1000);
+        
+        // 1. ניתוח מצב רוח
+        const moodLogs = last24h.filter(l => l.type === '🌈 מצב רוח');
+        const moodCounts = {};
+        moodLogs.forEach(l => moodCounts[l.detail] = (moodCounts[l.detail] || 0) + 1);
+        
+        let moodSummary = "אין מספיק נתונים לניתוח מצב רוח.";
+        if (moodLogs.length > 0) {
+            const sortedMoods = Object.entries(moodCounts).sort((a,b) => b[1] - a[1]);
+            const topMood = sortedMoods[0][0];
+            moodSummary = `רוב היום ${babyName} ${topMood}`;
+            if (sortedMoods.length > 1) {
+                moodSummary += `, ומעט ${sortedMoods[1][0]}.`;
+            } else {
+                moodSummary += ".";
+            }
+        }
+        document.getElementById('mood-analysis').innerText = moodSummary;
+
+        // 2. שאר הנתונים
+        let nTime = 0; last24h.filter(l => l.type === '🤱 הנקה').forEach(l => { const m = l.detail.match(/\((\d+) דק/); if(m) nTime += parseInt(m[1]); });
+        let bottleMl = 0; last24h.filter(l => l.type === '🍼 בקבוק').forEach(l => { const m = l.detail.match(/(\d+) מ"ל/); if(m) bottleMl += parseInt(m[1]); });
+        const pifi = last24h.filter(l => l.detail === 'פיפי' || l.detail === 'שניהם').length;
+        const kaki = last24h.filter(l => l.detail === 'קקי' || l.detail === 'שניהם').length;
+        
+        document.getElementById('stat-nursing-total').innerText = nTime + " דק'";
+        document.getElementById('stat-bottle-total').innerText = bottleMl + " מ\"ל";
+        document.getElementById('stat-diaper-summary').innerText = `פיפי: ${pifi} | קקי: ${kaki}`;
+    }
+
+    function setupNursing() {
+        const last = logs.find(l => l.type === '🤱 הנקה');
+        const lastSide = (last && last.detail.includes('ימין')) ? 'ימין' : 'שמאל';
+        document.getElementById('nursing-last-data').innerText = last ? last.detail : 'אין רישום קודם';
+        const bR = document.getElementById('btn-right'); const bL = document.getElementById('btn-left');
+        const s1 = lastSide === 'ימין' ? 'שמאל' : 'ימין'; const s2 = lastSide === 'ימין' ? 'ימין' : 'שמאל';
+        bR.innerText = s1; bR.onclick = () => toggleNursing(s1, 'btn-right');
+        bL.innerText = s2; bL.onclick = () => toggleNursing(s2, 'btn-left');
+    }
+
+    function toggleNursing(side, id) {
+        if(activeSide === side) {
+            clearInterval(timer);
+            addLog('🤱 הנקה', 'צד ' + side + ' (' + Math.floor(seconds/60) + ' דק\')', true);
+            activeSide = null; seconds = 0; document.getElementById('timer-display').innerText = '0:00';
+            document.querySelectorAll('.nursing-btn').forEach(b => b.classList.remove('nursing-active'));
+        } else {
+            activeSide = side; seconds = 0;
+            document.querySelectorAll('.nursing-btn').forEach(b => b.classList.remove('nursing-active'));
+            document.getElementById(id).classList.add('nursing-active');
+            clearInterval(timer);
+            timer = setInterval(() => { seconds++; document.getElementById('timer-display').innerText = Math.floor(seconds/60) + ':' + (seconds%60).toString().padStart(2,'0'); }, 1000);
+        }
+    }
+
+    function renderCalendar() {
+        const body = document.getElementById('calendar-body'); body.innerHTML = '';
+        const now = new Date(); const total = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+        const todayStr = now.toLocaleDateString('he-IL').replace(/\//g,'.');
+        for(let i=1; i<=total; i++) {
+            const dateStr = i + '.' + (now.getMonth()+1) + '.' + now.getFullYear();
+            const div = document.createElement('div'); div.className = 'cal-day' + (dateStr === todayStr ? ' cal-today' : '');
+            div.innerText = i; div.onclick = () => showDay(dateStr); body.appendChild(div);
+        }
+    }
+
+    function showDay(date) {
+        document.getElementById('day-title').innerText = date;
+        const colIds = { '🤱 הנקה': 'col-nursing', '✨ חיתול': 'col-diaper', '🍼 בקבוק': 'col-bottle', '🌈 מצב רוח': 'col-mood' };
+        Object.values(colIds).forEach(id => document.getElementById(id).innerHTML = '');
+        logs.filter(l => l.date === date).sort((a,b) => b.timestamp - a.timestamp).forEach(l => {
+            const div = document.createElement('div'); div.className = 'log-item';
+            if(l.type.includes('חיתול')) div.classList.add('diaper-item');
+            if(l.type.includes('בקבוק')) div.classList.add('bottle-item');
+            if(l.type.includes('מצב')) div.classList.add('mood-item');
+            div.innerHTML = `<span class="time-label">${l.time}</span> ${l.detail}`;
+            if(colIds[l.type]) document.getElementById(colIds[l.type]).appendChild(div);
+        });
+        showView('day-view');
+    }
+
+    function updateDashboard() {
+        const meal = logs.find(l => l.type === '🤱 הנקה' || l.type === '🍼 בקבוק');
+        const diaper = logs.find(l => l.type === '✨ חיתול');
+        if(meal) { document.getElementById('last-meal-time').innerText = meal.time; document.getElementById('last-meal-detail').innerText = meal.detail; }
+        if(diaper) { document.getElementById('last-diaper-time').innerText = diaper.time; document.getElementById('last-diaper-detail').innerText = diaper.detail; }
+    }
+
+    function addBottle() { const ml = prompt('כמה מ"ל?', '120'); if(ml) addLog('🍼 בקבוק', ml + ' מ"ל'); }
+
+    init();
+</script>
+</body>
+</html>
