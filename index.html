@@ -3,38 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp Pro v9</title>
+    <title>ZoharApp Pro v10</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&display=swap');
-        :root { --rose: #fb7185; --bg: #f8fafc; --card-bg: white; --text: #1e293b; --indigo: #6366f1; --amber: #f59e0b; --green: #10b981; --blue: #3b82f6; --red: #ef4444; --cyan: #06b6d4; }
+        :root { --rose: #fb7185; --bg: #f8fafc; --card-bg: white; --text: #1e293b; --indigo: #6366f1; --amber: #f59e0b; --green: #10b981; --blue: #3b82f6; --cyan: #06b6d4; --red: #ef4444; }
         body.night-mode { --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; }
         * { box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: var(--text); margin: 0; padding: 0; transition: background 0.3s; }
+        body { background-color: var(--bg); color: var(--text); margin: 0; padding: 0; transition: 0.3s; }
         .container { max-width: 500px; margin: 0 auto; padding: 15px; }
-        .header { text-align: center; padding: 10px 0; }
-        .logo { font-size: 26px; font-weight: 900; color: var(--rose); margin: 0; }
         .stat-card { background: var(--card-bg); padding: 10px; border-radius: 18px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 10px; }
         .dashboard { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
         .btn { width: 100%; background: var(--card-bg); border: none; padding: 15px; border-radius: 18px; margin-bottom: 10px; font-size: 17px; font-weight: 800; color: var(--text); cursor: pointer; border-bottom: 4px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .btn-med-alert { border-right: 6px solid var(--red) !important; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
-        .screen { display: none; } .screen.active { display: block; }
+        .screen { display: none; animation: fadeIn 0.3s; } .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .timer { font-size: 50px; text-align: center; color: var(--rose); margin: 10px 0; font-family: monospace; font-weight: bold; }
-        .nursing-active { background: var(--rose) !important; color: white !important; }
+        .nursing-active { background: var(--rose) !important; color: white !important; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
         .cal-day { background: var(--card-bg); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold; cursor: pointer; border: 1px solid rgba(0,0,0,0.05); }
-        .today { background: #fef08a !important; color: #854d0e !important; border: 2px solid var(--amber); }
-        canvas { background: white; border-radius: 15px; padding: 10px; width: 100% !important; margin-top: 10px; }
-        input, select { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #ddd; font-size: 14px; background: var(--card-bg); color: var(--text); }
-        .del-btn { color: var(--red); font-size: 11px; border: 1px solid var(--red); padding: 3px 6px; border-radius: 5px; cursor: pointer; background: none; }
+        .today { background: #fef08a !important; color: #854d0e !important; border: 2px solid var(--amber) !important; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #ddd; background: var(--card-bg); color: var(--text); }
+        .del-btn { color: var(--red); font-size: 11px; border: 1px solid var(--red); padding: 3px 6px; border-radius: 5px; background: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h1 class="logo">ZoharApp Pro v9</h1>
+    <div class="header" style="text-align:center; padding:10px 0;">
+        <h1 style="font-size:24px; color:var(--rose); margin:0;">ZoharApp Pro v10</h1>
     </div>
 
     <div id="home-screen" class="screen active">
@@ -46,7 +43,7 @@
         <button class="btn" style="border-right:6px solid var(--rose)" onclick="showView('nursing-screen')">🤱 הנקה <span>❯</span></button>
         <button class="btn" style="border-right:6px solid var(--blue)" onclick="addBottle()">🍼 בקבוק <span>❯</span></button>
         <button class="btn" style="border-right:6px solid var(--amber)" onclick="showView('diaper-screen')">✨ חיתול <span>❯</span></button>
-        <button class="btn" style="border-right:6px solid var(--cyan)" onclick="lAction('רחצה', '🛁 אמבטיה מפנקת')">🛁 רחצה <span>❯</span></button>
+        <button class="btn" style="border-right:6px solid var(--cyan)" onclick="lAction('רחצה', '🛁 אמבטיה')">🛁 רחצה <span>❯</span></button>
         <button class="btn" style="border-right:6px solid var(--indigo)" onclick="showView('measures-screen')">📈 מדדים וגרפים <span>❯</span></button>
         <button id="med-btn-main" class="btn" style="border-right:6px solid var(--red)" onclick="showView('med-screen')">💊 תרופות <span>❯</span></button>
         <button class="btn" onclick="showView('calendar-screen')">📅 יומן חודשי <span>❯</span></button>
@@ -54,15 +51,15 @@
 
     <div id="nursing-screen" class="screen">
         <div class="stat-card" style="border:1px solid var(--rose); background:rgba(251,113,133,0.05)">
-            <div style="font-size:12px; color:var(--rose);">הנקה אחרונה:</div>
-            <div id="last-side-info" style="font-size:16px; font-weight:800;">טוען...</div>
+            <div style="font-size:12px;">ארוחה קודמת: <span id="last-side-info" style="font-weight:800;">-</span></div>
         </div>
         <div id="n-timer" class="timer">00:00</div>
+        <div style="text-align:center; margin-bottom:10px; font-weight:bold;">סשן נוכחי: <span id="current-session-info">ממתין...</span></div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
             <button id="n-R" class="btn" style="justify-content:center; height:90px;" onclick="tNursing('ימין')">ימין</button>
             <button id="n-L" class="btn" style="justify-content:center; height:90px;" onclick="tNursing('שמאל')">שמאל</button>
         </div>
-        <button class="btn" style="margin-top:20px; justify-content:center; background:var(--green); color:white;" onclick="showView('home-screen')">סיום</button>
+        <button class="btn" style="margin-top:20px; justify-content:center; background:var(--green); color:white; border:none;" onclick="finishNursingSession()">סיום ועדכון ארוחה ✅</button>
     </div>
 
     <div id="diaper-screen" class="screen">
@@ -76,9 +73,9 @@
     <div id="measures-screen" class="screen">
         <h2>מדדים</h2>
         <div class="stat-card" style="text-align:right">
-            <input type="number" id="in-w" placeholder="משקל בגרמים (למשל 4200)">
-            <input type="number" id="in-h" placeholder="גובה בס״מ">
-            <button class="btn" style="background:var(--indigo); color:white; justify-content:center;" onclick="saveM()">שמור מדדים</button>
+            <input type="number" id="in-w" placeholder="משקל (גרם)">
+            <input type="number" id="in-h" placeholder="גובה (ס״מ)">
+            <button class="btn" style="background:var(--indigo); color:white; justify-content:center;" onclick="saveM()">שמור</button>
         </div>
         <canvas id="wChart"></canvas>
         <button class="btn" style="margin-top:10px; justify-content:center;" onclick="showView('home-screen')">חזרה</button>
@@ -88,22 +85,18 @@
         <h2>תרופות</h2>
         <div id="med-list"></div>
         <div class="stat-card" style="text-align:right">
-            <h3>הוספת תרופה</h3>
             <input type="text" id="m-name" placeholder="שם התרופה">
-            <label style="font-size:12px;">תדירות מתן (כל כמה ימים):</label>
             <select id="m-days">
-                <option value="1">כל יום (24 שעות)</option>
+                <option value="1">כל יום</option>
                 <option value="2">כל יומיים</option>
-                <option value="3">כל 3 ימים</option>
                 <option value="7">פעם בשבוע</option>
             </select>
-            <button class="btn" style="background:var(--indigo); color:white; justify-content:center;" onclick="addMed()">הוסף לרשימה</button>
+            <button class="btn" style="background:var(--indigo); color:white; justify-content:center;" onclick="addMed()">הוסף</button>
         </div>
         <button class="btn" style="margin-top:10px; justify-content:center;" onclick="showView('home-screen')">חזרה</button>
     </div>
 
     <div id="calendar-screen" class="screen">
-        <h2>יומן חודשי</h2>
         <div id="cal-grid" class="calendar-grid"></div>
         <div id="day-logs" style="margin-top:15px;"></div>
         <button class="btn" style="margin-top:20px; justify-content:center;" onclick="showView('home-screen')">חזרה</button>
@@ -111,23 +104,30 @@
 </div>
 
 <script>
-    let logs = [], meds = [], measures = [];
+    let logs = [], meds = [], measures = [], session = {R:0, L:0};
 
     function init() {
         try {
-            logs = JSON.parse(localStorage.getItem('z_logs_v9')) || [];
-            meds = JSON.parse(localStorage.getItem('z_meds_v9')) || [];
-            measures = JSON.parse(localStorage.getItem('z_measures_v9')) || [];
+            logs = JSON.parse(localStorage.getItem('z_logs_v10')) || [];
+            meds = JSON.parse(localStorage.getItem('z_meds_v10')) || [];
+            measures = JSON.parse(localStorage.getItem('z_measures_v10')) || [];
         } catch(e) {}
+        checkNight();
         updateD();
+        setInterval(checkNight, 60000);
+    }
+
+    function checkNight() {
+        const h = new Date().getHours();
+        document.body.classList.toggle('night-mode', h >= 23 || h < 7);
     }
 
     function showView(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         if(id === 'nursing-screen') {
-            const last = logs.find(l => l.type === 'הנקה');
-            document.getElementById('last-side-info').innerText = last ? `${last.detail} (${last.time})` : 'אין תיעוד';
+            session = {R:0, L:0};
+            updateNursingUI();
         }
         if(id === 'med-screen') renderMeds();
         if(id === 'calendar-screen') renderCal();
@@ -138,21 +138,24 @@
     function lAction(type, detail) {
         const now = new Date();
         const time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        logs.unshift({ type, detail, time, date: now.toLocaleDateString('he-IL'), ts: Date.now() });
+        logs.unshift({ type, detail, time, date: now.toLocaleDateString('en-GB'), ts: Date.now() });
         sync(); showView('home-screen');
     }
 
     function addBottle() { const ml = prompt("מ\"ל:"); if(ml) lAction('בקבוק', ml + ' מ"ל'); }
 
-    // --- Nursing ---
+    // --- Nursing (Session Based) ---
     let nAct = null, nSt = null, nI = null;
     function tNursing(side) {
-        if(nAct === side) {
+        if(nAct === side) { // Stop
             clearInterval(nI);
-            lAction('הנקה', `צד ${side} (${Math.round((Date.now()-nSt)/60000)} דק')`);
-            nAct = null; document.querySelectorAll('#n-R, #n-L').forEach(b => b.classList.remove('nursing-active'));
+            const dur = Math.round((Date.now() - nSt) / 1000);
+            if(side === 'ימין') session.R += dur; else session.L += dur;
+            nAct = null;
+            document.querySelectorAll('#n-R, #n-L').forEach(b => b.classList.remove('nursing-active'));
             document.getElementById('n-timer').innerText = "00:00";
-        } else {
+            updateNursingUI();
+        } else { // Start
             if(nAct) tNursing(nAct);
             nAct = side; nSt = Date.now();
             document.getElementById('n-' + (side==='ימין'?'R':'L')).classList.add('nursing-active');
@@ -161,6 +164,18 @@
                 document.getElementById('n-timer').innerText = Math.floor(s/60).toString().padStart(2,'0')+":"+(s%60).toString().padStart(2,'0');
             }, 1000);
         }
+    }
+
+    function updateNursingUI() {
+        const last = logs.find(l => l.type === 'הנקה');
+        document.getElementById('last-side-info').innerText = last ? last.detail : '-';
+        document.getElementById('current-session-info').innerText = `ימין: ${Math.floor(session.R/60)} דק', שמאל: ${Math.floor(session.L/60)} דק'`;
+    }
+
+    function finishNursingSession() {
+        if(session.R === 0 && session.L === 0) { showView('home-screen'); return; }
+        const detail = `ימין: ${Math.floor(session.R/60)} דק', שמאל: ${Math.floor(session.L/60)} דק'`;
+        lAction('הנקה', detail);
     }
 
     // --- Meds ---
@@ -182,14 +197,33 @@
         }).join('');
     }
     function takeMed(i) { meds[i].last = Date.now(); lAction('תרופה', meds[i].name); }
-    function delMed(i) { if(confirm('למחוק תרופה זו?')) { meds.splice(i,1); sync(); renderMeds(); } }
+    function delMed(i) { if(confirm('למחוק?')) { meds.splice(i,1); sync(); renderMeds(); } }
+
+    // --- Calendar ---
+    function renderCal() {
+        const grid = document.getElementById('cal-grid'); grid.innerHTML = '';
+        const now = new Date();
+        const todayStr = now.toLocaleDateString('en-GB');
+        
+        for(let i=1; i<=31; i++) {
+            const day = document.createElement('div');
+            const dateStr = i.toString().padStart(2,'0') + "/" + (now.getMonth()+1).toString().padStart(2,'0') + "/" + now.getFullYear();
+            day.className = 'cal-day' + (todayStr === dateStr ? ' today' : '');
+            day.innerText = i;
+            day.onclick = () => {
+                const f = logs.filter(l => l.date === dateStr);
+                document.getElementById('day-logs').innerHTML = `<h3>${dateStr}</h3>` + (f.length ? f.map(l=>`<div style="font-size:13px; border-bottom:1px solid #eee; padding:5px;"><b>${l.time}</b> - ${l.type}: ${l.detail}</div>`).join('') : 'אין רישומים');
+            };
+            grid.appendChild(day);
+        }
+    }
 
     // --- Measures ---
     function saveM() {
         const w = document.getElementById('in-w').value;
         const h = document.getElementById('in-h').value;
-        if(w) measures.push({t:'weight', val:parseFloat(w), date: new Date().toLocaleDateString('he-IL'), ts: Date.now()});
-        if(h) measures.push({t:'height', val:parseFloat(h), date: new Date().toLocaleDateString('he-IL'), ts: Date.now()});
+        if(w) measures.push({t:'weight', val:parseFloat(w), date: new Date().toLocaleDateString('en-GB'), ts: Date.now()});
+        if(h) measures.push({t:'height', val:parseFloat(h), date: new Date().toLocaleDateString('en-GB'), ts: Date.now()});
         sync(); renderChart(); alert('נשמר!');
     }
     let chart = null;
@@ -197,30 +231,13 @@
         const ctx = document.getElementById('wChart').getContext('2d');
         const data = measures.filter(m => m.t === 'weight').slice(-7);
         if(chart) chart.destroy();
-        chart = new Chart(ctx, { type:'line', data: { labels: data.map(d=>d.date), datasets: [{label:'משקל (גרם)', data:data.map(d=>d.val), borderColor:'#fb7185', tension:0.2}] } });
-    }
-
-    // --- Calendar ---
-    function renderCal() {
-        const grid = document.getElementById('cal-grid'); grid.innerHTML = '';
-        const today = new Date().toLocaleDateString('he-IL');
-        for(let i=1; i<=31; i++) {
-            const day = document.createElement('div');
-            const dStr = i.toString().padStart(2,'0') + "." + (new Date().getMonth()+1).toString().padStart(2,'0') + "." + new Date().getFullYear();
-            day.className = 'cal-day' + (today.includes(dStr) ? ' today' : '');
-            day.innerText = i;
-            day.onclick = () => {
-                const f = logs.filter(l => l.date.includes(i.toString().padStart(2,'0') + "."));
-                document.getElementById('day-logs').innerHTML = `<h3>${dStr}</h3>` + f.map(l=>`<div style="font-size:13px; border-bottom:1px solid #eee; padding:5px;"><b>${l.time}</b> - ${l.type}: ${l.detail}</div>`).join('');
-            };
-            grid.appendChild(day);
-        }
+        chart = new Chart(ctx, { type:'line', data: { labels: data.map(d=>d.date), datasets: [{label:'משקל', data:data.map(d=>d.val), borderColor:'#fb7185'}] } });
     }
 
     function sync() {
-        localStorage.setItem('z_logs_v9', JSON.stringify(logs));
-        localStorage.setItem('z_meds_v9', JSON.stringify(meds));
-        localStorage.setItem('z_measures_v9', JSON.stringify(measures));
+        localStorage.setItem('z_logs_v10', JSON.stringify(logs));
+        localStorage.setItem('z_meds_v10', JSON.stringify(meds));
+        localStorage.setItem('z_measures_v10', JSON.stringify(measures));
         updateD();
     }
 
@@ -231,12 +248,9 @@
         document.getElementById('d-meal').innerText = m ? m.time : '-';
         document.getElementById('d-diaper').innerText = d ? d.time : '-';
         document.getElementById('d-bath').innerText = b ? b.time : '-';
-        const hasMissing = meds.some(m => m.last === 0 || (Date.now() - m.last) > (m.days * 86400000));
-        document.getElementById('med-btn-main').classList.toggle('btn-med-alert', hasMissing);
     }
 
     init();
 </script>
 </body>
 </html>
-
