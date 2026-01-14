@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp Pro v11.5</title>
+    <title>ZoharApp Pro v11.6</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&display=swap');
@@ -36,19 +36,17 @@
 <div class="container">
     <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0;">
         <button onclick="toggleNightMode()" style="background:none; border:none; font-size:20px; cursor:pointer;">🌓</button>
-        <h1 style="font-size:24px; color:var(--rose); margin:0;">ZoharApp Pro v11.5</h1>
+        <h1 style="font-size:24px; color:var(--rose); margin:0;">ZoharApp Pro v11.6</h1>
         <div style="width:20px;"></div>
     </div>
 
     <div id="home-screen" class="screen active">
         <div id="med-alert-box" style="display:none; background:var(--red); color:white; padding:12px; border-radius:15px; margin-bottom:12px; text-align:center; font-weight:bold; animation: pulse 2s infinite;"></div>
-
         <div class="dashboard">
             <div class="stat-card"><div style="font-size:9px; color:#94a3b8;">ארוחה אחרונה</div><div id="d-meal" style="font-size:16px; font-weight:800;">-</div></div>
             <div class="stat-card"><div style="font-size:9px; color:#94a3b8;">חיתול אחרון</div><div id="d-diaper" style="font-size:16px; font-weight:800;">-</div></div>
             <div class="stat-card"><div style="font-size:9px; color:#94a3b8;">רחצה אחרונה</div><div id="d-bath" style="font-size:16px; font-weight:800;">-</div></div>
         </div>
-
         <button class="btn" style="border-right:6px solid var(--rose)" onclick="showView('nursing-screen')">🤱 הנקה <span>❯</span></button>
         <button class="btn" style="border-right:6px solid var(--blue)" onclick="addBottle()">🍼 בקבוק <span>❯</span></button>
         <button class="btn" style="border-right:6px solid var(--amber)" onclick="showView('diaper-screen')">✨ חיתול <span>❯</span></button>
@@ -75,8 +73,9 @@
     <div id="med-screen" class="screen">
         <h2 style="text-align:center">💊 ניהול תרופות</h2>
         <div class="stat-card" style="text-align:right;">
-            <input type="text" id="med-name" placeholder="שם התרופה (למשל: ויטמין D)">
-            <input type="text" id="med-dosage" placeholder="מינון (למשל: 2 טיפות)">
+            <input type="text" id="med-name" placeholder="שם התרופה">
+            <input type="text" id="med-dosage" placeholder="מינון (למשל: 2.5 מ״ל)">
+            <input type="text" id="med-interval" placeholder="תדירות (למשל: כל 4 שעות / פעם ביום)">
             <button class="btn" style="background:var(--indigo); color:white; border:none;" onclick="addNewMed()">הוסף לרשימה +</button>
         </div>
         <div id="active-meds" style="margin-top:15px;"></div>
@@ -93,28 +92,18 @@
             <button class="btn" style="background:var(--indigo); color:white; border:none;" onclick="addMeasure()">שמור מדד</button>
         </div>
         <div style="background:white; border-radius:15px; padding:10px; margin-bottom:10px;">
+            <div style="text-align:center; font-weight:800; font-size:14px; color:var(--indigo);">משקל - אחרון: <span id="last-w-val">-</span></div>
             <canvas id="weightChart"></canvas>
         </div>
         <div style="background:white; border-radius:15px; padding:10px; margin-bottom:10px;">
+            <div style="text-align:center; font-weight:800; font-size:14px; color:var(--green);">גובה - אחרון: <span id="last-h-val">-</span></div>
             <canvas id="heightChart"></canvas>
         </div>
         <button class="btn" onclick="showView('home-screen')">חזרה</button>
     </div>
 
-    <div id="calendar-screen" class="screen">
-        <button class="btn" style="background:var(--green); color:white; justify-content:center; margin-bottom:15px;" onclick="shareDay()">📤 שיתוף דוח יומי (WhatsApp)</button>
-        <div id="cal-grid" class="calendar-grid"></div>
-        <div id="day-logs" style="margin-top:15px;"></div>
-        <button class="btn" style="margin-top:20px; justify-content:center;" onclick="showView('home-screen')">חזרה</button>
-    </div>
-
-    <div id="diaper-screen" class="screen">
-        <h2 style="text-align:center">חיתול</h2>
-        <button class="btn" onclick="lAction('חיתול','💦 פיפי')">💦 פיפי</button>
-        <button class="btn" onclick="lAction('חיתול','💩 קקי')">💩 קקי</button>
-        <button class="btn" onclick="lAction('חיתול','🌈 גם וגם')">🌈 גם וגם</button>
-        <button class="btn" onclick="showView('home-screen')">ביטול</button>
-    </div>
+    <div id="calendar-screen" class="screen"><button class="btn" style="background:var(--green); color:white; justify-content:center;" onclick="shareDay()">📤 שיתוף WhatsApp</button><div id="cal-grid" class="calendar-grid"></div><div id="day-logs"></div><button class="btn" onclick="showView('home-screen')">חזרה</button></div>
+    <div id="diaper-screen" class="screen"><h2 style="text-align:center">חיתול</h2><button class="btn" onclick="lAction('חיתול','💦 פיפי')">💦 פיפי</button><button class="btn" onclick="lAction('חיתול','💩 קקי')">💩 קקי</button><button class="btn" onclick="lAction('חיתול','🌈 גם וגם')">🌈 גם וגם</button><button class="btn" onclick="showView('home-screen')">ביטול</button></div>
 </div>
 
 <script>
@@ -127,13 +116,9 @@
             meds = JSON.parse(localStorage.getItem('z_meds_v11')) || [];
             measures = JSON.parse(localStorage.getItem('z_measures_v11')) || [];
             lastSideUsed = localStorage.getItem('z_lastSide') || "-";
-        } catch(e) { console.error("Load failed", e); }
-        
-        checkNightAuto();
-        updateD();
-        checkPendingMeds();
+        } catch(e) {}
+        checkNightAuto(); updateD(); checkPendingMeds();
         setInterval(checkNightAuto, 60000);
-        setInterval(checkPendingMeds, 60000);
     }
 
     function sync() {
@@ -146,263 +131,129 @@
     }
 
     function lAction(type, detail, side) {
-        const now = new Date();
-        const time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        const date = now.toLocaleDateString('en-GB');
-        
+        const now = new Date(), time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         if(side) lastSideUsed = side;
-        
-        logs.unshift({ type, detail, time, date, ts: Date.now() });
-        sync();
-        showToast(type + " נשמר!");
-        showView('home-screen');
+        logs.unshift({ type, detail, time, date: now.toLocaleDateString('en-GB'), ts: Date.now() });
+        sync(); showToast("נשמר!"); showView('home-screen');
     }
 
     function updateD() {
         const lastMeal = logs.find(l => l.type === 'הנקה' || l.type === 'בקבוק');
-        const lastDiaper = logs.find(l => l.type === 'חיתול');
-        const lastBath = logs.find(l => l.type === 'רחצה');
-
+        const lastDiaper = logs.find(l => l.type === 'חיתול'), lastBath = logs.find(l => l.type === 'רחצה');
         document.getElementById('d-meal').innerText = lastMeal ? lastMeal.time : '-';
         document.getElementById('d-diaper').innerText = lastDiaper ? lastDiaper.time : '-';
-        
-        if (lastBath) {
-            const parts = lastBath.date.split('/');
-            document.getElementById('d-bath').innerText = parts[0] + '/' + parts[1];
-        } else {
-            document.getElementById('d-bath').innerText = '-';
-        }
+        document.getElementById('d-bath').innerText = lastBath ? lastBath.date.split('/')[0] + '/' + lastBath.date.split('/')[1] : '-';
     }
 
-    // --- Medications ---
+    // --- Medications (Updated with Interval & Delete) ---
     function addNewMed() {
-        const name = document.getElementById('med-name').value;
-        const dosage = document.getElementById('med-dosage').value;
-        if (!name || !dosage) return;
-        
-        meds.push({ id: Date.now(), name, dosage });
-        document.getElementById('med-name').value = '';
-        document.getElementById('med-dosage').value = '';
-        sync();
-        renderMeds();
+        const name = document.getElementById('med-name').value, dose = document.getElementById('med-dosage').value, inter = document.getElementById('med-interval').value;
+        if (!name || !dose) return;
+        meds.push({ id: Date.now(), name, dosage: dose, interval: inter || "לא הוגדר" });
+        document.getElementById('med-name').value = ''; document.getElementById('med-dosage').value = ''; document.getElementById('med-interval').value = '';
+        sync(); renderMeds();
     }
 
     function renderMeds() {
         const container = document.getElementById('active-meds');
-        if (meds.length === 0) {
-            container.innerHTML = '<p style="text-align:center; opacity:0.5;">אין תרופות ברשימה</p>';
-            return;
-        }
         container.innerHTML = meds.map(m => `
-            <div class="stat-card" style="display:flex; justify-content:space-between; align-items:center; border-right:4px solid var(--indigo);">
-                <div style="text-align:right;"><b>${m.name}</b><br><small>${m.dosage}</small></div>
+            <div class="stat-card" style="display:flex; justify-content:space-between; align-items:center; border-right:4px solid var(--indigo); text-align:right;">
+                <div><b>${m.name}</b><br><small>${m.dosage} | ${m.interval}</small></div>
                 <div style="display:flex; gap:8px;">
                     <button onclick="lAction('תרופה', '${m.name} (${m.dosage})')" style="background:var(--green); color:white; border:none; padding:8px 12px; border-radius:10px;">נטילה</button>
-                    <button onclick="deleteMed(${m.id})" style="background:none; border:none; color:var(--red);">🗑️</button>
+                    <button onclick="deleteMed(${m.id})" style="background:none; border:none; color:var(--red); font-size:18px;">🗑️</button>
                 </div>
-            </div>
-        `).join('');
+            </div>`).join('') || '<p style="text-align:center; opacity:0.5;">אין תרופות</p>';
     }
 
-    function deleteMed(id) {
-        if(confirm("למחוק את התרופה מהרשימה?")) {
-            meds = meds.filter(m => m.id !== id);
-            sync();
-            renderMeds();
-        }
+    function deleteMed(id) { if(confirm("למחוק תרופה זו?")) { meds = meds.filter(m => m.id !== id); sync(); renderMeds(); } }
+
+    // --- Measures & Charts (Updated with Last Value) ---
+    function addMeasure() {
+        const w = document.getElementById('m-weight').value, h = document.getElementById('m-height').value;
+        if(!w && !h) return;
+        measures.push({ date: new Date().toLocaleDateString('en-GB').slice(0,5), weight: parseFloat(w), height: parseFloat(h), ts: Date.now() });
+        sync(); initCharts();
+        document.getElementById('m-weight').value = ''; document.getElementById('m-height').value = '';
     }
 
-    function checkPendingMeds() {
-        const now = new Date();
-        const today = now.toLocaleDateString('en-GB');
-        const currentHour = now.getHours();
-        
-        const takenToday = logs.filter(l => l.date === today && l.type === 'תרופה').map(l => l.detail.split(' (')[0]);
-        const missing = meds.filter(m => !takenToday.includes(m.name));
-        
-        const alertBox = document.getElementById('med-alert-box');
-        const medBtn = document.getElementById('med-btn-main');
+    function initCharts() {
+        const data = measures.slice(-7);
+        const last = measures[measures.length - 1] || {weight: '-', height: '-'};
+        document.getElementById('last-w-val').innerText = last.weight + (last.weight !== '-' ? ' ק״ג' : '');
+        document.getElementById('last-h-val').innerText = last.height + (last.height !== '-' ? ' ס״מ' : '');
 
-        if (missing.length > 0 && meds.length > 0) {
-            if (currentHour >= 13) {
-                alertBox.style.display = 'block';
-                alertBox.innerHTML = `⚠️ טרם נלקחו: ${missing.map(m => m.name).join(', ')}`;
-                medBtn.style.background = "#fee2e2";
-            } else {
-                alertBox.style.display = 'none';
-                medBtn.style.background = "var(--card-bg)";
-            }
-        } else {
-            alertBox.style.display = 'none';
-            medBtn.style.background = "var(--card-bg)";
-        }
+        const opt = { responsive: true, plugins: { legend: { display: false } } };
+        if(weightChart) weightChart.destroy(); if(heightChart) heightChart.destroy();
+        weightChart = new Chart(document.getElementById('weightChart'), { type: 'line', data: { labels: data.map(d=>d.date), datasets: [{ label: 'משקל', data: data.map(d=>d.weight), borderColor: '#6366f1', tension: 0.3 }] }, options: opt });
+        heightChart = new Chart(document.getElementById('heightChart'), { type: 'line', data: { labels: data.map(d=>d.date), datasets: [{ label: 'גובה', data: data.map(d=>d.height), borderColor: '#10b981', tension: 0.3 }] }, options: opt });
     }
 
-    // --- Nursing ---
+    // --- Nursing & Logic ---
     let nAct = null, nSt = null, nI = null, tempLastSide = "-";
-    
     function tNursing(side) {
         if(nAct === side) {
             clearInterval(nI);
             const dur = Math.round((Date.now() - nSt) / 1000);
             if(side === 'ימין') session.R += dur; else session.L += dur;
-            tempLastSide = side;
-            nAct = null;
+            tempLastSide = side; nAct = null;
             document.querySelectorAll('#n-R, #n-L').forEach(b => b.classList.remove('nursing-active'));
             document.getElementById('n-timer').innerText = "00:00";
         } else {
             if(nAct) tNursing(nAct);
             nAct = side; nSt = Date.now();
-            document.getElementById('n-' + (side==='ימין'?'R':'L')).classList.add('nursing-active');
+            document.getElementById('n-'+(side==='ימין'?'R':'L')).classList.add('nursing-active');
             nI = setInterval(() => {
                 const s = Math.floor((Date.now()-nSt)/1000);
                 document.getElementById('n-timer').innerText = Math.floor(s/60).toString().padStart(2,'0')+":"+(s%60).toString().padStart(2,'0');
             }, 1000);
         }
     }
+    function finishNursingSession() { if(session.R || session.L) lAction('הנקה', `ימין: ${Math.floor(session.R/60)} דק', שמאל: ${Math.floor(session.L/60)} דק'`, tempLastSide); else showView('home-screen'); }
+    function addBottle() { const ml = prompt("מ\"ל:"); if(ml) lAction('בקבוק', ml + ' מ"ל'); }
 
-    function finishNursingSession() {
-        if(session.R === 0 && session.L === 0) { showView('home-screen'); return; }
-        const summary = `ימין: ${Math.floor(session.R/60)} דק', שמאל: ${Math.floor(session.L/60)} דק'`;
-        lAction('הנקה', summary, tempLastSide);
-    }
-
-    function addBottle() {
-        const ml = prompt("כמות במ\"ל:");
-        if(ml) lAction('בקבוק', ml + ' מ"ל');
-    }
-
-    // --- Measures & Charts ---
-    function addMeasure() {
-        const w = document.getElementById('m-weight').value;
-        const h = document.getElementById('m-height').value;
-        if(!w && !h) return;
-        
-        measures.push({
-            date: new Date().toLocaleDateString('en-GB').slice(0,5),
-            weight: parseFloat(w),
-            height: parseFloat(h),
-            ts: Date.now()
-        });
-        
-        document.getElementById('m-weight').value = '';
-        document.getElementById('m-height').value = '';
-        sync();
-        initCharts();
-        showToast("המדד נשמר");
-    }
-
-    function initCharts() {
-        const ctxW = document.getElementById('weightChart').getContext('2d');
-        const ctxH = document.getElementById('heightChart').getContext('2d');
-        const data = measures.slice(-7); // הצגת 7 אחרונים
-
-        if(weightChart) weightChart.destroy();
-        if(heightChart) heightChart.destroy();
-
-        const commonOptions = {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: { legend: { display: true, labels: { font: { size: 10 } } } },
-            scales: { x: { ticks: { font: { size: 10 } } }, y: { ticks: { font: { size: 10 } } } }
-        };
-
-        weightChart = new Chart(ctxW, {
-            type: 'line',
-            data: {
-                labels: data.map(d => d.date),
-                datasets: [{ label: 'משקל (ק״ג)', data: data.map(d => d.weight), borderColor: '#6366f1', backgroundColor: '#6366f122', fill: true, tension: 0.3 }]
-            },
-            options: commonOptions
-        });
-
-        heightChart = new Chart(ctxH, {
-            type: 'line',
-            data: {
-                labels: data.map(d => d.date),
-                datasets: [{ label: 'גובה (ס״מ)', data: data.map(d => d.height), borderColor: '#10b981', backgroundColor: '#10b98122', fill: true, tension: 0.3 }]
-            },
-            options: commonOptions
-        });
-    }
-
-    // --- Calendar & Sharing ---
-    function renderCal(specificDate) {
-        const grid = document.getElementById('cal-grid');
-        grid.innerHTML = '';
-        const todayStr = specificDate || new Date().toLocaleDateString('en-GB');
-        
-        // יצירת ימים לחודש הנוכחי
-        for(let i=1; i<=31; i++) {
-            const dateStr = i.toString().padStart(2,'0') + "/" + (new Date().getMonth()+1).toString().padStart(2,'0') + "/" + new Date().getFullYear();
-            const day = document.createElement('div');
-            day.className = 'cal-day' + (todayStr === dateStr ? ' today' : '');
-            day.innerText = i;
-            day.onclick = () => renderCal(dateStr);
-            grid.appendChild(day);
-        }
-
-        const dailyLogs = logs.filter(l => l.date === todayStr);
-        document.getElementById('day-logs').innerHTML = `
-            <h3 style="text-align:center; margin-bottom:10px;">רישומים ליום ${todayStr}</h3>
-            ${dailyLogs.length ? dailyLogs.map(l => `
-                <div style="font-size:14px; border-bottom:1px solid rgba(0,0,0,0.05); padding:8px; display:flex; justify-content:space-between;">
-                    <span><b>${l.time}</b> | ${l.type}</span>
-                    <span style="opacity:0.8;">${l.detail}</span>
-                </div>
-            `).join('') : '<p style="text-align:center; opacity:0.5;">אין רישומים ליום זה</p>'}
-        `;
-    }
-
-    function shareDay() {
-        const today = new Date().toLocaleDateString('en-GB');
-        const dayLogs = logs.filter(l => l.date === today);
-        if(dayLogs.length === 0) { alert("אין נתונים להיום"); return; }
-        
-        let text = `*דוח יומי - זוהר (${today})*\n\n`;
-        dayLogs.slice().reverse().forEach(l => {
-            text += `${l.time} | *${l.type}* | ${l.detail}\n`;
-        });
-        
-        window.open("https://wa.me/?text=" + encodeURIComponent(text), '_blank');
-    }
-
-    // --- UI Helpers ---
     function showView(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        
         if(id === 'home-screen') { updateD(); checkPendingMeds(); }
-        if(id === 'nursing-screen') {
-            session = {R:0, L:0};
-            const lastM = logs.find(l => l.type === 'הנקה' || l.type === 'בקבוק');
-            document.getElementById('last-meal-time').innerText = lastM ? lastM.time : '-';
-            document.getElementById('last-side-info').innerText = lastSideUsed;
-        }
+        if(id === 'nursing-screen') { session = {R:0, L:0}; const lastM = logs.find(l => l.type === 'הנקה' || l.type === 'בקבוק'); document.getElementById('last-meal-time').innerText = lastM ? lastM.time : '-'; document.getElementById('last-side-info').innerText = lastSideUsed; }
         if(id === 'med-screen') renderMeds();
         if(id === 'calendar-screen') renderCal();
         if(id === 'measures-screen') setTimeout(initCharts, 300);
-        
-        window.scrollTo(0,0);
     }
 
-    function toggleNightMode() {
-        document.body.classList.toggle('night-mode');
-    }
-
-    function checkNightAuto() {
-        const h = new Date().getHours();
-        if (h >= 23 || h < 7) {
-            document.body.classList.add('night-mode');
+    function renderCal(date) {
+        const grid = document.getElementById('cal-grid'), selected = date || new Date().toLocaleDateString('en-GB');
+        grid.innerHTML = '';
+        for(let i=1; i<=31; i++) {
+            const dStr = i.toString().padStart(2,'0') + "/" + (new Date().getMonth()+1).toString().padStart(2,'0') + "/" + new Date().getFullYear();
+            const day = document.createElement('div');
+            day.className = 'cal-day' + (selected === dStr ? ' today' : '');
+            day.innerText = i; day.onclick = () => renderCal(dStr); grid.appendChild(day);
         }
+        const f = logs.filter(l => l.date === selected);
+        document.getElementById('day-logs').innerHTML = `<h3 style="text-align:center">${selected}</h3>` + (f.length ? f.map(l=>`<div style="padding:8px; border-bottom:1px solid #eee;"><b>${l.time}</b> | ${l.type} | ${l.detail}</div>`).join('') : '<p style="text-align:center">אין רישומים</p>');
     }
 
-    function showToast(msg) {
-        const x = document.getElementById("toast");
-        x.innerText = msg;
-        x.className = "show";
-        setTimeout(() => { x.className = ""; }, 3000);
+    function shareDay() {
+        const today = new Date().toLocaleDateString('en-GB'), dayLogs = logs.filter(l => l.date === today);
+        if(!dayLogs.length) return;
+        let txt = `*דוח יומי - זוהר (${today})*\n\n`;
+        dayLogs.slice().reverse().forEach(l => txt += `${l.time} | *${l.type}* | ${l.detail}\n`);
+        window.open("https://wa.me/?text=" + encodeURIComponent(txt), '_blank');
     }
+
+    function checkPendingMeds() {
+        const today = new Date().toLocaleDateString('en-GB'), taken = logs.filter(l => l.date === today && l.type === 'תרופה').map(l => l.detail.split(' (')[0]);
+        const missing = meds.filter(m => !taken.includes(m.name));
+        const alert = document.getElementById('med-alert-box');
+        if (missing.length && new Date().getHours() >= 13) { alert.style.display = 'block'; alert.innerText = `⚠️ טרם נלקחו: ${missing.map(m=>m.name).join(', ')}`; }
+        else alert.style.display = 'none';
+    }
+
+    function toggleNightMode() { document.body.classList.toggle('night-mode'); }
+    function checkNightAuto() { if (new Date().getHours() >= 23 || new Date().getHours() < 7) document.body.classList.add('night-mode'); }
+    function showToast(m) { const x = document.getElementById("toast"); x.innerText = m; x.className = "show"; setTimeout(() => x.className = "", 3000); }
 
     init();
 </script>
