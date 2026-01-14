@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp Pro v11.6</title>
+    <title>ZoharApp Pro v11.7</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&display=swap');
@@ -14,6 +14,7 @@
         .container { max-width: 500px; margin: 0 auto; padding: 15px; }
         .stat-card { background: var(--card-bg); padding: 12px; border-radius: 18px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 10px; }
         .dashboard { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .time-ago { font-size: 10px; color: var(--rose); font-weight: bold; margin-top: 4px; }
         .btn { width: 100%; background: var(--card-bg); border: none; padding: 15px; border-radius: 18px; margin-bottom: 10px; font-size: 17px; font-weight: 800; color: var(--text); cursor: pointer; border-bottom: 4px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
         .screen { display: none; } .screen.active { display: block; }
         .timer { font-size: 50px; text-align: center; color: var(--rose); margin: 10px 0; font-family: monospace; font-weight: bold; }
@@ -25,8 +26,6 @@
         input, select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; background: var(--card-bg); color: var(--text); }
         #toast { visibility: hidden; min-width: 200px; background-color: var(--green); color: white; text-align: center; border-radius: 10px; padding: 16px; position: fixed; z-index: 100; left: 50%; transform: translateX(-50%); bottom: 30px; font-weight: bold; }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body id="body-main">
@@ -36,17 +35,30 @@
 <div class="container">
     <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0;">
         <button onclick="toggleNightMode()" style="background:none; border:none; font-size:20px; cursor:pointer;">🌓</button>
-        <h1 style="font-size:24px; color:var(--rose); margin:0;">ZoharApp Pro v11.6</h1>
+        <h1 style="font-size:24px; color:var(--rose); margin:0;">ZoharApp Pro v11.7</h1>
         <div style="width:20px;"></div>
     </div>
 
     <div id="home-screen" class="screen active">
         <div id="med-alert-box" style="display:none; background:var(--red); color:white; padding:12px; border-radius:15px; margin-bottom:12px; text-align:center; font-weight:bold; animation: pulse 2s infinite;"></div>
+        
         <div class="dashboard">
-            <div class="stat-card"><div style="font-size:9px; color:#94a3b8;">ארוחה אחרונה</div><div id="d-meal" style="font-size:16px; font-weight:800;">-</div></div>
-            <div class="stat-card"><div style="font-size:9px; color:#94a3b8;">חיתול אחרון</div><div id="d-diaper" style="font-size:16px; font-weight:800;">-</div></div>
-            <div class="stat-card"><div style="font-size:9px; color:#94a3b8;">רחצה אחרונה</div><div id="d-bath" style="font-size:16px; font-weight:800;">-</div></div>
+            <div class="stat-card">
+                <div style="font-size:9px; color:#94a3b8;">ארוחה אחרונה</div>
+                <div id="d-meal" style="font-size:16px; font-weight:800;">-</div>
+                <div id="d-meal-ago" class="time-ago"></div>
+            </div>
+            <div class="stat-card">
+                <div style="font-size:9px; color:#94a3b8;">חיתול אחרון</div>
+                <div id="d-diaper" style="font-size:16px; font-weight:800;">-</div>
+                <div id="d-diaper-ago" class="time-ago"></div>
+            </div>
+            <div class="stat-card">
+                <div style="font-size:9px; color:#94a3b8;">רחצה אחרונה</div>
+                <div id="d-bath" style="font-size:16px; font-weight:800;">-</div>
+            </div>
         </div>
+
         <button class="btn" style="border-right:6px solid var(--rose)" onclick="showView('nursing-screen')">🤱 הנקה <span>❯</span></button>
         <button class="btn" style="border-right:6px solid var(--blue)" onclick="addBottle()">🍼 בקבוק <span>❯</span></button>
         <button class="btn" style="border-right:6px solid var(--amber)" onclick="showView('diaper-screen')">✨ חיתול <span>❯</span></button>
@@ -54,6 +66,22 @@
         <button class="btn" style="border-right:6px solid var(--indigo)" onclick="showView('measures-screen')">📈 מדדים <span>❯</span></button>
         <button id="med-btn-main" class="btn" style="border-right:6px solid var(--red)" onclick="showView('med-screen')">💊 תרופות <span>❯</span></button>
         <button class="btn" onclick="showView('calendar-screen')">📅 יומן ושיתוף <span>❯</span></button>
+        
+        <div style="text-align:center; margin-top:20px;">
+            <button onclick="showView('settings-screen')" style="background:none; border:none; color:#94a3b8; font-size:13px; text-decoration:underline;">⚙️ ניהול נתונים וגיבוי</button>
+        </div>
+    </div>
+
+    <div id="settings-screen" class="screen">
+        <h2 style="text-align:center">⚙️ ניהול נתונים</h2>
+        <div class="stat-card">
+            <p>מומלץ לגבות את הנתונים אחת לשבוע</p>
+            <button class="btn" style="background:var(--indigo); color:white; justify-content:center;" onclick="exportData()">📥 הורדת גיבוי (JSON)</button>
+            <hr style="margin:20px 0; opacity:0.1;">
+            <p>שחזור נתונים מקובץ:</p>
+            <input type="file" id="importFile" style="font-size:12px;" onchange="importData(event)">
+        </div>
+        <button class="btn" onclick="showView('home-screen')">חזרה</button>
     </div>
 
     <div id="nursing-screen" class="screen">
@@ -70,40 +98,11 @@
         <button class="btn" onclick="showView('home-screen')">חזרה</button>
     </div>
 
-    <div id="med-screen" class="screen">
-        <h2 style="text-align:center">💊 ניהול תרופות</h2>
-        <div class="stat-card" style="text-align:right;">
-            <input type="text" id="med-name" placeholder="שם התרופה">
-            <input type="text" id="med-dosage" placeholder="מינון (למשל: 2.5 מ״ל)">
-            <input type="text" id="med-interval" placeholder="תדירות (למשל: כל 4 שעות / פעם ביום)">
-            <button class="btn" style="background:var(--indigo); color:white; border:none;" onclick="addNewMed()">הוסף לרשימה +</button>
-        </div>
-        <div id="active-meds" style="margin-top:15px;"></div>
-        <button class="btn" onclick="showView('home-screen')">חזרה</button>
-    </div>
-
-    <div id="measures-screen" class="screen">
-        <h2 style="text-align:center">📈 מעקב מדדים</h2>
-        <div class="stat-card" style="text-align:right;">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <input type="number" id="m-weight" step="0.01" placeholder="משקל (ק״ג)">
-                <input type="number" id="m-height" step="0.1" placeholder="גובה (ס״מ)">
-            </div>
-            <button class="btn" style="background:var(--indigo); color:white; border:none;" onclick="addMeasure()">שמור מדד</button>
-        </div>
-        <div style="background:white; border-radius:15px; padding:10px; margin-bottom:10px;">
-            <div style="text-align:center; font-weight:800; font-size:14px; color:var(--indigo);">משקל - אחרון: <span id="last-w-val">-</span></div>
-            <canvas id="weightChart"></canvas>
-        </div>
-        <div style="background:white; border-radius:15px; padding:10px; margin-bottom:10px;">
-            <div style="text-align:center; font-weight:800; font-size:14px; color:var(--green);">גובה - אחרון: <span id="last-h-val">-</span></div>
-            <canvas id="heightChart"></canvas>
-        </div>
-        <button class="btn" onclick="showView('home-screen')">חזרה</button>
-    </div>
-
+    <div id="med-screen" class="screen"><h2 style="text-align:center">💊 תרופות</h2><div class="stat-card"><input type="text" id="med-name" placeholder="שם"><input type="text" id="med-dosage" placeholder="מינון"><input type="text" id="med-interval" placeholder="תדירות"><button class="btn" style="background:var(--indigo); color:white;" onclick="addNewMed()">הוסף +</button></div><div id="active-meds"></div><button class="btn" onclick="showView('home-screen')">חזרה</button></div>
+    <div id="measures-screen" class="screen"><h2 style="text-align:center">📈 מדדים</h2><div class="stat-card"><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"><input type="number" id="m-weight" step="0.01" placeholder="משקל"><input type="number" id="m-height" step="0.1" placeholder="גובה"></div><button class="btn" style="background:var(--indigo); color:white;" onclick="addMeasure()">שמור</button></div><div style="background:white; border-radius:15px; padding:10px; margin-bottom:10px;"><div style="text-align:center; font-weight:800; font-size:14px; color:var(--indigo);">משקל - אחרון: <span id="last-w-val">-</span></div><canvas id="weightChart"></canvas></div><div style="background:white; border-radius:15px; padding:10px; margin-bottom:10px;"><div style="text-align:center; font-weight:800; font-size:14px; color:var(--green);">גובה - אחרון: <span id="last-h-val">-</span></div><canvas id="heightChart"></canvas></div><button class="btn" onclick="showView('home-screen')">חזרה</button></div>
     <div id="calendar-screen" class="screen"><button class="btn" style="background:var(--green); color:white; justify-content:center;" onclick="shareDay()">📤 שיתוף WhatsApp</button><div id="cal-grid" class="calendar-grid"></div><div id="day-logs"></div><button class="btn" onclick="showView('home-screen')">חזרה</button></div>
     <div id="diaper-screen" class="screen"><h2 style="text-align:center">חיתול</h2><button class="btn" onclick="lAction('חיתול','💦 פיפי')">💦 פיפי</button><button class="btn" onclick="lAction('חיתול','💩 קקי')">💩 קקי</button><button class="btn" onclick="lAction('חיתול','🌈 גם וגם')">🌈 גם וגם</button><button class="btn" onclick="showView('home-screen')">ביטול</button></div>
+
 </div>
 
 <script>
@@ -117,8 +116,8 @@
             measures = JSON.parse(localStorage.getItem('z_measures_v11')) || [];
             lastSideUsed = localStorage.getItem('z_lastSide') || "-";
         } catch(e) {}
-        checkNightAuto(); updateD(); checkPendingMeds();
-        setInterval(checkNightAuto, 60000);
+        updateD(); checkPendingMeds(); checkNightAuto();
+        setInterval(updateD, 60000); // עדכון זמני "לפני X זמן" כל דקה
     }
 
     function sync() {
@@ -126,26 +125,75 @@
         localStorage.setItem('z_meds_v11', JSON.stringify(meds));
         localStorage.setItem('z_measures_v11', JSON.stringify(measures));
         localStorage.setItem('z_lastSide', lastSideUsed);
-        updateD();
-        checkPendingMeds();
+        updateD(); checkPendingMeds();
     }
 
+    // --- Time Elapsed Logic ---
+    function getTimeAgo(ts) {
+        if (!ts) return "";
+        const diffMs = Date.now() - ts;
+        const diffMin = Math.floor(diffMs / 60000);
+        const hrs = Math.floor(diffMin / 60);
+        const mins = diffMin % 60;
+        if (hrs > 24) return "לפני יותר מיום";
+        return `לפני ${hrs > 0 ? hrs + ' שע\'' + (hrs > 1 ? ' ' : '') : ''}${mins} דק'`;
+    }
+
+    function updateD() {
+        const lastMeal = logs.find(l => l.type === 'הנקה' || l.type === 'בקבוק');
+        const lastDiaper = logs.find(l => l.type === 'חיתול');
+        const lastBath = logs.find(l => l.type === 'רחצה');
+
+        document.getElementById('d-meal').innerText = lastMeal ? lastMeal.time : '-';
+        document.getElementById('d-meal-ago').innerText = lastMeal ? getTimeAgo(lastMeal.ts) : '';
+        
+        document.getElementById('d-diaper').innerText = lastDiaper ? lastDiaper.time : '-';
+        document.getElementById('d-diaper-ago').innerText = lastDiaper ? getTimeAgo(lastDiaper.ts) : '';
+        
+        document.getElementById('d-bath').innerText = lastBath ? lastBath.date.split('/')[0] + '/' + lastBath.date.split('/')[1] : '-';
+    }
+
+    // --- Backup & Restore ---
+    function exportData() {
+        const data = { logs, meds, measures, lastSideUsed, exportDate: new Date().toISOString() };
+        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ZoharApp_Backup_${new Date().toLocaleDateString('en-GB')}.json`;
+        a.click();
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (confirm("זה יחליף את כל הנתונים הקיימים. להמשיך?")) {
+                    logs = imported.logs || [];
+                    meds = imported.meds || [];
+                    measures = imported.measures || [];
+                    lastSideUsed = imported.lastSideUsed || "-";
+                    sync();
+                    alert("הנתונים שוחזרו בהצלחה!");
+                    location.reload();
+                }
+            } catch(err) { alert("קובץ לא תקין"); }
+        };
+        reader.readAsText(file);
+    }
+
+    // --- Logic Functions (As v11.6) ---
     function lAction(type, detail, side) {
-        const now = new Date(), time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        const now = new Date();
+        const time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         if(side) lastSideUsed = side;
         logs.unshift({ type, detail, time, date: now.toLocaleDateString('en-GB'), ts: Date.now() });
         sync(); showToast("נשמר!"); showView('home-screen');
     }
 
-    function updateD() {
-        const lastMeal = logs.find(l => l.type === 'הנקה' || l.type === 'בקבוק');
-        const lastDiaper = logs.find(l => l.type === 'חיתול'), lastBath = logs.find(l => l.type === 'רחצה');
-        document.getElementById('d-meal').innerText = lastMeal ? lastMeal.time : '-';
-        document.getElementById('d-diaper').innerText = lastDiaper ? lastDiaper.time : '-';
-        document.getElementById('d-bath').innerText = lastBath ? lastBath.date.split('/')[0] + '/' + lastBath.date.split('/')[1] : '-';
-    }
-
-    // --- Medications (Updated with Interval & Delete) ---
     function addNewMed() {
         const name = document.getElementById('med-name').value, dose = document.getElementById('med-dosage').value, inter = document.getElementById('med-interval').value;
         if (!name || !dose) return;
@@ -153,7 +201,6 @@
         document.getElementById('med-name').value = ''; document.getElementById('med-dosage').value = ''; document.getElementById('med-interval').value = '';
         sync(); renderMeds();
     }
-
     function renderMeds() {
         const container = document.getElementById('active-meds');
         container.innerHTML = meds.map(m => `
@@ -165,10 +212,8 @@
                 </div>
             </div>`).join('') || '<p style="text-align:center; opacity:0.5;">אין תרופות</p>';
     }
-
     function deleteMed(id) { if(confirm("למחוק תרופה זו?")) { meds = meds.filter(m => m.id !== id); sync(); renderMeds(); } }
 
-    // --- Measures & Charts (Updated with Last Value) ---
     function addMeasure() {
         const w = document.getElementById('m-weight').value, h = document.getElementById('m-height').value;
         if(!w && !h) return;
@@ -176,20 +221,17 @@
         sync(); initCharts();
         document.getElementById('m-weight').value = ''; document.getElementById('m-height').value = '';
     }
-
     function initCharts() {
         const data = measures.slice(-7);
         const last = measures[measures.length - 1] || {weight: '-', height: '-'};
         document.getElementById('last-w-val').innerText = last.weight + (last.weight !== '-' ? ' ק״ג' : '');
         document.getElementById('last-h-val').innerText = last.height + (last.height !== '-' ? ' ס״מ' : '');
-
         const opt = { responsive: true, plugins: { legend: { display: false } } };
         if(weightChart) weightChart.destroy(); if(heightChart) heightChart.destroy();
         weightChart = new Chart(document.getElementById('weightChart'), { type: 'line', data: { labels: data.map(d=>d.date), datasets: [{ label: 'משקל', data: data.map(d=>d.weight), borderColor: '#6366f1', tension: 0.3 }] }, options: opt });
         heightChart = new Chart(document.getElementById('heightChart'), { type: 'line', data: { labels: data.map(d=>d.date), datasets: [{ label: 'גובה', data: data.map(d=>d.height), borderColor: '#10b981', tension: 0.3 }] }, options: opt });
     }
 
-    // --- Nursing & Logic ---
     let nAct = null, nSt = null, nI = null, tempLastSide = "-";
     function tNursing(side) {
         if(nAct === side) {
@@ -215,11 +257,12 @@
     function showView(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(id === 'home-screen') { updateD(); checkPendingMeds(); }
+        if(id === 'home-screen') updateD();
         if(id === 'nursing-screen') { session = {R:0, L:0}; const lastM = logs.find(l => l.type === 'הנקה' || l.type === 'בקבוק'); document.getElementById('last-meal-time').innerText = lastM ? lastM.time : '-'; document.getElementById('last-side-info').innerText = lastSideUsed; }
         if(id === 'med-screen') renderMeds();
         if(id === 'calendar-screen') renderCal();
         if(id === 'measures-screen') setTimeout(initCharts, 300);
+        window.scrollTo(0,0);
     }
 
     function renderCal(date) {
