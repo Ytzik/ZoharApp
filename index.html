@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp Pro - Refactored</title>
+    <title>ZoharApp Pro - Full Refactored</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&display=swap');
@@ -99,10 +99,9 @@
     <div id="scr-meds" class="screen">
         <h2 style="text-align:center">💊 תרופות</h2>
         <div class="stat-card">
-            <input type="text" id="med-name" placeholder="שם">
-            <input type="text" id="med-dosage" placeholder="מינון">
-            <input type="text" id="med-interval" placeholder="תדירות">
-            <button class="btn" style="background:var(--indigo); color:white;" onclick="Actions.addMed()">הוסף +</button>
+            <input type="text" id="med-name" placeholder="שם תרופה">
+            <input type="text" id="med-dosage" placeholder="מינון (למשל 2.5 מ״ל)">
+            <button class="btn" style="background:var(--indigo); color:white;" onclick="Actions.addMed()">הוסף תרופה +</button>
         </div>
         <div id="med-list-container"></div>
         <button class="btn" onclick="Navigation.show('scr-home')">חזרה</button>
@@ -112,10 +111,10 @@
         <h2 style="text-align:center">📈 מדדים</h2>
         <div class="stat-card">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <input type="number" id="m-weight" step="0.01" placeholder="משקל">
-                <input type="number" id="m-height" step="0.1" placeholder="גובה">
+                <input type="number" id="m-weight" step="0.01" placeholder="משקל (ק״ג)">
+                <input type="number" id="m-height" step="0.1" placeholder="גובה (ס״מ)">
             </div>
-            <button class="btn" style="background:var(--indigo); color:white;" onclick="Actions.saveMeasure()">שמור</button>
+            <button class="btn" style="background:var(--indigo); color:white;" onclick="Actions.saveMeasure()">שמור מדדים</button>
         </div>
         <div class="stat-card"><canvas id="weightChart"></canvas></div>
         <div class="stat-card"><canvas id="heightChart"></canvas></div>
@@ -174,15 +173,17 @@
         import(event) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const data = JSON.parse(e.target.result);
-                if(confirm("לשחזר נתונים? זה ימחוק את הקיים.")) {
-                    this.logs = data.logs || [];
-                    this.meds = data.meds || [];
-                    this.measures = data.measures || [];
-                    this.lastSide = data.lastSide || "-";
-                    this.save();
-                    location.reload();
-                }
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(confirm("לשחזר נתונים? זה ימחוק את הקיים.")) {
+                        this.logs = data.logs || [];
+                        this.meds = data.meds || [];
+                        this.measures = data.measures || [];
+                        this.lastSide = data.lastSide || "-";
+                        this.save();
+                        location.reload();
+                    }
+                } catch(err) { alert("קובץ לא תקין"); }
             };
             reader.readAsText(event.target.files[0]);
         },
@@ -217,7 +218,6 @@
             document.getElementById(id).classList.add('active');
             window.scrollTo(0,0);
             
-            // Auto-refresh logic on screen show
             if(id === 'scr-home') UI.updateDashboard();
             if(id === 'scr-meds') UI.renderMeds();
             if(id === 'scr-calendar') UI.renderCalendar();
@@ -264,15 +264,35 @@
             `).join('') || '<p>אין תרופות רשומות</p>';
         },
         initCharts() {
-            const ctxW = document.getElementById('weightChart');
-            const ctxH = document.getElementById('heightChart');
-            if(!ctxW) return;
             const data = DataStore.measures.slice(-7);
+            const last = DataStore.measures[DataStore.measures.length - 1] || {weight: '-', height: '-'};
+            
+            const wLabel = last.weight && last.weight !== '-' ? last.weight + ' ק"ג' : '-';
+            const hLabel = last.height && last.height !== '-' ? last.height + ' ס"מ' : '-';
+            
+            const opt = { responsive: true, plugins: { legend: { display: true } } };
+            
+            // גרף משקל
             if(weightChart) weightChart.destroy();
-            weightChart = new Chart(ctxW, {
-                type: 'line',
-                data: { labels: data.map(d=>d.date), datasets: [{label:'משקל', data:data.map(d=>d.weight), borderColor:'#6366f1'}] }
-            });
+            const ctxW = document.getElementById('weightChart');
+            if(ctxW) {
+                weightChart = new Chart(ctxW, {
+                    type: 'line',
+                    data: { labels: data.map(d=>d.date), datasets: [{label: 'משקל ('+wLabel+')', data:data.map(d=>d.weight), borderColor:'#6366f1', tension: 0.3}] },
+                    options: opt
+                });
+            }
+
+            // גרף גובה
+            if(heightChart) heightChart.destroy();
+            const ctxH = document.getElementById('heightChart');
+            if(ctxH) {
+                heightChart = new Chart(ctxH, {
+                    type: 'line',
+                    data: { labels: data.map(d=>d.date), datasets: [{label: 'גובה ('+hLabel+')', data:data.map(d=>d.height), borderColor:'#10b981', tension: 0.3}] },
+                    options: opt
+                });
+            }
         },
         initNursingView() {
             const lastM = DataStore.logs.find(l => l.type === 'הנקה' || l.type === 'בקבוק');
@@ -293,7 +313,7 @@
             }
             const filtered = DataStore.logs.filter(l => l.date === selected);
             document.getElementById('day-logs-container').innerHTML = `<h3>${selected}</h3>` + 
-                filtered.map(l => `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${l.time}</b> | ${l.type} | ${l.detail}</div>`).join('');
+                (filtered.length ? filtered.map(l => `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${l.time}</b> | ${l.type} | ${l.detail}</div>`).join('') : '<p>אין רישומים ליום זה</p>');
         },
         showToast(msg) {
             const t = document.getElementById('toast');
@@ -305,16 +325,17 @@
     /* ==========================================
        5. ACTIONS LAYER
        ========================================== */
-    let nInterval = null, nStart = null, nActiveSide = null, nDurations = {R:0, L:0};
+    let nInterval = null, nStart = null, nActiveSide = null, nDurations = {R:0, L:0}, tempLastSide = "-";
 
     const Actions = {
-        logSimple(type, detail) {
+        logSimple(type, detail, side) {
+            if(side) DataStore.lastSide = side;
             DataStore.logs.unshift({
                 type, detail, time: Logic.getNowTime(), ts: Date.now(),
                 date: new Date().toLocaleDateString('en-GB')
             });
             DataStore.save();
-            UI.showToast("נשמר!");
+            UI.showToast("נרשם בהצלחה!");
             Navigation.show('scr-home');
         },
         addBottle() {
@@ -323,14 +344,21 @@
         },
         toggleNursing(side) {
             if(nActiveSide === side) {
+                // עצירה
                 clearInterval(nInterval);
                 nDurations[side === 'ימין' ? 'R' : 'L'] += Math.round((Date.now() - nStart) / 1000);
+                tempLastSide = side;
                 nActiveSide = null;
                 document.querySelectorAll('.btn').forEach(b => b.classList.remove('nursing-active'));
                 document.getElementById('n-timer').innerText = "00:00";
             } else {
-                if(nActiveSide) this.toggleNursing(nActiveSide);
+                // התחלה/החלפה
+                if(nActiveSide) {
+                    clearInterval(nInterval);
+                    nDurations[nActiveSide === 'ימין' ? 'R' : 'L'] += Math.round((Date.now() - nStart) / 1000);
+                }
                 nActiveSide = side; nStart = Date.now();
+                document.querySelectorAll('.btn').forEach(b => b.classList.remove('nursing-active'));
                 document.getElementById(side === 'ימין' ? 'n-R' : 'n-L').classList.add('nursing-active');
                 nInterval = setInterval(() => {
                     const sec = Math.floor((Date.now() - nStart)/1000);
@@ -340,8 +368,8 @@
         },
         finishNursing() {
             if(nDurations.R || nDurations.L) {
-                DataStore.lastSide = nActiveSide || DataStore.lastSide;
-                this.logSimple('הנקה', `ימין: ${Math.floor(nDurations.R/60)} דק', שמאל: ${Math.floor(nDurations.L/60)} דק'`);
+                const summary = `ימין: ${Math.floor(nDurations.R/60)} דק', שמאל: ${Math.floor(nDurations.L/60)} דק'`;
+                this.logSimple('הנקה', summary, tempLastSide || nActiveSide);
                 nDurations = {R:0, L:0};
             } else Navigation.show('scr-home');
         },
@@ -351,20 +379,29 @@
             if(!n) return;
             DataStore.meds.push({ name: n, dosage: d, id: Date.now() });
             DataStore.save();
+            document.getElementById('med-name').value = '';
+            document.getElementById('med-dosage').value = '';
             UI.renderMeds();
         },
         saveMeasure() {
             const w = document.getElementById('m-weight').value;
             const h = document.getElementById('m-height').value;
             if(!w && !h) return;
-            DataStore.measures.push({ date: new Date().toLocaleDateString('en-GB').slice(0,5), weight: parseFloat(w), height: parseFloat(h) });
+            DataStore.measures.push({ 
+                date: new Date().toLocaleDateString('en-GB').slice(0,5), 
+                weight: parseFloat(w) || null, 
+                height: parseFloat(h) || null 
+            });
             DataStore.save();
-            UI.showToast("מדדים נשמרו!");
+            document.getElementById('m-weight').value = '';
+            document.getElementById('m-height').value = '';
+            UI.showToast("מדדים עודכנו!");
             Navigation.show('scr-home');
         },
         shareWhatsApp() {
             const today = new Date().toLocaleDateString('en-GB');
             const dayLogs = DataStore.logs.filter(l => l.date === today);
+            if(!dayLogs.length) return alert("אין נתונים להיום");
             let text = `*דיווח יומי - זוהר (${today})*\n\n`;
             dayLogs.slice().reverse().forEach(l => text += `${l.time} | *${l.type}* | ${l.detail}\n`);
             window.open("https://wa.me/?text=" + encodeURIComponent(text));
@@ -375,7 +412,6 @@
     // START APP
     DataStore.load();
     UI.updateDashboard();
-    // Auto night mode
     if(new Date().getHours() >= 21 || new Date().getHours() < 7) document.body.classList.add('night-mode');
 </script>
 </body>
