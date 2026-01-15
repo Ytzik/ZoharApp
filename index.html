@@ -3,173 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZOHAR APP</title>
+    <title>ZOHAR APP - Stable Version</title>
     <style>
-        /* הגדרות בסיס למניעת תקיעות בסלולרי */
+        /* UI LAYER: CSS */
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+        }
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: sans-serif; margin: 0; background: #f0f0f0; padding-bottom: 100px; }
-        
-        header { background: #2c3e50; color: white; text-align: center; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        
-        .container { padding: 15px; }
-        
-        /* הסתרת דפים - שימוש ב-!important כדי לוודא שזה עובד */
-        .page { display: none !important; }
-        .page.active { display: block !important; }
 
-        /* כרטיסים */
-        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-
-        /* סרגל ניווט - הגדלתי והרמתי אותו מעט */
-        nav { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            width: 100%; 
-            background: #ffffff; 
-            display: flex; 
-            height: 80px; 
-            border-top: 2px solid #3498db;
-            z-index: 9999; /* מוודא שהתפריט תמיד מעל הכל */
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding-bottom: 80px;
         }
-        
-        .nav-btn { 
-            flex: 1; 
-            border: none; 
-            background: none; 
-            font-size: 18px; 
-            font-weight: bold; 
-            color: #333;
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .container { padding: 15px; max-width: 600px; margin: 0 auto; }
+
+        .card {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* ניהול מסכים */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* סרגל ניווט תחתון */
+        nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: var(--white);
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            height: 70px;
+            border-top: 1px solid #ddd;
+            z-index: 1000;
         }
 
-        .nav-btn.active { background: #eef7ff; color: #3498db; border-top: 4px solid #3498db; }
+        .nav-btn {
+            flex: 1;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: bold;
+            color: #7f8c8d;
+            cursor: pointer;
+        }
 
-        /* כפתור בוצע גדול */
-        .btn-done { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; }
-        
-        input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; }
+        .nav-btn.active {
+            color: var(--accent);
+            border-top: 3px solid var(--accent);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-success { background: var(--success); color: white; width: auto; margin: 0; }
+
+        .med-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <h2 id="title">ZOHAR APP</h2>
-</header>
+    <header>
+        <h1 id="screen-title" style="margin:0; font-size: 1.5rem;">ZOHAR APP</h1>
+    </header>
 
-<div id="p-meds" class="page active">
-    <div class="container">
-        <div class="card">
-            <input type="text" id="newInput" placeholder="הקלד שם תרופה...">
-            <button onclick="fAdd()" style="width:100%; margin-top:10px; padding:12px; background:#3498db; color:white; border:none; border-radius:8px;">הוסף לרשימה</button>
-        </div>
-        <div id="mList"></div>
-    </div>
-</div>
+    <main class="container">
+        <section id="page-meds" class="page active">
+            <div class="card">
+                <input type="text" id="new-med-input" placeholder="שם תרופה / פעולה">
+                <button class="btn btn-primary" onclick="Actions.addMed()">הוסף לרשימה</button>
+            </div>
+            <div id="med-list"></div>
+        </section>
 
-<div id="p-history" class="page">
-    <div class="container">
-        <h3>יומן פעולות</h3>
-        <div id="hList"></div>
-    </div>
-</div>
+        <section id="page-history" class="page">
+            <h3>היסטוריית נטילות</h3>
+            <div id="history-list"></div>
+        </section>
 
-<div id="p-settings" class="page">
-    <div class="container">
-        <div class="card">
-            <p>ניהול נתונים:</p>
-            <button onclick="fReset()" style="width:100%; padding:15px; background:#e74c3c; color:white; border:none; border-radius:8px;">מחק הכל והתחל מחדש</button>
-        </div>
-    </div>
-</div>
+        <section id="page-settings" class="page">
+            <div class="card">
+                <h3>ניהול מערכת</h3>
+                <button class="btn" style="background: #e74c3c; color: white;" onclick="Actions.resetData()">איפוס נתונים מלא</button>
+            </div>
+        </section>
+    </main>
 
-<nav>
-    <button id="b1" class="nav-btn active" onclick="fGo('meds', this)">📋 תרופות</button>
-    <button id="b2" class="nav-btn" onclick="fGo('history', this)">🕒 יומן</button>
-    <button id="b3" class="nav-btn" onclick="fGo('settings', this)">⚙️ הגדרות</button>
-</nav>
+    <nav>
+        <button class="nav-btn active" onclick="Actions.navigate('meds', this)">תרופות</button>
+        <button class="nav-btn" onclick="Actions.navigate('history', this)">יומן</button>
+        <button class="nav-btn" onclick="Actions.navigate('settings', this)">הגדרות</button>
+    </nav>
 
-<script>
-    // פונקציית ניווט - השתמשתי בשמות פונקציות קצרים כדי למנוע טעויות הקלדה
-    function fGo(id, btn) {
-        console.log("Navigating to: " + id); // לבדיקה במחשב
-        
-        // 1. הסתרת כל הדפים
-        document.getElementById('p-meds').classList.remove('active');
-        document.getElementById('p-history').classList.remove('active');
-        document.getElementById('p-settings').classList.remove('active');
-        
-        // 2. הצגת הדף הנבחר
-        document.getElementById('p-' + id).classList.add('active');
-        
-        // 3. עיצוב כפתורי ניווט
-        document.getElementById('b1').classList.remove('active');
-        document.getElementById('b2').classList.remove('active');
-        document.getElementById('b3').classList.remove('active');
-        btn.classList.add('active');
+    <script>
+        /* ==========================================
+           1. DATA LAYER
+           ========================================== */
+        const DB = {
+            getMeds: () => JSON.parse(localStorage.getItem('z_meds') || '[]'),
+            saveMeds: (data) => localStorage.setItem('z_meds', JSON.stringify(data)),
+            getLogs: () => JSON.parse(localStorage.getItem('z_logs') || '[]'),
+            addLog: (entry) => {
+                const logs = DB.getLogs();
+                logs.unshift(entry);
+                localStorage.setItem('z_logs', JSON.stringify(logs.slice(0, 50)));
+            }
+        };
 
-        // עדכון כותרת
-        const titles = {meds: 'תרופות שלי', history: 'יומן נטילות', settings: 'הגדרות'};
-        document.getElementById('title').innerText = titles[id];
+        /* ==========================================
+           2. LOGIC LAYER
+           ========================================== */
+        const Logic = {
+            formatDate: (date) => new Date(date).toLocaleString('he-IL', {
+                hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'
+            })
+        };
 
-        if(id === 'history') fRenderH();
-    }
+        /* ==========================================
+           3. UI LAYER
+           ========================================== */
+        const UI = {
+            renderMeds: () => {
+                const meds = DB.getMeds();
+                const container = document.getElementById('med-list');
+                container.innerHTML = meds.map(m => `
+                    <div class="card med-row">
+                        <div>
+                            <strong>${m.name}</strong>
+                        </div>
+                        <button class="btn btn-success" onclick="Actions.takeMed('${m.id}', '${m.name}')">בוצע</button>
+                    </div>
+                `).join('');
+            },
 
-    // הוספת תרופה
-    function fAdd() {
-        const val = document.getElementById('newInput').value;
-        if(!val) return;
-        let meds = JSON.parse(localStorage.getItem('zm') || '[]');
-        meds.push({id: Date.now(), n: val});
-        localStorage.setItem('zm', JSON.stringify(meds));
-        document.getElementById('newInput').value = '';
-        fRenderM();
-    }
+            renderHistory: () => {
+                const logs = DB.getLogs();
+                const container = document.getElementById('history-list');
+                container.innerHTML = logs.length ? logs.map(l => `
+                    <div class="card">
+                        <strong>${l.name}</strong><br>
+                        <small style="color: #7f8c8d">${Logic.formatDate(l.time)}</small>
+                    </div>
+                `).join('') : '<p>אין תיעוד ביומן</p>';
+            }
+        };
 
-    // רישום נטילה
-    function fTake(name) {
-        let logs = JSON.parse(localStorage.getItem('zh') || '[]');
-        logs.unshift({n: name, t: new Date().toLocaleString('he-IL')});
-        localStorage.setItem('zh', JSON.stringify(logs.slice(0,30)));
-        alert("נרשם: " + name);
-    }
+        /* ==========================================
+           4. ACTIONS (THE GLUE)
+           ========================================== */
+        const Actions = {
+            navigate: (pageId, btn) => {
+                // הסתרת כל הדפים
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                
+                // הצגת הדף הנבחר
+                document.getElementById('page-' + pageId).classList.add('active');
+                btn.classList.add('active');
 
-    // הצגת רשימת תרופות
-    function fRenderM() {
-        let meds = JSON.parse(localStorage.getItem('zm') || '[]');
-        let html = '';
-        for(let m of meds) {
-            html += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                <b>${m.n}</b>
-                <button class="btn-done" onclick="fTake('${m.n}')">בוצע</button>
-            </div>`;
-        }
-        document.getElementById('mList').innerHTML = html;
-    }
+                // עדכון תוכן ספציפי
+                if(pageId === 'meds') UI.renderMeds();
+                if(pageId === 'history') UI.renderHistory();
+            },
 
-    // הצגת יומן
-    function fRenderH() {
-        let logs = JSON.parse(localStorage.getItem('zh') || '[]');
-        let html = '';
-        for(let l of logs) {
-            html += `<div class="card"><b>${l.n}</b><br><small>${l.t}</small></div>`;
-        }
-        document.getElementById('hList').innerHTML = html;
-    }
+            addMed: () => {
+                const input = document.getElementById('new-med-input');
+                const name = input.value.trim();
+                if(!name) return;
 
-    function fReset() {
-        if(confirm("למחוק את כל המידע?")) {
-            localStorage.clear();
-            location.reload();
-        }
-    }
+                const meds = DB.getMeds();
+                meds.push({ id: Date.now().toString(), name: name });
+                DB.saveMeds(meds);
+                input.value = '';
+                UI.renderMeds();
+            },
 
-    // הרצה ראשונית
-    fRenderM();
-</script>
+            takeMed: (id, name) => {
+                DB.addLog({ name: name, time: new Date().toISOString() });
+                alert(name + " נרשם ביומן!");
+            },
 
+            resetData: () => {
+                if(confirm("האם למחוק הכל?")) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            }
+        };
+
+        // Initialize App
+        window.onload = () => {
+            UI.renderMeds();
+        };
+    </script>
 </body>
 </html>
