@@ -2,96 +2,173 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>ZOHAR APP FIXED</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZOHAR APP</title>
     <style>
-        body { font-family: sans-serif; margin: 0; background: #eee; padding-bottom: 80px; }
-        .page { display: none; padding: 20px; }
-        .active-page { display: block !important; }
-        .card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; height: 60px; border-top: 1px solid #ccc; }
-        .nav-btn { flex: 1; border: none; background: none; font-size: 18px; font-weight: bold; }
-        .btn-green { background: #27ae60; color: white; border: none; padding: 10px; border-radius: 5px; width: 100%; margin-top: 10px; }
+        /* הגדרות בסיס למניעת תקיעות בסלולרי */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: sans-serif; margin: 0; background: #f0f0f0; padding-bottom: 100px; }
+        
+        header { background: #2c3e50; color: white; text-align: center; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        .container { padding: 15px; }
+        
+        /* הסתרת דפים - שימוש ב-!important כדי לוודא שזה עובד */
+        .page { display: none !important; }
+        .page.active { display: block !important; }
+
+        /* כרטיסים */
+        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        /* סרגל ניווט - הגדלתי והרמתי אותו מעט */
+        nav { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            background: #ffffff; 
+            display: flex; 
+            height: 80px; 
+            border-top: 2px solid #3498db;
+            z-index: 9999; /* מוודא שהתפריט תמיד מעל הכל */
+        }
+        
+        .nav-btn { 
+            flex: 1; 
+            border: none; 
+            background: none; 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn.active { background: #eef7ff; color: #3498db; border-top: 4px solid #3498db; }
+
+        /* כפתור בוצע גדול */
+        .btn-done { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; }
+        
+        input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; }
     </style>
 </head>
 <body>
 
-<h2 style="text-align:center; background:#2c3e50; color:white; margin:0; padding:15px;">ZOHAR APP</h2>
+<header>
+    <h2 id="title">ZOHAR APP</h2>
+</header>
 
-<div id="page1" class="page active-page">
-    <div class="card">
-        <input type="text" id="mName" placeholder="שם תרופה..." style="width:90%; padding:10px;">
-        <button class="btn-green" onclick="addM()">הוסף תרופה</button>
+<div id="p-meds" class="page active">
+    <div class="container">
+        <div class="card">
+            <input type="text" id="newInput" placeholder="הקלד שם תרופה...">
+            <button onclick="fAdd()" style="width:100%; margin-top:10px; padding:12px; background:#3498db; color:white; border:none; border-radius:8px;">הוסף לרשימה</button>
+        </div>
+        <div id="mList"></div>
     </div>
-    <div id="mList"></div>
 </div>
 
-<div id="page2" class="page">
-    <h3>יומן נטילות</h3>
-    <div id="hList"></div>
+<div id="p-history" class="page">
+    <div class="container">
+        <h3>יומן פעולות</h3>
+        <div id="hList"></div>
+    </div>
 </div>
 
-<div id="page3" class="page">
-    <h3>הגדרות</h3>
-    <button onclick="localStorage.clear(); location.reload();" style="background:red; color:white; padding:15px; border:none; width:100%;">איפוס מלא</button>
+<div id="p-settings" class="page">
+    <div class="container">
+        <div class="card">
+            <p>ניהול נתונים:</p>
+            <button onclick="fReset()" style="width:100%; padding:15px; background:#e74c3c; color:white; border:none; border-radius:8px;">מחק הכל והתחל מחדש</button>
+        </div>
+    </div>
 </div>
 
 <nav>
-    <button class="nav-btn" onclick="go(1)">תרופות</button>
-    <button class="nav-btn" onclick="go(2)">יומן</button>
-    <button class="nav-btn" onclick="go(3)">הגדרות</button>
+    <button id="b1" class="nav-btn active" onclick="fGo('meds', this)">📋 תרופות</button>
+    <button id="b2" class="nav-btn" onclick="fGo('history', this)">🕒 יומן</button>
+    <button id="b3" class="nav-btn" onclick="fGo('settings', this)">⚙️ הגדרות</button>
 </nav>
 
 <script>
-    // ניווט אגרסיבי - החלפת Class ישירות
-    function go(num) {
-        // הסתרת כולם
-        document.getElementById('page1').classList.remove('active-page');
-        document.getElementById('page2').classList.remove('active-page');
-        document.getElementById('page3').classList.remove('active-page');
+    // פונקציית ניווט - השתמשתי בשמות פונקציות קצרים כדי למנוע טעויות הקלדה
+    function fGo(id, btn) {
+        console.log("Navigating to: " + id); // לבדיקה במחשב
         
-        // הצגת הנבחר
-        document.getElementById('page' + num).classList.add('active-page');
+        // 1. הסתרת כל הדפים
+        document.getElementById('p-meds').classList.remove('active');
+        document.getElementById('p-history').classList.remove('active');
+        document.getElementById('p-settings').classList.remove('active');
         
-        if(num === 2) renderH();
+        // 2. הצגת הדף הנבחר
+        document.getElementById('p-' + id).classList.add('active');
+        
+        // 3. עיצוב כפתורי ניווט
+        document.getElementById('b1').classList.remove('active');
+        document.getElementById('b2').classList.remove('active');
+        document.getElementById('b3').classList.remove('active');
+        btn.classList.add('active');
+
+        // עדכון כותרת
+        const titles = {meds: 'תרופות שלי', history: 'יומן נטילות', settings: 'הגדרות'};
+        document.getElementById('title').innerText = titles[id];
+
+        if(id === 'history') fRenderH();
     }
 
-    function addM() {
-        const n = document.getElementById('mName').value;
-        if(!n) return;
-        let d = JSON.parse(localStorage.getItem('z_m') || '[]');
-        d.push({id: Date.now(), n: n});
-        localStorage.setItem('z_m', JSON.stringify(d));
-        document.getElementById('mName').value = '';
-        renderM();
+    // הוספת תרופה
+    function fAdd() {
+        const val = document.getElementById('newInput').value;
+        if(!val) return;
+        let meds = JSON.parse(localStorage.getItem('zm') || '[]');
+        meds.push({id: Date.now(), n: val});
+        localStorage.setItem('zm', JSON.stringify(meds));
+        document.getElementById('newInput').value = '';
+        fRenderM();
     }
 
-    function take(name) {
-        let h = JSON.parse(localStorage.getItem('z_h') || '[]');
-        h.unshift({n: name, t: new Date().toLocaleString('he-IL')});
-        localStorage.setItem('z_h', JSON.stringify(h.slice(0,20)));
-        alert("בוצע: " + name);
+    // רישום נטילה
+    function fTake(name) {
+        let logs = JSON.parse(localStorage.getItem('zh') || '[]');
+        logs.unshift({n: name, t: new Date().toLocaleString('he-IL')});
+        localStorage.setItem('zh', JSON.stringify(logs.slice(0,30)));
+        alert("נרשם: " + name);
     }
 
-    function renderM() {
-        let d = JSON.parse(localStorage.getItem('z_m') || '[]');
-        document.getElementById('mList').innerHTML = d.map(m => `
-            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+    // הצגת רשימת תרופות
+    function fRenderM() {
+        let meds = JSON.parse(localStorage.getItem('zm') || '[]');
+        let html = '';
+        for(let m of meds) {
+            html += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <b>${m.n}</b>
-                <button onclick="take('${m.n}')" style="padding:10px; background:blue; color:white; border:none; border-radius:5px;">בוצע</button>
-            </div>
-        `).join('');
+                <button class="btn-done" onclick="fTake('${m.n}')">בוצע</button>
+            </div>`;
+        }
+        document.getElementById('mList').innerHTML = html;
     }
 
-    function renderH() {
-        let h = JSON.parse(localStorage.getItem('z_h') || '[]');
-        document.getElementById('hList').innerHTML = h.map(l => `
-            <div class="card"><b>${l.n}</b><br><small>${l.t}</small></div>
-        `).join('');
+    // הצגת יומן
+    function fRenderH() {
+        let logs = JSON.parse(localStorage.getItem('zh') || '[]');
+        let html = '';
+        for(let l of logs) {
+            html += `<div class="card"><b>${l.n}</b><br><small>${l.t}</small></div>`;
+        }
+        document.getElementById('hList').innerHTML = html;
     }
 
-    // הפעלה ראשונה
-    renderM();
+    function fReset() {
+        if(confirm("למחוק את כל המידע?")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    // הרצה ראשונית
+    fRenderM();
 </script>
 
 </body>
