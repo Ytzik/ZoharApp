@@ -3,219 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZOHAR APP - Management System</title>
+    <title>ZOHAR APP - V2</title>
     <style>
-        /* ==========================================
-           UI LAYER: CSS & STYLING
-           ========================================== */
         :root {
             --primary: #2c3e50;
             --accent: #3498db;
             --success: #27ae60;
             --bg: #f4f7f6;
             --text: #333;
+            --white: #ffffff;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             background-color: var(--bg);
-            color: var(--text);
             margin: 0;
-            padding: 20px;
+            padding-bottom: 70px; /* רווח לתפריט התחתון */
         }
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
+        /* Header */
         header {
-            text-align: center;
-            padding: 20px 0;
             background: var(--primary);
             color: white;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        .card {
-            background: white;
+        /* Container */
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
             padding: 15px;
-            border-radius: 10px;
+        }
+
+        /* סרגל ניווט תחתון - זה מה שישחרר את ה"תקיעות" */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            border: none;
+            background: none;
+            color: var(--primary);
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* Cards & UI Elements */
+        .card {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 12px;
             margin-bottom: 15px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .flex-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 10px 15px;
+            border-radius: 8px;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
             font-weight: bold;
-            transition: opacity 0.2s;
+            cursor: pointer;
         }
 
-        .btn-add { background-color: var(--success); color: white; }
-        .btn-action { background-color: var(--accent); color: white; }
-
-        .time-ago {
-            font-size: 0.9em;
-            color: #7f8c8d;
-        }
+        .btn-main { background: var(--accent); color: white; }
+        .btn-success { background: var(--success); color: white; }
 
         input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 10px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
             box-sizing: border-box;
         }
+
+        .time-label { color: #7f8c8d; font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
-   <div class="container">
     <header>
-        <h1 onclick="Actions.switchScreen('main')">ZOHAR APP</h1>
-        <p id="current-time"></p>
+        <h2 style="margin:0">ZOHAR APP</h2>
+        <div id="live-clock" style="font-size: 0.9rem; opacity: 0.8;"></div>
     </header>
 
+    <div class="container" id="main-content">
+        </div>
+
     <nav class="nav-bar">
-        <button onclick="Actions.switchScreen('main')">תרופות</button>
-        <button onclick="Actions.switchScreen('history')">היסטוריה</button>
-        <button onclick="Actions.switchScreen('settings')">הגדרות</button>
+        <button class="nav-item active" onclick="Actions.switchScreen('main', this)">תרופות</button>
+        <button class="nav-item" onclick="Actions.switchScreen('history', this)">יומן</button>
+        <button class="nav-item" onclick="Actions.switchScreen('settings', this)">הגדרות</button>
     </nav>
-
-    <main id="app-content">
-        </main>
-</div>
-
-        <div id="med-list">
-            </div>
-    </div>
 
     <script>
         /* ==========================================
-           1. DATA LAYER (localStorage Management)
+           1. DATA LAYER
            ========================================== */
-        const DataLayer = {
-            DB_KEY: 'zohar_app_data',
-
-            save(data) {
-                localStorage.setItem(this.DB_KEY, JSON.stringify(data));
+        const DB = {
+            save: (data) => localStorage.setItem('zohar_v2_data', JSON.stringify(data)),
+            load: () => JSON.parse(localStorage.getItem('zohar_v2_data')) || [],
+            addLog: (entry) => {
+                const logs = JSON.parse(localStorage.getItem('zohar_v2_logs')) || [];
+                logs.unshift(entry);
+                localStorage.setItem('zohar_v2_logs', JSON.stringify(logs.slice(0, 50))); // שומר 50 אחרונים
             },
+            getLogs: () => JSON.parse(localStorage.getItem('zohar_v2_logs')) || []
+        };
 
-            load() {
-                const data = localStorage.getItem(this.DB_KEY);
-                return data ? JSON.parse(data) : [];
+        /* ==========================================
+           2. LOGIC LAYER
+           ========================================== */
+        const Logic = {
+            getTimeAgo: (date) => {
+                if (!date) return "טרם בוצע";
+                const diff = Math.floor((new Date() - new Date(date)) / 60000);
+                if (diff < 1) return "ממש עכשיו";
+                if (diff < 60) return `לפני ${diff} דקות`;
+                return `לפני ${Math.floor(diff/60)} שעות`;
             }
         };
 
         /* ==========================================
-           2. LOGIC LAYER (Calculations & Processing)
+           3. UI LAYER
            ========================================== */
-        const LogicLayer = {
-            formatTimeAgo(dateString) {
-                if (!dateString) return "טרם נלקח";
-                const now = new Date();
-                const past = new Date(dateString);
-                const diffMs = now - past;
-                const diffMins = Math.floor(diffMs / 60000);
-
-                if (diffMins < 1) return "ממש עכשיו";
-                if (diffMins < 60) return `לפני ${diffMins} דקות`;
-                
-                const diffHours = Math.floor(diffMins / 60);
-                if (diffHours < 24) return `לפני ${diffHours} שעות`;
-                
-                return `לפני ${Math.floor(diffHours / 24)} ימים`;
-            },
-
-            generateId() {
-                return Date.now().toString(36) + Math.random().toString(36).substr(2);
-            }
-        };
-
-        /* ==========================================
-           3. UI LAYER (DOM Manipulation)
-           ========================================== */
-        const UILayer = {
-            renderList() {
-                const meds = DataLayer.load();
-                const container = document.getElementById('med-list');
-                container.innerHTML = '';
-
-                meds.forEach(med => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <div>
-                            <strong>${med.name}</strong><br>
-                            <span class="time-ago">${LogicLayer.formatTimeAgo(med.lastTaken)}</span>
+        const UI = {
+            screens: {
+                main: () => {
+                    const meds = DB.load();
+                    return `
+                        <div class="card">
+                            <input type="text" id="new-med-name" placeholder="שם תרופה חדשה...">
+                            <button class="btn btn-main" style="width:100%" onclick="Actions.addMed()">הוסף תרופה</button>
                         </div>
-                        <button class="btn btn-action" onclick="Actions.markAsTaken('${med.id}')">בוצע</button>
+                        <div id="list-container">
+                            ${meds.map(m => `
+                                <div class="card flex-row">
+                                    <div>
+                                        <strong>${m.name}</strong><br>
+                                        <span class="time-label">${Logic.getTimeAgo(m.lastTaken)}</span>
+                                    </div>
+                                    <button class="btn btn-success" onclick="Actions.takeMed('${m.id}')">בוצע</button>
+                                </div>
+                            `).join('')}
+                        </div>
                     `;
-                    container.appendChild(card);
-                });
+                },
+                history: () => {
+                    const logs = DB.getLogs();
+                    return `
+                        <h3>היסטוריית פעולות</h3>
+                        ${logs.map(l => `
+                            <div class="card">
+                                <strong>${l.name}</strong><br>
+                                <small>${new Date(l.time).toLocaleString('he-IL')}</small>
+                            </div>
+                        `).join('')}
+                    `;
+                },
+                settings: () => `
+                    <h3>הגדרות</h3>
+                    <div class="card">
+                        <button class="btn" style="background:#e74c3c; color:white; width:100%" onclick="Actions.resetAll()">איפוס כל הנתונים</button>
+                    </div>
+                `
             },
 
-            updateClock() {
-                const now = new Date();
-                document.getElementById('current-time').innerText = now.toLocaleString('he-IL');
-            },
-
-            clearInput() {
-                document.getElementById('med-name').value = '';
+            render(screenName) {
+                document.getElementById('main-content').innerHTML = this.screens[screenName]();
             }
         };
 
         /* ==========================================
-           ACTIONS (Event Handling & Coordination)
+           4. ACTIONS LAYER
            ========================================== */
         const Actions = {
+            currentTab: 'main',
+
             init() {
-                UILayer.renderList();
-                UILayer.updateClock();
-                setInterval(() => UILayer.updateClock(), 1000);
-                setInterval(() => UILayer.renderList(), 60000); // רענון זמנים כל דקה
+                UI.render('main');
+                setInterval(() => {
+                    document.getElementById('live-clock').innerText = new Date().toLocaleString('he-IL');
+                }, 1000);
             },
 
-            addNewMed() {
-                const nameInput = document.getElementById('med-name');
-                if (!nameInput.value.trim()) return;
-
-                const meds = DataLayer.load();
-                meds.push({
-                    id: LogicLayer.generateId(),
-                    name: nameInput.value,
-                    lastTaken: null
-                });
-
-                DataLayer.save(meds);
-                UILayer.clearInput();
-                UILayer.renderList();
+            switchScreen(screen, btn) {
+                this.currentTab = screen;
+                UI.render(screen);
+                // עדכון עיצוב כפתורי ניווט
+                document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
             },
 
-            markAsTaken(id) {
-                const meds = DataLayer.load();
-                const index = meds.findIndex(m => m.id === id);
-                if (index !== -1) {
-                    meds[index].lastTaken = new Date().toISOString();
-                    DataLayer.save(meds);
-                    UILayer.renderList();
+            addMed() {
+                const input = document.getElementById('new-med-name');
+                if (!input.value.trim()) return;
+                const meds = DB.load();
+                meds.push({ id: Date.now(), name: input.value, lastTaken: null });
+                DB.save(meds);
+                UI.render('main');
+            },
+
+            takeMed(id) {
+                const meds = DB.load();
+                const med = meds.find(m => m.id == id);
+                if (med) {
+                    med.lastTaken = new Date().toISOString();
+                    DB.save(meds);
+                    DB.addLog({ name: med.name, time: med.lastTaken });
+                    UI.render('main');
+                }
+            },
+
+            resetAll() {
+                if (confirm("האם למחוק הכל?")) {
+                    localStorage.clear();
+                    location.reload();
                 }
             }
         };
 
-        // הפעלת האפליקציה בטעינה
         window.onload = Actions.init;
-
     </script>
 </body>
 </html>
-
