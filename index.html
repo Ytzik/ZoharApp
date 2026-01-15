@@ -101,6 +101,7 @@
         <div class="stat-card">
             <input type="text" id="med-name" placeholder="שם תרופה">
             <input type="text" id="med-dosage" placeholder="מינון (למשל 2.5 מ״ל)">
+            <input type="text" id="med-interval" placeholder="תדירות (למשל כל 8 שעות)">
             <button class="btn" style="background:var(--indigo); color:white;" onclick="Actions.addMed()">הוסף תרופה +</button>
         </div>
         <div id="med-list-container"></div>
@@ -258,7 +259,10 @@
             const container = document.getElementById('med-list-container');
             container.innerHTML = DataStore.meds.map(m => `
                 <div class="stat-card" style="display:flex; justify-content:space-between; align-items:center;">
-                    <div style="text-align:right"><b>${m.name}</b><br><small>${m.dosage}</small></div>
+                    <div style="text-align:right">
+                        <b>${m.name}</b><br>
+                        <small>${m.dosage} | ${m.interval || ''}</small>
+                    </div>
                     <button class="btn" style="width:auto; margin:0; background:var(--green); color:white;" onclick="Actions.logSimple('תרופה', '${m.name} (${m.dosage})')">נטילה</button>
                 </div>
             `).join('') || '<p>אין תרופות רשומות</p>';
@@ -266,33 +270,17 @@
         initCharts() {
             const data = DataStore.measures.slice(-7);
             const last = DataStore.measures[DataStore.measures.length - 1] || {weight: '-', height: '-'};
-            
             const wLabel = last.weight && last.weight !== '-' ? last.weight + ' ק"ג' : '-';
             const hLabel = last.height && last.height !== '-' ? last.height + ' ס"מ' : '-';
-            
             const opt = { responsive: true, plugins: { legend: { display: true } } };
             
-            // גרף משקל
             if(weightChart) weightChart.destroy();
             const ctxW = document.getElementById('weightChart');
-            if(ctxW) {
-                weightChart = new Chart(ctxW, {
-                    type: 'line',
-                    data: { labels: data.map(d=>d.date), datasets: [{label: 'משקל ('+wLabel+')', data:data.map(d=>d.weight), borderColor:'#6366f1', tension: 0.3}] },
-                    options: opt
-                });
-            }
+            if(ctxW) weightChart = new Chart(ctxW, { type: 'line', data: { labels: data.map(d=>d.date), datasets: [{label: 'משקל ('+wLabel+')', data:data.map(d=>d.weight), borderColor:'#6366f1', tension: 0.3}] }, options: opt });
 
-            // גרף גובה
             if(heightChart) heightChart.destroy();
             const ctxH = document.getElementById('heightChart');
-            if(ctxH) {
-                heightChart = new Chart(ctxH, {
-                    type: 'line',
-                    data: { labels: data.map(d=>d.date), datasets: [{label: 'גובה ('+hLabel+')', data:data.map(d=>d.height), borderColor:'#10b981', tension: 0.3}] },
-                    options: opt
-                });
-            }
+            if(ctxH) heightChart = new Chart(ctxH, { type: 'line', data: { labels: data.map(d=>d.date), datasets: [{label: 'גובה ('+hLabel+')', data:data.map(d=>d.height), borderColor:'#10b981', tension: 0.3}] }, options: opt });
         },
         initNursingView() {
             const lastM = DataStore.logs.find(l => l.type === 'הנקה' || l.type === 'בקבוק');
@@ -313,13 +301,9 @@
             }
             const filtered = DataStore.logs.filter(l => l.date === selected);
             document.getElementById('day-logs-container').innerHTML = `<h3>${selected}</h3>` + 
-                (filtered.length ? filtered.map(l => `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${l.time}</b> | ${l.type} | ${l.detail}</div>`).join('') : '<p>אין רישומים ליום זה</p>');
+                (filtered.length ? filtered.map(l => `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${l.time}</b> | ${l.type} | ${l.detail}</div>`).join('') : '<p>אין רישומים</p>');
         },
-        showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg; t.className = "show";
-            setTimeout(() => t.className = "", 3000);
-        }
+        showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.className = "show"; setTimeout(() => t.className = "", 3000); }
     };
 
     /* ==========================================
@@ -330,29 +314,20 @@
     const Actions = {
         logSimple(type, detail, side) {
             if(side) DataStore.lastSide = side;
-            DataStore.logs.unshift({
-                type, detail, time: Logic.getNowTime(), ts: Date.now(),
-                date: new Date().toLocaleDateString('en-GB')
-            });
+            DataStore.logs.unshift({ type, detail, time: Logic.getNowTime(), ts: Date.now(), date: new Date().toLocaleDateString('en-GB') });
             DataStore.save();
             UI.showToast("נרשם בהצלחה!");
             Navigation.show('scr-home');
         },
-        addBottle() {
-            const ml = prompt("כמות במ\"ל:");
-            if(ml) this.logSimple('בקבוק', ml + ' מ"ל');
-        },
+        addBottle() { const ml = prompt("כמות במ\"ל:"); if(ml) this.logSimple('בקבוק', ml + ' מ"ל'); },
         toggleNursing(side) {
             if(nActiveSide === side) {
-                // עצירה
                 clearInterval(nInterval);
                 nDurations[side === 'ימין' ? 'R' : 'L'] += Math.round((Date.now() - nStart) / 1000);
-                tempLastSide = side;
-                nActiveSide = null;
+                tempLastSide = side; nActiveSide = null;
                 document.querySelectorAll('.btn').forEach(b => b.classList.remove('nursing-active'));
                 document.getElementById('n-timer').innerText = "00:00";
             } else {
-                // התחלה/החלפה
                 if(nActiveSide) {
                     clearInterval(nInterval);
                     nDurations[nActiveSide === 'ימין' ? 'R' : 'L'] += Math.round((Date.now() - nStart) / 1000);
@@ -368,30 +343,27 @@
         },
         finishNursing() {
             if(nDurations.R || nDurations.L) {
-                const summary = `ימין: ${Math.floor(nDurations.R/60)} דק', שמאל: ${Math.floor(nDurations.L/60)} דק'`;
-                this.logSimple('הנקה', summary, tempLastSide || nActiveSide);
+                this.logSimple('הנקה', `ימין: ${Math.floor(nDurations.R/60)} דק', שמאל: ${Math.floor(nDurations.L/60)} דק'`, tempLastSide || nActiveSide);
                 nDurations = {R:0, L:0};
             } else Navigation.show('scr-home');
         },
         addMed() {
             const n = document.getElementById('med-name').value;
             const d = document.getElementById('med-dosage').value;
+            const i = document.getElementById('med-interval').value;
             if(!n) return;
-            DataStore.meds.push({ name: n, dosage: d, id: Date.now() });
+            DataStore.meds.push({ name: n, dosage: d, interval: i, id: Date.now() });
             DataStore.save();
             document.getElementById('med-name').value = '';
             document.getElementById('med-dosage').value = '';
+            document.getElementById('med-interval').value = '';
             UI.renderMeds();
         },
         saveMeasure() {
             const w = document.getElementById('m-weight').value;
             const h = document.getElementById('m-height').value;
             if(!w && !h) return;
-            DataStore.measures.push({ 
-                date: new Date().toLocaleDateString('en-GB').slice(0,5), 
-                weight: parseFloat(w) || null, 
-                height: parseFloat(h) || null 
-            });
+            DataStore.measures.push({ date: new Date().toLocaleDateString('en-GB').slice(0,5), weight: parseFloat(w) || null, height: parseFloat(h) || null });
             DataStore.save();
             document.getElementById('m-weight').value = '';
             document.getElementById('m-height').value = '';
@@ -409,7 +381,6 @@
         toggleTheme() { document.body.classList.toggle('night-mode'); }
     };
 
-    // START APP
     DataStore.load();
     UI.updateDashboard();
     if(new Date().getHours() >= 21 || new Date().getHours() < 7) document.body.classList.add('night-mode');
