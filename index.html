@@ -3,65 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp - Welcome</title>
+    <title>ZoharApp Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;800&display=swap');
         :root {
             --rose: #fb7185; --bg: #f8fafc; --card-bg: white; --text: #1e293b;
-            --indigo: #6366f1; --amber: #f59e0b; --green: #10b981; --blue: #3b82f6; --cyan: #06b6d4; --red: #ef4444;
+            --indigo: #6366f1; --amber: #f59e0b; --green: #10b981; --blue: #3b82f6; --red: #ef4444;
         }
         body.night-mode { --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; }
         * { box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: var(--text); margin: 0; transition: 0.3s; min-height: 100vh; padding-bottom: 30px; }
+        body { background-color: var(--bg); color: var(--text); margin: 0; min-height: 100vh; padding-bottom: 30px; }
         .container { max-width: 450px; margin: 0 auto; padding: 15px; }
 
-        /* Welcome Screen Styling */
-        .welcome-card {
-            background: var(--card-bg); padding: 30px; border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;
-            margin-top: 50px; border-top: 8px solid var(--rose);
-        }
-        .welcome-card h1 { color: var(--rose); font-size: 28px; margin-bottom: 10px; }
-        .welcome-card p { opacity: 0.7; margin-bottom: 25px; }
+        /* Welcome & Modals */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 25px; width: 90%; max-width: 350px; text-align: center; }
 
-        /* Bento Grid */
-        .summary-box {
-            background: linear-gradient(135deg, var(--rose), #fda4af); color: white; padding: 20px;
-            border-radius: 24px; margin-bottom: 20px; display: flex; justify-content: space-around;
-            box-shadow: 0 8px 20px rgba(251,113,133,0.3); text-align: center;
-        }
-        .sum-val { font-size: 24px; font-weight: 800; display: block; }
-        .sum-lbl { font-size: 11px; opacity: 0.9; }
-
+        /* Dashboard Bento */
+        .summary-box { background: linear-gradient(135deg, var(--rose), #fda4af); color: white; padding: 20px; border-radius: 24px; margin-bottom: 20px; display: flex; justify-content: space-around; box-shadow: 0 8px 20px rgba(251,113,133,0.3); }
         .bento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-        .bento-card {
-            background: var(--card-bg); border-radius: 20px; padding: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column;
-            cursor: pointer; transition: transform 0.1s; border-bottom: 4px solid rgba(0,0,0,0.05);
-        }
-        .bento-card:active { transform: scale(0.96); }
+        .bento-card { background: var(--card-bg); border-radius: 20px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; cursor: pointer; border-bottom: 4px solid rgba(0,0,0,0.05); }
         .bento-card.wide { grid-column: span 2; flex-direction: row; align-items: center; justify-content: space-between; }
-        .card-icon { font-size: 24px; margin-bottom: 8px; }
-        .card-title { font-weight: 800; font-size: 15px; margin: 0; }
-        .card-info { font-size: 10px; color: var(--rose); font-weight: bold; margin-top: 4px; }
+        .card-info { font-size: 11px; color: var(--rose); font-weight: bold; margin-top: 4px; }
         
-        .active-sleep { background: var(--indigo) !important; color: white !important; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
-
-        /* Screens */
-        .screen { display: none; }
-        .screen.active { display: block; }
-        .btn-bar {
-            width: 100%; background: var(--card-bg); border: none; padding: 16px; border-radius: 18px;
-            margin-bottom: 10px; font-size: 17px; font-weight: 800; color: var(--text);
-            cursor: pointer; border-bottom: 4px solid rgba(0,0,0,0.1); display: flex;
-            justify-content: space-between; align-items: center;
-        }
+        /* Elements */
+        .btn-bar { width: 100%; background: var(--card-bg); border: none; padding: 16px; border-radius: 18px; margin-bottom: 10px; font-size: 16px; font-weight: 800; color: var(--text); cursor: pointer; border-bottom: 4px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
         .timer { font-size: 55px; text-align: center; color: var(--rose); margin: 20px 0; font-family: monospace; font-weight: 800; }
-        input, select { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 15px; font-size: 16px; background: var(--card-bg); color: var(--text); }
-        
-        #toast { visibility: hidden; min-width: 200px; background: #1e293b; color: white; text-align: center; border-radius: 50px; padding: 12px; position: fixed; left: 50%; transform: translateX(-50%); bottom: 30px; z-index: 1000; font-weight: bold; }
+        input, select { width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 15px; font-size: 16px; background: var(--card-bg); color: var(--text); }
+        .screen { display: none; } .screen.active { display: block; }
+        #toast { visibility: hidden; min-width: 200px; background: #1e293b; color: white; text-align: center; border-radius: 50px; padding: 12px; position: fixed; left: 50%; transform: translateX(-50%); bottom: 30px; z-index: 3000; font-weight: bold; }
         #toast.show { visibility: visible; }
     </style>
 </head>
@@ -69,281 +40,300 @@
 
 <div id="toast">נשמר! ✨</div>
 
+<div id="modal-bottle" class="modal">
+    <div class="modal-content">
+        <h3>🍼 כמה מ"ל אכלנו?</h3>
+        <input type="number" id="bottle-amount" placeholder="כמות ב-מ״ל" autofocus>
+        <div style="display:flex; gap:10px;">
+            <button class="btn-bar" style="background:var(--green); color:white; justify-content:center;" onclick="Actions.confirmBottle()">שמור</button>
+            <button class="btn-bar" style="background:var(--red); color:white; justify-content:center;" onclick="document.getElementById('modal-bottle').style.display='none'">ביטול</button>
+        </div>
+    </div>
+</div>
+
 <div class="container">
     
     <div id="scr-onboarding" class="screen">
-        <div class="welcome-card">
-            <h1>מזל טוב! 🍼</h1>
-            <p>יש לנו בייבי חדש במשפחה. בואו נכניס פרטים ראשונים:</p>
-            <input type="text" id="baby-name" placeholder="שם התינוק/ת">
-            <select id="baby-gender">
-                <option value="">מין הילוד</option>
-                <option value="זכר">זכר</option>
-                <option value="נקבה">נקבה</option>
-            </select>
-            <input type="date" id="baby-dob" placeholder="תאריך לידה">
-            <input type="text" id="mom-name" placeholder="שם האם">
-            <input type="text" id="dad-name" placeholder="שם האב">
+        <div style="text-align:center; padding-top:40px;">
+            <h1 style="color:var(--rose)">מזל טוב! 🍼</h1>
+            <p>בואו נכניס פרטים ראשונים:</p>
+            <input type="text" id="reg-name" placeholder="שם התינוק/ת">
+            <select id="reg-gender"><option value="תינוק">זכר</option><option value="תינוקת">נקבה</option></select>
+            <input type="date" id="reg-dob">
+            <input type="text" id="reg-mom" placeholder="שם האם">
+            <input type="text" id="reg-dad" placeholder="שם האב">
             <button class="btn-bar" style="background:var(--rose); color:white; justify-content:center;" onclick="Actions.saveProfile()">מתחילים! ✨</button>
         </div>
     </div>
 
-    <div id="app-header" style="display:none; justify-content:space-between; align-items:center; padding:10px 0;">
-        <h1 id="header-title" style="font-size:22px; color:var(--rose); margin:0; font-weight:800;">ZoharApp.</h1>
-        <button onclick="Actions.toggleTheme()" style="background:none; border:none; font-size:20px;">🌓</button>
-    </div>
-
-    <div id="scr-home" class="screen">
-        <div class="summary-box">
-            <div><span class="sum-val" id="sum-meals">0</span><span class="sum-lbl">ארוחות</span></div>
-            <div><span class="sum-val" id="sum-diapers">0</span><span class="sum-lbl">חיתולים</span></div>
-            <div><span class="sum-val" id="sum-sleep">0</span><span class="sum-lbl">שעות שינה</span></div>
+    <div id="app-main" style="display:none">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0;">
+            <h1 id="dynamic-title" style="font-size:22px; color:var(--rose); margin:0; font-weight:800;">היום של זוהר</h1>
+            <button onclick="document.body.classList.toggle('night-mode')" style="background:none; border:none; font-size:20px;">🌓</button>
         </div>
 
-        <div class="bento-grid">
-            <div class="bento-card" onclick="Navigation.show('scr-nursing')" style="border-right: 4px solid var(--rose)">
-                <span class="card-icon">🤱</span>
-                <span class="card-title">הנקה</span>
-                <span class="card-info" id="inf-nursing">-</span>
+        <div id="scr-home" class="screen active">
+            <div class="summary-box">
+                <div style="text-align:center"><span class="sum-val" id="sum-meals">0</span><span class="sum-lbl">ארוחות</span></div>
+                <div style="text-align:center"><span class="sum-val" id="sum-diapers">0</span><span class="sum-lbl">חיתולים</span></div>
+                <div style="text-align:center"><span class="sum-val" id="sum-sleep">0</span><span class="sum-lbl">שינה (ש')</span></div>
             </div>
-            <div class="bento-card" onclick="Actions.addBottle()" style="border-right: 4px solid var(--blue)">
-                <span class="card-icon">🍼</span>
-                <span class="card-title">בקבוק</span>
-                <span class="card-info" id="inf-bottle">תיעוד</span>
-            </div>
-            <div class="bento-card" onclick="Navigation.show('scr-diaper')" style="border-right: 4px solid var(--amber)">
-                <span class="card-icon">✨</span>
-                <span class="card-title">חיתול</span>
-                <span class="card-info" id="inf-diaper">-</span>
-            </div>
-            <div id="card-sleep" class="bento-card" onclick="Navigation.show('scr-sleep')" style="border-right: 4px solid var(--indigo)">
-                <span class="card-icon">🌙</span>
-                <span class="card-title">שינה</span>
-                <span class="card-info" id="inf-sleep">לילה טוב</span>
-            </div>
-            <div class="bento-card" onclick="Navigation.show('scr-measures')" style="border-right: 4px solid var(--indigo)">
-                <span class="card-icon">📈</span>
-                <span class="card-title">מדדים</span>
-            </div>
-            <div class="bento-card" onclick="Navigation.show('scr-meds')" style="border-right: 4px solid var(--red)">
-                <span class="card-icon">💊</span>
-                <span class="card-title">תרופות</span>
-            </div>
-            <div class="bento-card wide" onclick="Actions.logSimple('רחצה', 'בוצעה רחצה')" style="border-right: 4px solid var(--cyan)">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <span class="card-icon" style="margin:0">🛁</span>
-                    <span class="card-title">רחצה</span>
+
+            <div class="bento-grid">
+                <div class="bento-card" onclick="Navigation.show('scr-nursing')" style="border-right: 4px solid var(--rose)">
+                    <span>🤱</span><b>הנקה</b><span class="card-info" id="inf-nursing">-</span>
                 </div>
-                <span style="opacity:0.3">❯</span>
+                <div class="bento-card" onclick="document.getElementById('modal-bottle').style.display='flex'" style="border-right: 4px solid var(--blue)">
+                    <span>🍼</span><b>בקבוק</b><span class="card-info" id="inf-bottle">תיעוד</span>
+                </div>
+                <div class="bento-card" onclick="Navigation.show('scr-diaper')" style="border-right: 4px solid var(--amber)">
+                    <span>✨</span><b>חיתול</b><span class="card-info" id="inf-diaper">-</span>
+                </div>
+                <div id="card-sleep" class="bento-card" onclick="Navigation.show('scr-sleep')" style="border-right: 4px solid var(--indigo)">
+                    <span>🌙</span><b>שינה</b><span class="card-info" id="inf-sleep">לילה טוב</span>
+                </div>
+                <div class="bento-card" onclick="Navigation.show('scr-measures')" style="border-right: 4px solid var(--green)">
+                    <span>📈</span><b>מדדים</b>
+                </div>
+                <div class="bento-card" onclick="Navigation.show('scr-meds')" style="border-right: 4px solid var(--red)">
+                    <span>💊</span><b>תרופות</b>
+                </div>
+                <div class="bento-card wide" onclick="Actions.logSimple('רחצה', 'בוצעה רחצה')" style="border-right: 4px solid var(--cyan)">
+                    <span>🛁 <b>רחצה</b></span><span>❯</span>
+                </div>
             </div>
+            <button class="btn-bar" onclick="Navigation.show('scr-calendar')">📅 יומן פעילות מלא <span>❯</span></button>
         </div>
 
-        <button class="btn-bar" onclick="Navigation.show('scr-calendar')">📅 יומן פעילות <span>❯</span></button>
-        <div style="text-align:center; margin-top:15px;">
-            <button onclick="Navigation.show('scr-settings')" style="background:none; border:none; color:#94a3b8; font-size:13px; text-decoration:underline;">⚙️ הגדרות ופרופיל</button>
+        <div id="scr-nursing" class="screen">
+            <h2 style="text-align:center">הנקה</h2>
+            <div id="n-timer" class="timer">00:00</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button id="n-R" class="btn-bar" style="justify-content:center; height:80px;" onclick="Actions.toggleNursing('ימין')">ימין</button>
+                <button id="n-L" class="btn-bar" style="justify-content:center; height:80px;" onclick="Actions.toggleNursing('שמאל')">שמאל</button>
+            </div>
+            <button class="btn-bar" style="background:var(--green); color:white; margin-top:20px; justify-content:center;" onclick="Actions.finishNursing()">סיום ארוחה</button>
+            <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
+        </div>
+
+        <div id="scr-sleep" class="screen">
+            <h2 style="text-align:center">מעקב שינה</h2>
+            <div id="s-timer" class="timer">00:00</div>
+            <button id="s-toggle" class="btn-bar" style="justify-content:center; height:100px; background:var(--indigo); color:white;" onclick="Actions.toggleSleep()">התחלת שינה 🌙</button>
+            <button class="btn-bar" style="justify-content:center; background:none; margin-top:10px;" onclick="Navigation.show('scr-home')">חזרה</button>
+        </div>
+
+        <div id="scr-diaper" class="screen">
+            <h2 style="text-align:center">חיתול</h2>
+            <button class="btn-bar" onclick="Actions.logSimple('חיתול','💦 פיפי')">💦 פיפי</button>
+            <button class="btn-bar" onclick="Actions.logSimple('חיתול','💩 קקי')">💩 קקי</button>
+            <button class="btn-bar" onclick="Actions.logSimple('חיתול','🌈 גם וגם')">🌈 גם וגם</button>
+            <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
+        </div>
+
+        <div id="scr-meds" class="screen">
+            <h2 style="text-align:center">💊 תרופות</h2>
+            <input type="text" id="m-name" placeholder="שם התרופה">
+            <input type="text" id="m-dose" placeholder="מינון (למשל 2.5 מ״ל)">
+            <select id="m-interval-type" onchange="UI.toggleMedIntervals()">
+                <option value="daily">פעם ביום</option>
+                <option value="hours">כל כמה שעות</option>
+                <option value="days">כל כמה ימים</option>
+            </select>
+            <div id="m-interval-val-container" style="display:none">
+                <input type="number" id="m-interval-val" placeholder="הכנס מספר">
+            </div>
+            <button class="btn-bar" style="background:var(--indigo); color:white; justify-content:center;" onclick="Actions.addMed()">הוסף תרופה</button>
+            <div id="med-list-container" style="margin-top:20px;"></div>
+            <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
+        </div>
+
+        <div id="scr-measures" class="screen">
+            <h2 style="text-align:center">מדדים</h2>
+            <div style="display:flex; gap:10px;">
+                <input type="number" id="ms-w" step="0.001" placeholder="משקל">
+                <input type="number" id="ms-h" step="0.1" placeholder="גובה">
+            </div>
+            <button class="btn-bar" style="background:var(--green); color:white; justify-content:center;" onclick="Actions.saveMeasure()">שמור</button>
+            <canvas id="chartW" style="margin-bottom:20px;"></canvas>
+            <canvas id="chartH"></canvas>
+            <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
+        </div>
+
+        <div id="scr-calendar" class="screen">
+            <div id="cal-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:20px;"></div>
+            <div id="cal-list"></div>
+            <button class="btn-bar" style="justify-content:center; background:none; margin-top:20px;" onclick="Navigation.show('scr-home')">חזרה</button>
         </div>
     </div>
-
-    <div id="scr-nursing" class="screen">
-        <h2 style="text-align:center">הנקה</h2>
-        <div class="btn-bar" style="background:none; border:1px solid #ddd;">
-            <div style="text-align:center; width:50%">שעה: <b id="last-meal-time">-</b></div>
-            <div style="text-align:center; width:50%">צד: <b id="last-side-info">-</b></div>
-        </div>
-        <div id="n-timer" class="timer">00:00</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            <button id="n-R" class="btn-bar" style="justify-content:center; height:100px;" onclick="Actions.toggleNursing('ימין')">ימין</button>
-            <button id="n-L" class="btn-bar" style="justify-content:center; height:100px;" onclick="Actions.toggleNursing('שמאל')">שמאל</button>
-        </div>
-        <button class="btn-bar" style="background:var(--green); color:white; margin-top:20px; justify-content:center;" onclick="Actions.finishNursing()">סיום ועדכון</button>
-        <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
-    </div>
-
-    <div id="scr-sleep" class="screen">
-        <h2 style="text-align:center">מעקב שינה</h2>
-        <div id="s-timer" class="timer">00:00</div>
-        <button id="s-toggle" class="btn-bar" style="justify-content:center; height:120px; background:var(--indigo); color:white;" onclick="Actions.toggleSleep()">התחלת שינה 🌙</button>
-        <button class="btn-bar" style="justify-content:center; background:none; margin-top:20px;" onclick="Navigation.show('scr-home')">חזרה</button>
-    </div>
-
-    <div id="scr-diaper" class="screen">
-        <h2 style="text-align:center">חיתול</h2>
-        <button class="btn-bar" onclick="Actions.logSimple('חיתול','💦 פיפי')">💦 פיפי <span>❯</span></button>
-        <button class="btn-bar" onclick="Actions.logSimple('חיתול','💩 קקי')">💩 קקי <span>❯</span></button>
-        <button class="btn-bar" onclick="Actions.logSimple('חיתול','🌈 גם וגם')">🌈 גם וגם <span>❯</span></button>
-        <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">ביטול</button>
-    </div>
-
-    <div id="scr-meds" class="screen">
-        <h2 style="text-align:center">תרופות</h2>
-        <input type="text" id="med-name" placeholder="שם תרופה">
-        <button class="btn-bar" style="background:var(--indigo); color:white; justify-content:center;" onclick="Actions.addMed()">הוסף תרופה +</button>
-        <div id="med-list-container" style="margin-top:20px;"></div>
-        <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
-    </div>
-
-    <div id="scr-measures" class="screen">
-        <h2 style="text-align:center">מדדים</h2>
-        <input type="number" id="m-weight" step="0.001" placeholder="משקל (ק״ג)">
-        <input type="number" id="m-height" step="0.1" placeholder="גובה (ס״מ)">
-        <button class="btn-bar" style="background:var(--indigo); color:white; justify-content:center;" onclick="Actions.saveMeasure()">שמור מדדים</button>
-        <canvas id="weightChart"></canvas>
-        <canvas id="heightChart"></canvas>
-        <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
-    </div>
-
-    <div id="scr-calendar" class="screen">
-        <div id="cal-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin:15px 0;"></div>
-        <div id="day-logs-container"></div>
-        <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
-    </div>
-
-    <div id="scr-settings" class="screen">
-        <h2 style="text-align:center">פרופיל והגדרות</h2>
-        <div id="profile-info" class="btn-bar" style="display:block; font-size:14px; background:rgba(251,113,133,0.1);"></div>
-        <button class="btn-bar" style="background:var(--blue); color:white; justify-content:center;" onclick="window.print()">📋 הכנת דוח לרופא (PDF)</button>
-        <button class="btn-bar" style="background:var(--red); color:white; justify-content:center; margin-top:20px;" onclick="DataStore.clearAll()">⚠️ מחיקת הכל</button>
-        <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
-    </div>
-
 </div>
 
 <script>
-    const DataStore = {
-        logs: [], meds: [], measures: [], profile: null, sleepStart: null,
+    const Data = {
+        logs: [], meds: [], measures: [], profile: null, sleepS: null,
         load() {
-            this.logs = JSON.parse(localStorage.getItem('z_v15_logs')) || [];
-            this.meds = JSON.parse(localStorage.getItem('z_v15_meds')) || [];
-            this.measures = JSON.parse(localStorage.getItem('z_v15_measures')) || [];
-            this.profile = JSON.parse(localStorage.getItem('z_v15_profile')) || null;
-            this.sleepStart = parseInt(localStorage.getItem('z_sleepStart')) || null;
+            this.logs = JSON.parse(localStorage.getItem('z_v16_logs')) || [];
+            this.meds = JSON.parse(localStorage.getItem('z_v16_meds')) || [];
+            this.measures = JSON.parse(localStorage.getItem('z_v16_measures')) || [];
+            this.profile = JSON.parse(localStorage.getItem('z_v16_prof')) || null;
+            this.sleepS = parseInt(localStorage.getItem('z_v16_sleep')) || null;
         },
         save() {
-            localStorage.setItem('z_v15_logs', JSON.stringify(this.logs));
-            localStorage.setItem('z_v15_meds', JSON.stringify(this.meds));
-            localStorage.setItem('z_v15_measures', JSON.stringify(this.measures));
-            localStorage.setItem('z_v15_profile', JSON.stringify(this.profile));
-            if(this.sleepStart) localStorage.setItem('z_sleepStart', this.sleepStart); else localStorage.removeItem('z_sleepStart');
-        },
-        clearAll() { if(confirm("למחוק הכל?")) { localStorage.clear(); location.reload(); } }
+            localStorage.setItem('z_v16_logs', JSON.stringify(this.logs));
+            localStorage.setItem('z_v16_meds', JSON.stringify(this.meds));
+            localStorage.setItem('z_v16_measures', JSON.stringify(this.measures));
+            localStorage.setItem('z_v16_prof', JSON.stringify(this.profile));
+            if(this.sleepS) localStorage.setItem('z_v16_sleep', this.sleepS); else localStorage.removeItem('z_v16_sleep');
+        }
     };
 
     const Navigation = {
         show(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(id === 'scr-home') UI.updateDashboard();
+            if(id === 'scr-home') UI.updateHome();
             if(id === 'scr-calendar') UI.renderCalendar();
-            if(id === 'scr-measures') UI.initCharts();
-            if(id === 'scr-sleep') UI.initSleepView();
+            if(id === 'scr-measures') UI.renderCharts();
+            if(id === 'scr-sleep') UI.initSleep();
         }
     };
 
     const UI = {
         init() {
-            if(!DataStore.profile) {
-                Navigation.show('scr-onboarding');
+            if(!Data.profile) {
+                document.getElementById('scr-onboarding').classList.add('active');
             } else {
-                document.getElementById('app-header').style.display = 'flex';
-                document.getElementById('header-title').innerText = `${DataStore.profile.name}App.`;
-                this.updateProfileDisplay();
+                document.getElementById('app-main').style.display = 'block';
+                document.getElementById('dynamic-title').innerText = `היום של ${Data.profile.name}`;
                 Navigation.show('scr-home');
             }
         },
-        updateProfileDisplay() {
-            if(!DataStore.profile) return;
-            document.getElementById('profile-info').innerHTML = `
-                <b>${DataStore.profile.name}</b> (${DataStore.profile.gender})<br>
-                נולד/ה ב: ${DataStore.profile.dob}<br>
-                הורים: ${DataStore.profile.mom} ו-${DataStore.profile.dad}
-            `;
-        },
-        updateDashboard() {
+        updateHome() {
             const today = new Date().toLocaleDateString('en-GB');
-            const todayLogs = DataStore.logs.filter(l => l.date === today);
+            const todayLogs = Data.logs.filter(l => l.date === today);
             document.getElementById('sum-meals').innerText = todayLogs.filter(l => l.type === 'הנקה' || l.type === 'בקבוק').length;
             document.getElementById('sum-diapers').innerText = todayLogs.filter(l => l.type === 'חיתול').length;
-            
-            const lastM = DataStore.logs.find(l => l.type === 'הנקה' || l.type === 'בקבוק');
-            const lastD = DataStore.logs.find(l => l.type === 'חיתול');
-            document.getElementById('inf-nursing').innerText = lastM ? lastM.time : '-';
-            document.getElementById('inf-diaper').innerText = lastD ? lastD.time : '-';
+            let sMin = 0; todayLogs.filter(l => l.type === 'שינה').forEach(l => { const m = l.detail.match(/(\d+) דקות/); if(m) sMin += parseInt(m[1]); });
+            document.getElementById('sum-sleep').innerText = (sMin/60).toFixed(1);
+
+            const lastN = Data.logs.find(l => l.type === 'הנקה' || l.type === 'בקבוק');
+            const lastD = Data.logs.find(l => l.type === 'חיתול');
+            document.getElementById('inf-nursing').innerText = lastN ? lastN.time : 'טרם';
+            document.getElementById('inf-diaper').innerText = lastD ? lastD.time : 'טרם';
 
             const sCard = document.getElementById('card-sleep');
-            if(DataStore.sleepStart) {
-                sCard.classList.add('active-sleep');
-                this.updateLiveSleep();
+            if(Data.sleepS) {
+                sCard.style.background = 'var(--indigo)'; sCard.style.color = 'white';
+                const diff = Math.floor((Date.now() - Data.sleepS) / 60000);
+                document.getElementById('inf-sleep').innerText = `ישנה: ${diff} דק'`;
             } else {
-                sCard.classList.remove('active-sleep');
+                sCard.style.background = 'var(--card-bg)'; sCard.style.color = 'var(--text)';
                 document.getElementById('inf-sleep').innerText = "לילה טוב";
             }
         },
-        updateLiveSleep() {
-            if(!DataStore.sleepStart) return;
-            const diff = Math.floor((Date.now() - DataStore.sleepStart) / 60000);
-            document.getElementById('inf-sleep').innerText = `ישנה: ${diff} דק'`;
+        toggleMedIntervals() {
+            const type = document.getElementById('m-interval-type').value;
+            document.getElementById('m-interval-val-container').style.display = (type === 'daily') ? 'none' : 'block';
         },
-        initSleepView() {
+        renderMeds() {
+            const container = document.getElementById('med-list-container');
+            container.innerHTML = Data.meds.map(m => `
+                <div class="btn-bar">
+                    <div style="text-align:right"><b>${m.name}</b><br><small>${m.dose} | ${m.intervalText}</small></div>
+                    <button class="btn-bar" style="width:auto; background:var(--green); color:white; margin:0;" onclick="Actions.logSimple('תרופה', '${m.name}')">נטילה</button>
+                    <button style="background:none; border:none;" onclick="Actions.delMed(${m.id})">🗑️</button>
+                </div>`).join('');
+        },
+        renderCalendar(dateStr) {
+            const sel = dateStr || new Date().toLocaleDateString('en-GB');
+            const grid = document.getElementById('cal-grid'); grid.innerHTML = '';
+            for(let i=1; i<=31; i++) {
+                const d = i.toString().padStart(2,'0') + "/" + (new Date().getMonth()+1).toString().padStart(2,'0') + "/" + new Date().getFullYear();
+                grid.innerHTML += `<div onclick="UI.renderCalendar('${d}')" style="padding:8px; text-align:center; border-radius:10px; background:${sel===d?'var(--rose)':'white'}; color:${sel===d?'white':'black'}; border:1px solid #eee;">${i}</div>`;
+            }
+            const filtered = Data.logs.filter(l => l.date === sel);
+            document.getElementById('cal-list').innerHTML = filtered.map(l => `
+                <div class="btn-bar"><div><b>${l.time}</b> | ${l.type}: ${l.detail}</div><button style="border:none;background:none" onclick="Actions.delLog(${l.ts})">🗑️</button></div>`).join('') || 'אין נתונים';
+        },
+        renderCharts() {
+            const lastW = Data.measures.length ? Data.measures[Data.measures.length-1].w : '-';
+            const lastH = Data.measures.length ? Data.measures[Data.measures.length-1].h : '-';
+            new Chart(document.getElementById('chartW'), { type:'line', data:{labels:Data.measures.slice(-5).map(m=>m.date), datasets:[{label:`משקל (אחרון: ${lastW})`, data:Data.measures.slice(-5).map(m=>m.w), borderColor:'blue'}]}});
+            new Chart(document.getElementById('chartH'), { type:'line', data:{labels:Data.measures.slice(-5).map(m=>m.date), datasets:[{label:`גובה (אחרון: ${lastH})`, data:Data.measures.slice(-5).map(m=>m.h), borderColor:'green'}]}});
+        },
+        initSleep() {
             const btn = document.getElementById('s-toggle');
-            if(DataStore.sleepStart) {
+            if(Data.sleepS) {
                 btn.innerText = "בוקר טוב ☀️"; btn.style.background = "var(--amber)";
-                if(window.sTimerInt) clearInterval(window.sTimerInt);
-                window.sTimerInt = setInterval(() => {
-                    const sec = Math.floor((Date.now() - DataStore.sleepStart) / 1000);
+                if(window.si) clearInterval(window.si);
+                window.si = setInterval(() => {
+                    const sec = Math.floor((Date.now() - Data.sleepS) / 1000);
                     document.getElementById('s-timer').innerText = Math.floor(sec/60).toString().padStart(2,'0') + ":" + (sec%60).toString().padStart(2,'0');
                 }, 1000);
             } else {
                 btn.innerText = "התחלת שינה 🌙"; btn.style.background = "var(--indigo)";
                 document.getElementById('s-timer').innerText = "00:00";
-                clearInterval(window.sTimerInt);
+                clearInterval(window.si);
             }
-        },
-        renderCalendar(dateStr) {
-            const selected = dateStr || new Date().toLocaleDateString('en-GB');
-            const grid = document.getElementById('cal-grid'); grid.innerHTML = '';
-            for(let i=1; i<=31; i++) {
-                const div = document.createElement('div');
-                div.style = `padding:8px; text-align:center; border-radius:10px; cursor:pointer; background:${i===15?'var(--rose)':'var(--card-bg)'}; border:1px solid #eee;`;
-                div.innerText = i; grid.appendChild(div);
-            }
-            document.getElementById('day-logs-container').innerHTML = `<p style="text-align:center">יומן פעילות ל-${selected}</p>`;
         },
         showToast() { const t = document.getElementById('toast'); t.className = "show"; setTimeout(()=>t.className="", 3000); }
     };
 
+    let nInt, nStart, nSide, nDurs = {R:0, L:0};
     const Actions = {
         saveProfile() {
-            const name = document.getElementById('baby-name').value;
-            if(!name) return alert("אנא הכנס שם");
-            DataStore.profile = {
-                name: name,
-                gender: document.getElementById('baby-gender').value,
-                dob: document.getElementById('baby-dob').value,
-                mom: document.getElementById('mom-name').value,
-                dad: document.getElementById('dad-name').value
-            };
-            DataStore.save();
-            UI.init();
+            const name = document.getElementById('reg-name').value;
+            if(!name) return;
+            Data.profile = { name, gender: document.getElementById('reg-gender').value, dob: document.getElementById('reg-dob').value, mom: document.getElementById('reg-mom').value, dad: document.getElementById('reg-dad').value };
+            Data.save(); UI.init();
         },
         logSimple(type, detail) {
-            DataStore.logs.unshift({ type, detail, time: new Date().toLocaleTimeString('he-IL',{hour:'2-digit', minute:'2-digit'}), ts: Date.now(), date: new Date().toLocaleDateString('en-GB') });
-            DataStore.save(); UI.showToast(); Navigation.show('scr-home');
+            Data.logs.unshift({ type, detail, time: new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}), ts: Date.now(), date: new Date().toLocaleDateString('en-GB') });
+            Data.save(); UI.showToast(); Navigation.show('scr-home');
         },
-        addBottle() { const ml = prompt("כמות במ\"ל:"); if(ml) this.logSimple('בקבוק', ml + ' מ"ל'); },
-        toggleSleep() {
-            if(!DataStore.sleepStart) { DataStore.sleepStart = Date.now(); DataStore.save(); UI.initSleepView(); }
-            else {
-                const diffMin = Math.round((Date.now()-DataStore.sleepStart)/60000);
-                this.logSimple('שינה', `משך: ${diffMin} דקות`);
-                DataStore.sleepStart = null; DataStore.save(); Navigation.show('scr-home');
+        confirmBottle() {
+            const amt = document.getElementById('bottle-amount').value;
+            if(amt) { this.logSimple('בקבוק', amt + ' מ"ל'); document.getElementById('modal-bottle').style.display='none'; document.getElementById('bottle-amount').value=''; }
+        },
+        toggleNursing(side) {
+            if(nSide === side) {
+                clearInterval(nInt); nDurs[side==='ימין'?'R':'L'] += Math.round((Date.now()-nStart)/1000); nSide = null;
+                document.getElementById(side==='ימין'?'n-R':'n-L').style.background = "white";
+            } else {
+                if(nSide) this.toggleNursing(nSide);
+                nSide = side; nStart = Date.now();
+                document.getElementById(side==='ימין'?'n-R':'n-L').style.background = "#ffd1d1";
+                nInt = setInterval(() => {
+                    const sec = Math.floor((Date.now()-nStart)/1000) + nDurs[side==='ימין'?'R':'L'];
+                    document.getElementById('n-timer').innerText = Math.floor(sec/60).toString().padStart(2,'0')+":"+(sec%60).toString().padStart(2,'0');
+                }, 1000);
             }
         },
-        toggleTheme() { document.body.classList.toggle('night-mode'); }
+        finishNursing() {
+            if(nDurs.R || nDurs.L) { this.logSimple('הנקה', `ימין: ${Math.floor(nDurs.R/60)} דק', שמאל: ${Math.floor(nDurs.L/60)} דק'`); nDurs = {R:0, L:0}; clearInterval(nInt); }
+            else Navigation.show('scr-home');
+        },
+        toggleSleep() {
+            if(!Data.sleepS) { Data.sleepS = Date.now(); Data.save(); UI.initSleep(); }
+            else { const diff = Math.round((Date.now()-Data.sleepS)/60000); this.logSimple('שינה', `${diff} דקות`); Data.sleepS = null; Data.save(); Navigation.show('scr-home'); }
+        },
+        addMed() {
+            const name = document.getElementById('m-name').value, dose = document.getElementById('m-dose').value, type = document.getElementById('m-interval-type').value, val = document.getElementById('m-interval-val').value;
+            if(!name) return;
+            let text = (type === 'daily') ? "פעם ביום" : (type === 'hours' ? `כל ${val} שעות` : `כל ${val} ימים`);
+            Data.meds.push({ name, dose, intervalText: text, id: Date.now() });
+            Data.save(); UI.renderMeds();
+        },
+        delMed(id) { Data.meds = Data.meds.filter(m=>m.id!==id); Data.save(); UI.renderMeds(); },
+        delLog(ts) { Data.logs = Data.logs.filter(l=>l.ts!==ts); Data.save(); UI.renderCalendar(); },
+        saveMeasure() {
+            const w = document.getElementById('ms-w').value, h = document.getElementById('ms-h').value;
+            if(w||h) { Data.measures.push({ date: new Date().toLocaleDateString('en-GB').slice(0,5), w, h }); Data.save(); Navigation.show('scr-home'); }
+        }
     };
 
-    DataStore.load();
+    Data.load();
     UI.init();
 </script>
 </body>
 </html>
-
