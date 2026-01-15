@@ -79,16 +79,21 @@
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>ZOHAR APP</h1>
-            <p id="current-time"></p>
-        </header>
+   <div class="container">
+    <header>
+        <h1 onclick="Actions.switchScreen('main')">ZOHAR APP</h1>
+        <p id="current-time"></p>
+    </header>
 
-        <div class="card" style="flex-direction: column;">
-            <input type="text" id="med-name" placeholder="שם התרופה / פעולה">
-            <button class="btn btn-add" onclick="Actions.addNewMed()">הוסף לרשימה</button>
-        </div>
+    <nav class="nav-bar">
+        <button onclick="Actions.switchScreen('main')">תרופות</button>
+        <button onclick="Actions.switchScreen('history')">היסטוריה</button>
+        <button onclick="Actions.switchScreen('settings')">הגדרות</button>
+    </nav>
+
+    <main id="app-content">
+        </main>
+</div>
 
         <div id="med-list">
             </div>
@@ -213,3 +218,4 @@
     </script>
 </body>
 </html>
+
