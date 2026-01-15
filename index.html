@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp Pro</title>
+    <title>ZoharApp Pro v17</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;800&display=swap');
@@ -13,26 +13,27 @@
         }
         body.night-mode { --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; }
         * { box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: var(--text); margin: 0; min-height: 100vh; padding-bottom: 30px; }
+        body { background-color: var(--bg); color: var(--text); margin: 0; min-height: 100vh; padding-bottom: 50px; }
         .container { max-width: 450px; margin: 0 auto; padding: 15px; }
 
-        /* Welcome & Modals */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 25px; width: 90%; max-width: 350px; text-align: center; }
+        /* Alerts & Modals */
+        .danger-alert { background: #fee2e2; border: 2px solid var(--red); color: #991b1b; padding: 15px; border-radius: 15px; margin: 10px 0; font-weight: 800; display: none; }
+        .modal { display: none; position: fixed; z-index: 5000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 25px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
 
-        /* Dashboard Bento */
+        /* Dashboard & UI */
         .summary-box { background: linear-gradient(135deg, var(--rose), #fda4af); color: white; padding: 20px; border-radius: 24px; margin-bottom: 20px; display: flex; justify-content: space-around; box-shadow: 0 8px 20px rgba(251,113,133,0.3); }
         .bento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
         .bento-card { background: var(--card-bg); border-radius: 20px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; cursor: pointer; border-bottom: 4px solid rgba(0,0,0,0.05); }
         .bento-card.wide { grid-column: span 2; flex-direction: row; align-items: center; justify-content: space-between; }
         .card-info { font-size: 11px; color: var(--rose); font-weight: bold; margin-top: 4px; }
         
-        /* Elements */
         .btn-bar { width: 100%; background: var(--card-bg); border: none; padding: 16px; border-radius: 18px; margin-bottom: 10px; font-size: 16px; font-weight: 800; color: var(--text); cursor: pointer; border-bottom: 4px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .timer { font-size: 55px; text-align: center; color: var(--rose); margin: 20px 0; font-family: monospace; font-weight: 800; }
+        .timer { font-size: 50px; text-align: center; color: var(--rose); margin: 15px 0; font-family: monospace; font-weight: 800; }
         input, select { width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 15px; font-size: 16px; background: var(--card-bg); color: var(--text); }
+        label { display: block; margin: 5px 5px 5px 0; font-weight: bold; font-size: 14px; color: var(--rose); }
         .screen { display: none; } .screen.active { display: block; }
-        #toast { visibility: hidden; min-width: 200px; background: #1e293b; color: white; text-align: center; border-radius: 50px; padding: 12px; position: fixed; left: 50%; transform: translateX(-50%); bottom: 30px; z-index: 3000; font-weight: bold; }
+        #toast { visibility: hidden; min-width: 200px; background: #1e293b; color: white; text-align: center; border-radius: 50px; padding: 12px; position: fixed; left: 50%; transform: translateX(-50%); bottom: 30px; z-index: 6000; font-weight: bold; }
         #toast.show { visibility: visible; }
     </style>
 </head>
@@ -40,13 +41,13 @@
 
 <div id="toast">נשמר! ✨</div>
 
-<div id="modal-bottle" class="modal">
+<div id="modal-alert" class="modal">
     <div class="modal-content">
-        <h3>🍼 כמה מ"ל אכלנו?</h3>
-        <input type="number" id="bottle-amount" placeholder="כמות ב-מ״ל" autofocus>
-        <div style="display:flex; gap:10px;">
-            <button class="btn-bar" style="background:var(--green); color:white; justify-content:center;" onclick="Actions.confirmBottle()">שמור</button>
-            <button class="btn-bar" style="background:var(--red); color:white; justify-content:center;" onclick="document.getElementById('modal-bottle').style.display='none'">ביטול</button>
+        <h2 id="alert-title" style="color:var(--red)">⚠️ אזהרה חמורה</h2>
+        <p id="alert-msg" style="font-size:18px; font-weight:bold;"></p>
+        <div id="alert-actions" style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-bar" style="background:var(--red); color:white; justify-content:center;" id="alert-btn-confirm">אישור</button>
+            <button class="btn-bar" style="background:#eee; justify-content:center;" id="alert-btn-cancel">ביטול</button>
         </div>
     </div>
 </div>
@@ -54,21 +55,21 @@
 <div class="container">
     
     <div id="scr-onboarding" class="screen">
-        <div style="text-align:center; padding-top:40px;">
-            <h1 style="color:var(--rose)">מזל טוב! 🍼</h1>
-            <p>בואו נכניס פרטים ראשונים:</p>
+        <div style="text-align:center; padding-top:20px;">
+            <h1 style="color:var(--rose)">מזל טוב! יש לנו בייבי חדש 🍼</h1>
             <input type="text" id="reg-name" placeholder="שם התינוק/ת">
             <select id="reg-gender"><option value="תינוק">זכר</option><option value="תינוקת">נקבה</option></select>
+            <label>תאריך לידה:</label>
             <input type="date" id="reg-dob">
             <input type="text" id="reg-mom" placeholder="שם האם">
             <input type="text" id="reg-dad" placeholder="שם האב">
-            <button class="btn-bar" style="background:var(--rose); color:white; justify-content:center;" onclick="Actions.saveProfile()">מתחילים! ✨</button>
+            <button class="btn-bar" style="background:var(--rose); color:white; justify-content:center;" onclick="Actions.saveProfile()">שמור והמשך ✨</button>
         </div>
     </div>
 
     <div id="app-main" style="display:none">
         <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0;">
-            <h1 id="dynamic-title" style="font-size:22px; color:var(--rose); margin:0; font-weight:800;">היום של זוהר</h1>
+            <h1 id="dynamic-title" style="font-size:20px; color:var(--rose); margin:0; font-weight:800;">היום של...</h1>
             <button onclick="document.body.classList.toggle('night-mode')" style="background:none; border:none; font-size:20px;">🌓</button>
         </div>
 
@@ -83,7 +84,7 @@
                 <div class="bento-card" onclick="Navigation.show('scr-nursing')" style="border-right: 4px solid var(--rose)">
                     <span>🤱</span><b>הנקה</b><span class="card-info" id="inf-nursing">-</span>
                 </div>
-                <div class="bento-card" onclick="document.getElementById('modal-bottle').style.display='flex'" style="border-right: 4px solid var(--blue)">
+                <div class="bento-card" onclick="Actions.promptBottle()" style="border-right: 4px solid var(--blue)">
                     <span>🍼</span><b>בקבוק</b><span class="card-info" id="inf-bottle">תיעוד</span>
                 </div>
                 <div class="bento-card" onclick="Navigation.show('scr-diaper')" style="border-right: 4px solid var(--amber)">
@@ -102,61 +103,66 @@
                     <span>🛁 <b>רחצה</b></span><span>❯</span>
                 </div>
             </div>
+            
             <button class="btn-bar" onclick="Navigation.show('scr-calendar')">📅 יומן פעילות מלא <span>❯</span></button>
+            
+            <div style="margin-top:20px; border-top:1px solid #ddd; padding-top:15px;">
+                <button class="btn-bar" style="background:var(--blue); color:white; justify-content:center;" onclick="Actions.exportPDF()">📋 הכנת דוח לרופא (PDF)</button>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <button class="btn-bar" style="font-size:13px; justify-content:center;" onclick="Actions.exportData()">📥 גיבוי נתונים</button>
+                    <button class="btn-bar" style="font-size:13px; justify-content:center; color:var(--red);" onclick="Data.clear()">⚠️ מחיקה</button>
+                </div>
+            </div>
         </div>
 
         <div id="scr-nursing" class="screen">
-            <h2 style="text-align:center">הנקה</h2>
+            <h2 style="text-align:center">🤱 הנקה</h2>
+            <div style="background:rgba(251,113,133,0.1); padding:10px; border-radius:15px; text-align:center; margin-bottom:10px;">
+                פעם אחרונה: <b id="n-last-time">-</b> | צד: <b id="n-last-side">-</b>
+            </div>
             <div id="n-timer" class="timer">00:00</div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <button id="n-R" class="btn-bar" style="justify-content:center; height:80px;" onclick="Actions.toggleNursing('ימין')">ימין</button>
-                <button id="n-L" class="btn-bar" style="justify-content:center; height:80px;" onclick="Actions.toggleNursing('שמאל')">שמאל</button>
+                <button id="n-R" class="btn-bar" style="justify-content:center; height:100px;" onclick="Actions.toggleNursing('ימין')">ימין</button>
+                <button id="n-L" class="btn-bar" style="justify-content:center; height:100px;" onclick="Actions.toggleNursing('שמאל')">שמאל</button>
             </div>
-            <button class="btn-bar" style="background:var(--green); color:white; margin-top:20px; justify-content:center;" onclick="Actions.finishNursing()">סיום ארוחה</button>
-            <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
-        </div>
-
-        <div id="scr-sleep" class="screen">
-            <h2 style="text-align:center">מעקב שינה</h2>
-            <div id="s-timer" class="timer">00:00</div>
-            <button id="s-toggle" class="btn-bar" style="justify-content:center; height:100px; background:var(--indigo); color:white;" onclick="Actions.toggleSleep()">התחלת שינה 🌙</button>
-            <button class="btn-bar" style="justify-content:center; background:none; margin-top:10px;" onclick="Navigation.show('scr-home')">חזרה</button>
-        </div>
-
-        <div id="scr-diaper" class="screen">
-            <h2 style="text-align:center">חיתול</h2>
-            <button class="btn-bar" onclick="Actions.logSimple('חיתול','💦 פיפי')">💦 פיפי</button>
-            <button class="btn-bar" onclick="Actions.logSimple('חיתול','💩 קקי')">💩 קקי</button>
-            <button class="btn-bar" onclick="Actions.logSimple('חיתול','🌈 גם וגם')">🌈 גם וגם</button>
+            <button class="btn-bar" style="background:var(--green); color:white; margin-top:20px; justify-content:center;" onclick="Actions.finishNursing()">סיום ועדכון</button>
             <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
         </div>
 
         <div id="scr-meds" class="screen">
-            <h2 style="text-align:center">💊 תרופות</h2>
-            <input type="text" id="m-name" placeholder="שם התרופה">
-            <input type="text" id="m-dose" placeholder="מינון (למשל 2.5 מ״ל)">
-            <select id="m-interval-type" onchange="UI.toggleMedIntervals()">
-                <option value="daily">פעם ביום</option>
-                <option value="hours">כל כמה שעות</option>
-                <option value="days">כל כמה ימים</option>
-            </select>
-            <div id="m-interval-val-container" style="display:none">
-                <input type="number" id="m-interval-val" placeholder="הכנס מספר">
+            <h2 style="text-align:center">💊 ניהול תרופות</h2>
+            <div class="danger-alert" id="med-warning">שים לב! לא עבר מספיק זמן מהמנה הקודמת!</div>
+            <input type="text" id="m-name" placeholder="שם התרופה (למשל: נורופן)">
+            <input type="text" id="m-dose" placeholder="מינון (למשל: 2.5 מ״ל)">
+            <label>אינטרוול (זמן המתנה):</label>
+            <div style="display:flex; gap:10px;">
+                <select id="m-type" onchange="document.getElementById('m-val').style.display = (this.value==='daily'?'none':'block')">
+                    <option value="daily">פעם ביום</option>
+                    <option value="hours">כל כמה שעות</option>
+                    <option value="days">כל כמה ימים</option>
+                </select>
+                <input type="number" id="m-val" placeholder="כמות" style="display:none; width:80px;">
             </div>
-            <button class="btn-bar" style="background:var(--indigo); color:white; justify-content:center;" onclick="Actions.addMed()">הוסף תרופה</button>
+            <button class="btn-bar" style="background:var(--indigo); color:white; justify-content:center;" onclick="Actions.addMed()">הוסף תרופה לרשימה</button>
             <div id="med-list-container" style="margin-top:20px;"></div>
             <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
         </div>
 
         <div id="scr-measures" class="screen">
-            <h2 style="text-align:center">מדדים</h2>
+            <h2 style="text-align:center">📈 מדדי גדילה</h2>
             <div style="display:flex; gap:10px;">
-                <input type="number" id="ms-w" step="0.001" placeholder="משקל">
-                <input type="number" id="ms-h" step="0.1" placeholder="גובה">
+                <input type="number" id="ms-w" step="0.001" placeholder="משקל (ק״ג)">
+                <input type="number" id="ms-h" step="0.1" placeholder="גובה (ס״מ)">
             </div>
-            <button class="btn-bar" style="background:var(--green); color:white; justify-content:center;" onclick="Actions.saveMeasure()">שמור</button>
-            <canvas id="chartW" style="margin-bottom:20px;"></canvas>
-            <canvas id="chartH"></canvas>
+            <button class="btn-bar" style="background:var(--green); color:white; justify-content:center;" onclick="Actions.checkMeasuresBeforeSave()">שמור מדדים</button>
+            <div style="margin-top:20px;">
+                <h4 id="title-w" style="margin:0; color:var(--indigo)">משקל אחרון: -</h4>
+                <canvas id="chartW" style="max-height:180px;"></canvas>
+            </div>
+            <div style="margin-top:20px;">
+                <h4 id="title-h" style="margin:0; color:var(--green)">גובה אחרון: -</h4>
+                <canvas id="chartH" style="max-height:180px;"></canvas>
+            </div>
             <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
         </div>
 
@@ -165,26 +171,45 @@
             <div id="cal-list"></div>
             <button class="btn-bar" style="justify-content:center; background:none; margin-top:20px;" onclick="Navigation.show('scr-home')">חזרה</button>
         </div>
+
+        <div id="scr-sleep" class="screen">
+            <h2 style="text-align:center">🌙 מעקב שינה</h2>
+            <div id="s-timer" class="timer">00:00</div>
+            <button id="s-toggle" class="btn-bar" style="justify-content:center; height:120px; background:var(--indigo); color:white;" onclick="Actions.toggleSleep()">התחלת שינה</button>
+            <button class="btn-bar" style="justify-content:center; background:none; margin-top:10px;" onclick="Navigation.show('scr-home')">חזרה</button>
+        </div>
+
+        <div id="scr-diaper" class="screen">
+            <h2 style="text-align:center">✨ חיתולים</h2>
+            <button class="btn-bar" onclick="Actions.logSimple('חיתול','💦 פיפי')">💦 פיפי</button>
+            <button class="btn-bar" onclick="Actions.logSimple('חיתול','💩 קקי')">💩 קקי</button>
+            <button class="btn-bar" onclick="Actions.logSimple('חיתול','🌈 גם וגם')">🌈 גם וגם</button>
+            <button class="btn-bar" style="justify-content:center; background:none;" onclick="Navigation.show('scr-home')">חזרה</button>
+        </div>
+
     </div>
 </div>
 
 <script>
     const Data = {
-        logs: [], meds: [], measures: [], profile: null, sleepS: null,
+        logs: [], meds: [], measures: [], profile: null, sleepS: null, lastSide: '-',
         load() {
-            this.logs = JSON.parse(localStorage.getItem('z_v16_logs')) || [];
-            this.meds = JSON.parse(localStorage.getItem('z_v16_meds')) || [];
-            this.measures = JSON.parse(localStorage.getItem('z_v16_measures')) || [];
-            this.profile = JSON.parse(localStorage.getItem('z_v16_prof')) || null;
-            this.sleepS = parseInt(localStorage.getItem('z_v16_sleep')) || null;
+            this.logs = JSON.parse(localStorage.getItem('z_v17_logs')) || [];
+            this.meds = JSON.parse(localStorage.getItem('z_v17_meds')) || [];
+            this.measures = JSON.parse(localStorage.getItem('z_v17_meas')) || [];
+            this.profile = JSON.parse(localStorage.getItem('z_v17_prof')) || null;
+            this.sleepS = parseInt(localStorage.getItem('z_v17_sleep')) || null;
+            this.lastSide = localStorage.getItem('z_v17_side') || '-';
         },
         save() {
-            localStorage.setItem('z_v16_logs', JSON.stringify(this.logs));
-            localStorage.setItem('z_v16_meds', JSON.stringify(this.meds));
-            localStorage.setItem('z_v16_measures', JSON.stringify(this.measures));
-            localStorage.setItem('z_v16_prof', JSON.stringify(this.profile));
-            if(this.sleepS) localStorage.setItem('z_v16_sleep', this.sleepS); else localStorage.removeItem('z_v16_sleep');
-        }
+            localStorage.setItem('z_v17_logs', JSON.stringify(this.logs));
+            localStorage.setItem('z_v17_meds', JSON.stringify(this.meds));
+            localStorage.setItem('z_v17_meas', JSON.stringify(this.measures));
+            localStorage.setItem('z_v17_prof', JSON.stringify(this.profile));
+            localStorage.setItem('z_v17_side', this.lastSide);
+            if(this.sleepS) localStorage.setItem('z_v17_sleep', this.sleepS); else localStorage.removeItem('z_v17_sleep');
+        },
+        clear() { if(confirm("למחוק הכל?")) { localStorage.clear(); location.reload(); } }
     };
 
     const Navigation = {
@@ -194,15 +219,16 @@
             if(id === 'scr-home') UI.updateHome();
             if(id === 'scr-calendar') UI.renderCalendar();
             if(id === 'scr-measures') UI.renderCharts();
+            if(id === 'scr-meds') UI.renderMeds();
+            if(id === 'scr-nursing') UI.initNursing();
             if(id === 'scr-sleep') UI.initSleep();
         }
     };
 
     const UI = {
         init() {
-            if(!Data.profile) {
-                document.getElementById('scr-onboarding').classList.add('active');
-            } else {
+            if(!Data.profile) { Navigation.show('scr-onboarding'); }
+            else { 
                 document.getElementById('app-main').style.display = 'block';
                 document.getElementById('dynamic-title').innerText = `היום של ${Data.profile.name}`;
                 Navigation.show('scr-home');
@@ -210,71 +236,90 @@
         },
         updateHome() {
             const today = new Date().toLocaleDateString('en-GB');
-            const todayLogs = Data.logs.filter(l => l.date === today);
-            document.getElementById('sum-meals').innerText = todayLogs.filter(l => l.type === 'הנקה' || l.type === 'בקבוק').length;
-            document.getElementById('sum-diapers').innerText = todayLogs.filter(l => l.type === 'חיתול').length;
-            let sMin = 0; todayLogs.filter(l => l.type === 'שינה').forEach(l => { const m = l.detail.match(/(\d+) דקות/); if(m) sMin += parseInt(m[1]); });
+            const tLogs = Data.logs.filter(l => l.date === today);
+            document.getElementById('sum-meals').innerText = tLogs.filter(l => l.type === 'הנקה' || l.type === 'בקבוק').length;
+            document.getElementById('sum-diapers').innerText = tLogs.filter(l => l.type === 'חיתול').length;
+            let sMin = 0; tLogs.filter(l => l.type === 'שינה').forEach(l => { const m = l.detail.match(/(\d+) דקות/); if(m) sMin += parseInt(m[1]); });
             document.getElementById('sum-sleep').innerText = (sMin/60).toFixed(1);
 
             const lastN = Data.logs.find(l => l.type === 'הנקה' || l.type === 'בקבוק');
             const lastD = Data.logs.find(l => l.type === 'חיתול');
-            document.getElementById('inf-nursing').innerText = lastN ? lastN.time : 'טרם';
-            document.getElementById('inf-diaper').innerText = lastD ? lastD.time : 'טרם';
-
-            const sCard = document.getElementById('card-sleep');
+            document.getElementById('inf-nursing').innerText = lastN ? lastN.time : '-';
+            document.getElementById('inf-diaper').innerText = lastD ? lastD.time : '-';
+            
             if(Data.sleepS) {
-                sCard.style.background = 'var(--indigo)'; sCard.style.color = 'white';
-                const diff = Math.floor((Date.now() - Data.sleepS) / 60000);
+                const diff = Math.floor((Date.now() - Data.sleepS)/60000);
                 document.getElementById('inf-sleep').innerText = `ישנה: ${diff} דק'`;
+                document.getElementById('card-sleep').style.background = 'var(--indigo)';
+                document.getElementById('card-sleep').style.color = 'white';
             } else {
-                sCard.style.background = 'var(--card-bg)'; sCard.style.color = 'var(--text)';
                 document.getElementById('inf-sleep').innerText = "לילה טוב";
+                document.getElementById('card-sleep').style.background = 'var(--card-bg)';
+                document.getElementById('card-sleep').style.color = 'var(--text)';
             }
         },
-        toggleMedIntervals() {
-            const type = document.getElementById('m-interval-type').value;
-            document.getElementById('m-interval-val-container').style.display = (type === 'daily') ? 'none' : 'block';
+        showAlert(title, msg, onConfirm, showCancel = true) {
+            const m = document.getElementById('modal-alert');
+            document.getElementById('alert-title').innerText = title;
+            document.getElementById('alert-msg').innerText = msg;
+            const bConf = document.getElementById('alert-btn-confirm');
+            const bCanc = document.getElementById('alert-btn-cancel');
+            bCanc.style.display = showCancel ? 'block' : 'none';
+            bConf.onclick = () => { m.style.display = 'none'; if(onConfirm) onConfirm(); };
+            bCanc.onclick = () => { m.style.display = 'none'; };
+            m.style.display = 'flex';
         },
         renderMeds() {
             const container = document.getElementById('med-list-container');
             container.innerHTML = Data.meds.map(m => `
-                <div class="btn-bar">
-                    <div style="text-align:right"><b>${m.name}</b><br><small>${m.dose} | ${m.intervalText}</small></div>
-                    <button class="btn-bar" style="width:auto; background:var(--green); color:white; margin:0;" onclick="Actions.logSimple('תרופה', '${m.name}')">נטילה</button>
-                    <button style="background:none; border:none;" onclick="Actions.delMed(${m.id})">🗑️</button>
+                <div class="btn-bar" style="height:auto; padding:10px;">
+                    <div style="text-align:right"><b>${m.name}</b><br><small>${m.dose} | ${m.text}</small></div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-bar" style="width:auto; margin:0; background:var(--green); color:white; padding:8px;" onclick="Actions.takeMed(${m.id})">נטילה</button>
+                        <button style="background:none; border:none;" onclick="Actions.delMed(${m.id})">🗑️</button>
+                    </div>
                 </div>`).join('');
+        },
+        renderCharts() {
+            const lastW = Data.measures[Data.measures.length-1];
+            const lastH = Data.measures[Data.measures.length-1];
+            document.getElementById('title-w').innerText = `משקל אחרון: ${lastW ? lastW.w + ' ק״ג ('+lastW.fullDate+')' : '-'}`;
+            document.getElementById('title-h').innerText = `גובה אחרון: ${lastH ? lastH.h + ' ס״מ ('+lastH.fullDate+')' : '-'}`;
+            
+            const ctxW = document.getElementById('chartW').getContext('2d');
+            const ctxH = document.getElementById('chartH').getContext('2d');
+            if(window.cW) window.cW.destroy(); if(window.cH) window.cH.destroy();
+            window.cW = new Chart(ctxW, { type:'line', data:{ labels: Data.measures.map(m=>m.date), datasets:[{label:'משקל', data:Data.measures.map(m=>m.w), borderColor:'blue', fill:false}]}});
+            window.cH = new Chart(ctxH, { type:'line', data:{ labels: Data.measures.map(m=>m.date), datasets:[{label:'גובה', data:Data.measures.map(m=>m.h), borderColor:'green', fill:false}]}});
+        },
+        initNursing() {
+            const lastN = Data.logs.find(l => l.type === 'הנקה');
+            document.getElementById('n-last-time').innerText = lastN ? lastN.time : '-';
+            document.getElementById('n-last-side').innerText = Data.lastSide;
+        },
+        initSleep() {
+            if(Data.sleepS) {
+                document.getElementById('s-toggle').innerText = "בוקר טוב / התעוררות ☀️";
+                if(window.si) clearInterval(window.si);
+                window.si = setInterval(() => {
+                    const sec = Math.floor((Date.now()-Data.sleepS)/1000);
+                    document.getElementById('s-timer').innerText = Math.floor(sec/60).toString().padStart(2,'0')+":"+(sec%60).toString().padStart(2,'0');
+                }, 1000);
+            } else {
+                document.getElementById('s-toggle').innerText = "התחלת שינה 🌙";
+                document.getElementById('s-timer').innerText = "00:00";
+            }
         },
         renderCalendar(dateStr) {
             const sel = dateStr || new Date().toLocaleDateString('en-GB');
             const grid = document.getElementById('cal-grid'); grid.innerHTML = '';
             for(let i=1; i<=31; i++) {
                 const d = i.toString().padStart(2,'0') + "/" + (new Date().getMonth()+1).toString().padStart(2,'0') + "/" + new Date().getFullYear();
-                grid.innerHTML += `<div onclick="UI.renderCalendar('${d}')" style="padding:8px; text-align:center; border-radius:10px; background:${sel===d?'var(--rose)':'white'}; color:${sel===d?'white':'black'}; border:1px solid #eee;">${i}</div>`;
+                grid.innerHTML += `<div onclick="UI.renderCalendar('${d}')" style="padding:8px; text-align:center; border-radius:10px; background:${sel===d?'var(--rose)':'white'}; color:${sel===d?'white':'black'}; border:1px solid #eee; cursor:pointer">${i}</div>`;
             }
             const filtered = Data.logs.filter(l => l.date === sel);
             document.getElementById('cal-list').innerHTML = filtered.map(l => `
-                <div class="btn-bar"><div><b>${l.time}</b> | ${l.type}: ${l.detail}</div><button style="border:none;background:none" onclick="Actions.delLog(${l.ts})">🗑️</button></div>`).join('') || 'אין נתונים';
-        },
-        renderCharts() {
-            const lastW = Data.measures.length ? Data.measures[Data.measures.length-1].w : '-';
-            const lastH = Data.measures.length ? Data.measures[Data.measures.length-1].h : '-';
-            new Chart(document.getElementById('chartW'), { type:'line', data:{labels:Data.measures.slice(-5).map(m=>m.date), datasets:[{label:`משקל (אחרון: ${lastW})`, data:Data.measures.slice(-5).map(m=>m.w), borderColor:'blue'}]}});
-            new Chart(document.getElementById('chartH'), { type:'line', data:{labels:Data.measures.slice(-5).map(m=>m.date), datasets:[{label:`גובה (אחרון: ${lastH})`, data:Data.measures.slice(-5).map(m=>m.h), borderColor:'green'}]}});
-        },
-        initSleep() {
-            const btn = document.getElementById('s-toggle');
-            if(Data.sleepS) {
-                btn.innerText = "בוקר טוב ☀️"; btn.style.background = "var(--amber)";
-                if(window.si) clearInterval(window.si);
-                window.si = setInterval(() => {
-                    const sec = Math.floor((Date.now() - Data.sleepS) / 1000);
-                    document.getElementById('s-timer').innerText = Math.floor(sec/60).toString().padStart(2,'0') + ":" + (sec%60).toString().padStart(2,'0');
-                }, 1000);
-            } else {
-                btn.innerText = "התחלת שינה 🌙"; btn.style.background = "var(--indigo)";
-                document.getElementById('s-timer').innerText = "00:00";
-                clearInterval(window.si);
-            }
+                <div class="btn-bar"><div><b>${l.time}</b> | ${l.type}: ${l.detail}</div><button style="border:none;background:none" onclick="Actions.delLog(${l.ts})">🗑️</button></div>`).join('') || '<p style="text-align:center">אין נתונים ליום זה</p>';
         },
         showToast() { const t = document.getElementById('toast'); t.className = "show"; setTimeout(()=>t.className="", 3000); }
     };
@@ -287,22 +332,44 @@
             Data.profile = { name, gender: document.getElementById('reg-gender').value, dob: document.getElementById('reg-dob').value, mom: document.getElementById('reg-mom').value, dad: document.getElementById('reg-dad').value };
             Data.save(); UI.init();
         },
-        logSimple(type, detail) {
+        logSimple(type, detail, side) {
+            if(side) Data.lastSide = side;
             Data.logs.unshift({ type, detail, time: new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}), ts: Date.now(), date: new Date().toLocaleDateString('en-GB') });
             Data.save(); UI.showToast(); Navigation.show('scr-home');
         },
-        confirmBottle() {
-            const amt = document.getElementById('bottle-amount').value;
-            if(amt) { this.logSimple('בקבוק', amt + ' מ"ל'); document.getElementById('modal-bottle').style.display='none'; document.getElementById('bottle-amount').value=''; }
+        promptBottle() {
+            const ml = prompt("כמה מ\"ל אכלנו?");
+            if(ml) this.logSimple('בקבוק', ml + ' מ"ל');
         },
+        addMed() {
+            const name = document.getElementById('m-name').value, dose = document.getElementById('m-dose').value, type = document.getElementById('m-type').value, val = document.getElementById('m-val').value;
+            if(!name) return;
+            let text = (type==='daily')?"פעם ביום":(type==='hours'?`כל ${val} שעות`:`כל ${val} ימים`);
+            let intervalMs = (type==='daily')?24*60*60*1000:(type==='hours'?val*60*60*1000:val*24*60*60*1000);
+            Data.meds.push({ id: Date.now(), name, dose, text, intervalMs });
+            Data.save(); UI.renderMeds();
+        },
+        takeMed(id) {
+            const med = Data.meds.find(m => m.id === id);
+            const lastTaken = Data.logs.find(l => l.type === 'תרופה' && l.detail.includes(med.name));
+            if(lastTaken && (Date.now() - lastTaken.ts < med.intervalMs)) {
+                UI.showAlert("⚠️ סכנת מנת יתר!", `שים לב! התרופה ${med.name} ניתנה לאחרונה בשעה ${lastTaken.time}. טרם עבר זמן האינטרוול הנדרש. האם בכל זאת לתעד נטילה?`, () => {
+                    this.logSimple('תרופה', med.name + ` (${med.dose})`);
+                });
+            } else {
+                this.logSimple('תרופה', med.name + ` (${med.dose})`);
+            }
+        },
+        delMed(id) { if(confirm("למחוק תרופה?")) { Data.meds = Data.meds.filter(m=>m.id!==id); Data.save(); UI.renderMeds(); } },
+        delLog(ts) { if(confirm("למחוק רישום?")) { Data.logs = Data.logs.filter(l=>l.ts!==ts); Data.save(); UI.renderCalendar(); } },
         toggleNursing(side) {
             if(nSide === side) {
                 clearInterval(nInt); nDurs[side==='ימין'?'R':'L'] += Math.round((Date.now()-nStart)/1000); nSide = null;
-                document.getElementById(side==='ימין'?'n-R':'n-L').style.background = "white";
+                document.querySelectorAll('.btn-bar').forEach(b=>b.style.boxShadow="none");
             } else {
                 if(nSide) this.toggleNursing(nSide);
                 nSide = side; nStart = Date.now();
-                document.getElementById(side==='ימין'?'n-R':'n-L').style.background = "#ffd1d1";
+                document.getElementById(side==='ימין'?'n-R':'n-L').style.boxShadow = "0 0 15px var(--rose)";
                 nInt = setInterval(() => {
                     const sec = Math.floor((Date.now()-nStart)/1000) + nDurs[side==='ימין'?'R':'L'];
                     document.getElementById('n-timer').innerText = Math.floor(sec/60).toString().padStart(2,'0')+":"+(sec%60).toString().padStart(2,'0');
@@ -310,25 +377,33 @@
             }
         },
         finishNursing() {
-            if(nDurs.R || nDurs.L) { this.logSimple('הנקה', `ימין: ${Math.floor(nDurs.R/60)} דק', שמאל: ${Math.floor(nDurs.L/60)} דק'`); nDurs = {R:0, L:0}; clearInterval(nInt); }
-            else Navigation.show('scr-home');
+            if(nDurs.R || nDurs.L) {
+                this.logSimple('הנקה', `ימין: ${Math.floor(nDurs.R/60)} דק', שמאל: ${Math.floor(nDurs.L/60)} דק'`, nSide || (nDurs.R > nDurs.L ? 'ימין' : 'שמאל'));
+                nDurs = {R:0, L:0}; clearInterval(nInt);
+            } else Navigation.show('scr-home');
         },
         toggleSleep() {
             if(!Data.sleepS) { Data.sleepS = Date.now(); Data.save(); UI.initSleep(); }
             else { const diff = Math.round((Date.now()-Data.sleepS)/60000); this.logSimple('שינה', `${diff} דקות`); Data.sleepS = null; Data.save(); Navigation.show('scr-home'); }
         },
-        addMed() {
-            const name = document.getElementById('m-name').value, dose = document.getElementById('m-dose').value, type = document.getElementById('m-interval-type').value, val = document.getElementById('m-interval-val').value;
-            if(!name) return;
-            let text = (type === 'daily') ? "פעם ביום" : (type === 'hours' ? `כל ${val} שעות` : `כל ${val} ימים`);
-            Data.meds.push({ name, dose, intervalText: text, id: Date.now() });
-            Data.save(); UI.renderMeds();
-        },
-        delMed(id) { Data.meds = Data.meds.filter(m=>m.id!==id); Data.save(); UI.renderMeds(); },
-        delLog(ts) { Data.logs = Data.logs.filter(l=>l.ts!==ts); Data.save(); UI.renderCalendar(); },
-        saveMeasure() {
+        checkMeasuresBeforeSave() {
             const w = document.getElementById('ms-w').value, h = document.getElementById('ms-h').value;
-            if(w||h) { Data.measures.push({ date: new Date().toLocaleDateString('en-GB').slice(0,5), w, h }); Data.save(); Navigation.show('scr-home'); }
+            if(!w && !h) return;
+            const lastM = Data.measures[Data.measures.length-1];
+            if(lastM && (Date.now() - lastM.ts < 24*60*60*1000)) {
+                UI.showAlert("קיימים מדדים מהיממה האחרונה", "האם הינך רוצה לבצע שינוי?", () => {
+                    Data.measures[Data.measures.length-1] = { ts: Date.now(), date: new Date().toLocaleDateString('en-GB').slice(0,5), fullDate: new Date().toLocaleDateString('en-GB'), w, h };
+                    Data.save(); Navigation.show('scr-home');
+                });
+            } else {
+                Data.measures.push({ ts: Date.now(), date: new Date().toLocaleDateString('en-GB').slice(0,5), fullDate: new Date().toLocaleDateString('en-GB'), w, h });
+                Data.save(); Navigation.show('scr-home');
+            }
+        },
+        exportPDF() { window.print(); },
+        exportData() {
+            const b = new Blob([JSON.stringify(Data)], {type:'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `ZoharApp_Backup_${new Date().toLocaleDateString()}.json`; a.click();
         }
     };
 
