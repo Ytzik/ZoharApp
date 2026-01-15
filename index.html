@@ -2,27 +2,186 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZOHAR APP</title>
     <style>
-        body { background: yellow; font-family: sans-serif; text-align: center; padding: 50px; }
-        .box { background: white; padding: 20px; border: 5px solid black; margin-bottom: 20px; }
-        button { font-size: 25px; padding: 20px; width: 100%; margin-top: 10px; cursor: pointer; }
-        #page2 { display: none; background: orange; height: 100vh; position: fixed; top: 0; left: 0; width: 100%; }
+        /* ==========================================
+           UI LAYER: עיצוב מותאם סלולרי
+           ========================================== */
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+        }
+
+        body { font-family: sans-serif; margin: 0; background: var(--bg); padding-bottom: 90px; }
+        header { background: var(--primary); color: white; text-align: center; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .container { padding: 15px; }
+
+        /* ניהול מסכים */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* כרטיסים */
+        .card { background: var(--white); padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        /* סרגל ניווט תחתון */
+        nav { 
+            position: fixed; bottom: 0; width: 100%; background: var(--white); 
+            display: flex; height: 75px; border-top: 1px solid #ddd; z-index: 1000; 
+        }
+        .nav-btn { 
+            flex: 1; border: none; background: none; font-size: 16px; font-weight: bold; 
+            color: #7f8c8d; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .nav-btn.active { color: var(--accent); border-top: 4px solid var(--accent); background: #f9f9f9; }
+
+        /* כפתורים ושדות קלט */
+        input { width: 100%; padding: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .btn { border: none; border-radius: 8px; font-weight: bold; cursor: pointer; padding: 12px; width: 100%; margin-top: 10px; font-size: 16px; }
+        .btn-main { background: var(--accent); color: white; }
+        .btn-success { background: var(--success); color: white; width: auto; margin: 0; }
+        
+        .med-row { display: flex; justify-content: space-between; align-items: center; }
+        .time-label { font-size: 0.8rem; color: #7f8c8d; }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <h1>בדיקת גרסה חדשה</h1>
-        <p>אם אתה רואה רקע צהוב, הצלחנו לעדכן!</p>
-        <button onclick="document.getElementById('page2').style.display='block'">לחץ כאן למעבר ליומן</button>
-    </div>
+    <header>
+        <h2 id="main-title" style="margin:0;">תרופות</h2>
+    </header>
 
-    <div id="page2">
-        <h1>זה מסך היומן!</h1>
-        <p>האם הצלחת לעבור?</p>
-        <button onclick="document.getElementById('page2').style.display='none'">חזור לתרופות</button>
-    </div>
+    <main class="container">
+        <div id="page-meds" class="page active">
+            <div class="card">
+                <input type="text" id="new-med-input" placeholder="שם תרופה / פעולה">
+                <button class="btn btn-main" onclick="Actions.addMed()">הוסף לרשימה</button>
+            </div>
+            <div id="med-list"></div>
+        </div>
 
+        <div id="page-history" class="page">
+            <h3 style="margin-top:0;">היסטוריית נטילות</h3>
+            <div id="history-list"></div>
+        </div>
+
+        <div id="page-settings" class="page">
+            <div class="card">
+                <h3>ניהול נתונים</h3>
+                <button class="btn" style="background: #e74c3c; color: white;" onclick="Actions.resetData()">איפוס נתונים מלא</button>
+            </div>
+        </div>
+    </main>
+
+    <nav>
+        <button id="nav-meds" class="nav-btn active" onclick="Actions.navigate('meds')">📋 תרופות</button>
+        <button id="nav-history" class="nav-btn" onclick="Actions.navigate('history')">🕒 יומן</button>
+        <button id="nav-settings" class="nav-btn" onclick="Actions.navigate('settings')">⚙️ הגדרות</button>
+    </nav>
+
+    <script>
+        /* ==========================================
+           1. DATA LAYER (localStorage)
+           ========================================== */
+        const DataLayer = {
+            fetch: (key) => JSON.parse(localStorage.getItem(key) || '[]'),
+            save: (key, data) => localStorage.setItem(key, JSON.stringify(data)),
+            
+            addLog: (entry) => {
+                const logs = DataLayer.fetch('z_logs');
+                logs.unshift(entry);
+                DataLayer.save('z_logs', logs.slice(0, 50));
+            }
+        };
+
+        /* ==========================================
+           2. LOGIC LAYER (Calculations)
+           ========================================== */
+        const LogicLayer = {
+            getTimestamp: () => new Date().toLocaleString('he-IL', {
+                hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'
+            })
+        };
+
+        /* ==========================================
+           3. UI LAYER (Rendering)
+           ========================================== */
+        const UILayer = {
+            renderMeds: () => {
+                const meds = DataLayer.fetch('z_meds');
+                const container = document.getElementById('med-list');
+                container.innerHTML = meds.map(m => `
+                    <div class="card med-row">
+                        <strong>${m.name}</strong>
+                        <button class="btn btn-success" onclick="Actions.takeMed('${m.name}')">בוצע</button>
+                    </div>
+                `).join('');
+            },
+
+            renderHistory: () => {
+                const logs = DataLayer.fetch('z_logs');
+                const container = document.getElementById('history-list');
+                container.innerHTML = logs.length ? logs.map(l => `
+                    <div class="card">
+                        <strong>${l.name}</strong><br>
+                        <span class="time-label">${l.time}</span>
+                    </div>
+                `).join('') : '<p>היומן ריק עדיין.</p>';
+            }
+        };
+
+        /* ==========================================
+           4. ACTIONS (Event Handling)
+           ========================================== */
+        const Actions = {
+            navigate: (target) => {
+                // החלפת דפים
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById('page-' + target).classList.add('active');
+                
+                // עדכון תפריט
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById('nav-' + target).classList.add('active');
+
+                // עדכון כותרת
+                const titles = { meds: 'תרופות', history: 'יומן נטילות', settings: 'הגדרות' };
+                document.getElementById('main-title').innerText = titles[target];
+
+                // ריענון נתונים במסך הנבחר
+                if(target === 'meds') UILayer.renderMeds();
+                if(target === 'history') UILayer.renderHistory();
+            },
+
+            addMed: () => {
+                const input = document.getElementById('new-med-input');
+                if(!input.value.trim()) return;
+                
+                const meds = DataLayer.fetch('z_meds');
+                meds.push({ id: Date.now(), name: input.value.trim() });
+                DataLayer.save('z_meds', meds);
+                
+                input.value = '';
+                UILayer.renderMeds();
+            },
+
+            takeMed: (name) => {
+                DataLayer.addLog({ name: name, time: LogicLayer.getTimestamp() });
+                alert("נרשם: " + name);
+            },
+
+            resetData: () => {
+                if(confirm("למחוק את כל המידע מהאפליקציה?")) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            }
+        };
+
+        // אתחול ראשוני
+        window.onload = () => UILayer.renderMeds();
+    </script>
 </body>
 </html>
