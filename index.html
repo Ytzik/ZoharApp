@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp v24 - Premium</title>
+    <title>ZoharApp v25 - Final Stable</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
@@ -12,59 +12,51 @@
             --amber: #f59e0b; --indigo: #6366f1; --bg: #f1f5f9;
         }
         * { box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); margin: 0; padding: 15px; color: #0f172a; overflow-x: hidden; }
+        body { background: var(--bg); margin: 0; padding: 15px; color: #0f172a; direction: rtl; }
         
-        /* Modals & Overlays */
+        /* מודאלים מעוצבים */
         #custom-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center;
-            backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;
         }
         .modal-content {
             background: white; width: 90%; max-width: 400px; padding: 25px; 
-            border-radius: 24px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+            border-radius: 24px; text-align: center; box-shadow: 0 20px 25px rgba(0,0,0,0.2);
         }
 
-        /* Layout */
         .screen { display: none; max-width: 480px; margin: 0 auto; animation: fadeIn 0.3s; }
         .active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .card { background: white; padding: 18px; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 15px; border: 1px solid #e2e8f0; }
-        .btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-weight: 800; cursor: pointer; font-size: 16px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .card { background: white; padding: 18px; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #e2e8f0; }
+        .btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-weight: 800; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-secondary { background: white; border: 2px solid #e2e8f0; color: #475569; }
         
-        /* Stats Grid */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 15px; border-radius: 18px; text-align: center; border-bottom: 4px solid #ddd; }
+        .stat-card { background: white; padding: 12px; border-radius: 18px; text-align: center; border-bottom: 4px solid #ddd; }
 
-        /* Specifics */
-        .timer { font-size: 50px; font-weight: 800; color: var(--rose); margin: 15px 0; font-family: monospace; }
-        .nursing-active { background: var(--red) !important; color: white !important; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        .timer { font-size: 48px; font-weight: 800; color: var(--rose); margin: 15px 0; font-family: monospace; }
+        .nursing-active { background: var(--red) !important; color: white !important; box-shadow: 0 0 15px var(--red); }
         
-        input, select { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 16px; background: #fff; }
+        input, select { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 16px; }
         .today-mark { background: var(--amber) !important; color: white !important; }
 
         @media print {
             body * { display: none !important; }
-            #print-section { display: block !important; width: 100%; padding: 0; }
-            table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: right; }
+            #print-section { display: block !important; width: 100%; }
         }
     </style>
 </head>
 <body>
 
     <div id="custom-modal">
-        <div class="modal-content" id="modal-inner">
-            </div>
+        <div class="modal-content" id="modal-inner"></div>
     </div>
 
     <div id="scr-reg" class="screen">
-        <h1 style="text-align:center; color:var(--rose)">פרופיל חדש 👶</h1>
+        <h2 style="text-align:center;">נעים להכיר 😊</h2>
         <div class="card">
-            <input type="text" id="reg-name" placeholder="שם פרטי">
+            <input type="text" id="reg-name" placeholder="שם התינוק/ת">
             <input type="text" id="reg-lname" placeholder="שם משפחה">
             <select id="reg-gender">
                 <option value="">מין התינוק/ת</option>
@@ -74,25 +66,19 @@
             <input type="date" id="reg-dob">
             <input type="text" id="reg-mom" placeholder="שם האם">
             <input type="text" id="reg-dad" placeholder="שם האב">
-            <button class="btn" style="background:var(--rose); color:white;" onclick="Core.initProfile()">שמור והמשך</button>
+            <button class="btn" style="background:var(--rose); color:white;" onclick="Core.initProfile()">שמור והתחל</button>
         </div>
     </div>
 
     <div id="scr-home" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 id="home-hello" style="margin:10px 0;">שלום</h2>
+            <h2 id="home-hello">טוען...</h2>
             <span id="gender-icon" style="font-size:24px;"></span>
         </div>
         
         <div class="stats-grid">
-            <div class="stat-card" style="border-color: var(--rose);">
-                <small>האכלה אחרונה</small>
-                <div id="stat-last-feed" style="font-weight:800; font-size:18px;">-</div>
-            </div>
-            <div class="stat-card" style="border-color: var(--amber);">
-                <small>חיתולים להיום</small>
-                <div id="stat-diapers" style="font-weight:800; font-size:18px;">0</div>
-            </div>
+            <div class="stat-card" style="border-color: var(--rose);"><small>ארוחה אחרונה</small><div id="stat-last-feed">-</div></div>
+            <div class="stat-card" style="border-color: var(--amber);"><small>חיתולים היום</small><div id="stat-diapers">0</div></div>
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
@@ -100,13 +86,13 @@
             <div class="card" onclick="Core.openBottleModal()" style="border-right: 5px solid var(--blue)">🍼 <b>בקבוק</b><br><small>רישום כמות</small></div>
             <div class="card" onclick="Nav.to('scr-diaper')" style="border-right: 5px solid var(--amber)">✨ <b>חיתול</b><br><small id="sub-diaper">-</small></div>
             <div class="card" id="card-sleep" onclick="Nav.to('scr-sleep')" style="border-right: 5px solid var(--indigo)">🌙 <b>שינה</b><br><small id="sub-sleep">זמן מנוחה</small></div>
-            <div class="card" onclick="Nav.to('scr-meds')" style="border-right: 5px solid var(--red)">💊 <b>תרופות</b><br><small>ניהול ובקרה</small></div>
+            <div class="card" onclick="Nav.to('scr-meds')" style="border-right: 5px solid var(--red)">💊 <b>תרופות</b><br><small>ניהול</small></div>
             <div class="card" onclick="Nav.to('scr-meas')" style="border-right: 5px solid var(--green)">📈 <b>מדדים</b><br><small id="sub-meas">-</small></div>
             <div class="card" onclick="Core.log('רחצה', '🛁 בוצעה רחצה')" style="grid-column: span 2; border-right: 5px solid #06b6d4;">🛁 <b>רחצה</b></div>
         </div>
 
         <button class="btn btn-secondary" style="margin-top:20px;" onclick="Nav.to('scr-cal')">📅 יומן פעילות</button>
-        <button class="btn" style="background:var(--blue); color:white; margin-top:10px;" onclick="Core.generateReport()">📋 דוח רופא (הדפסה)</button>
+        <button class="btn" style="background:var(--blue); color:white; margin-top:10px;" onclick="Core.generateReport()">📋 דוח להדפסה</button>
     </div>
 
     <div id="scr-nursing" class="screen">
@@ -115,8 +101,8 @@
             <p id="n-info" style="color:var(--rose); font-weight:700;">-</p>
             <div id="n-timer" class="timer">00:00</div>
             <div style="display:flex; gap:12px;">
-                <button id="btn-R" class="btn" style="height:100px; background:#f8fafc; border:2px solid #e2e8f0;" onclick="Core.nursingSide('ימין')">ימין</button>
-                <button id="btn-L" class="btn" style="height:100px; background:#f8fafc; border:2px solid #e2e8f0;" onclick="Core.nursingSide('שמאל')">שמאל</button>
+                <button id="btn-R" class="btn btn-secondary" style="height:100px;" onclick="Core.nursingSide('ימין')">ימין</button>
+                <button id="btn-L" class="btn btn-secondary" style="height:100px;" onclick="Core.nursingSide('שמאל')">שמאל</button>
             </div>
             <button class="btn" style="background:var(--green); color:white; margin-top:25px;" onclick="Core.nursingFinish()">סיום ועדכון</button>
         </div>
@@ -134,14 +120,14 @@
         <button class="btn btn-secondary" onclick="Nav.to('scr-home')">❯ חזרה</button>
         <div class="card">
             <input type="text" id="m-name" placeholder="שם התרופה">
-            <input type="text" id="m-dose" placeholder="מינון (למשל: 2.5 מ״ל)">
+            <input type="text" id="m-dose" placeholder="מינון">
             <select id="m-type" onchange="document.getElementById('m-val-box').style.display=(this.value==='daily'?'none':'block')">
                 <option value="hours">כל X שעות</option>
                 <option value="daily">פעם ביום</option>
                 <option value="days">כל X ימים</option>
             </select>
             <div id="m-val-box"><input type="number" id="m-val" placeholder="מספר"></div>
-            <button class="btn" style="background:var(--red); color:white;" onclick="Core.addMed()">הוסף תרופה לרשימה</button>
+            <button class="btn" style="background:var(--red); color:white;" onclick="Core.addMed()">הוסף תרופה</button>
         </div>
         <div id="med-list"></div>
     </div>
@@ -209,11 +195,11 @@
             document.getElementById('modal-inner').innerHTML = html;
             m.style.display = 'flex';
         },
-        closeModal() { document.getElementById('custom-modal').style.display = 'none'; },
+        close() { document.getElementById('custom-modal').style.display = 'none'; },
         
         home() {
             if(!DB.prof) return Nav.to('scr-reg');
-            document.getElementById('home-hello').innerText = `היום של ${DB.prof.name} ${DB.prof.lname}`;
+            document.getElementById('home-hello').innerText = `היום של ${DB.prof.name}`;
             document.getElementById('gender-icon').innerText = DB.prof.gender === 'זכר' ? '👦' : '👧';
             const today = new Date().toLocaleDateString('en-GB');
             const tLogs = DB.logs.filter(l => l.date === today);
@@ -241,19 +227,15 @@
         },
         meas() {
             if(window.cW) window.cW.destroy(); if(window.cH) window.cH.destroy();
-            const ctxW = document.getElementById('chW').getContext('2d');
-            const ctxH = document.getElementById('chH').getContext('2d');
-            window.cW = new Chart(ctxW, {type:'line', data:{labels:DB.meas.map(m=>m.date), datasets:[{label:'משקל', data:DB.meas.map(m=>m.w), borderColor:'#3b82f6'}]}});
-            window.cH = new Chart(ctxH, {type:'line', data:{labels:DB.meas.map(m=>m.date), datasets:[{label:'גובה', data:DB.meas.map(m=>m.h), borderColor:'#10b981'}]}});
+            window.cW = new Chart(document.getElementById('chW'), {type:'line', data:{labels:DB.meas.map(m=>m.date), datasets:[{label:'משקל', data:DB.meas.map(m=>m.w), borderColor:'#3b82f6'}]}});
+            window.cH = new Chart(document.getElementById('chH'), {type:'line', data:{labels:DB.meas.map(m=>m.date), datasets:[{label:'גובה', data:DB.meas.map(m=>m.h), borderColor:'#10b981'}]}});
         },
         cal(dateStr) {
             const sel = dateStr || new Date().toLocaleDateString('en-GB');
             const grid = document.getElementById('cal-grid'); grid.innerHTML = '';
-            const todayD = new Date().getDate();
             for(let i=1; i<=31; i++) {
                 const d = i.toString().padStart(2,'0') + "/" + (new Date().getMonth()+1).toString().padStart(2,'0') + "/" + new Date().getFullYear();
-                const isToday = i === todayD;
-                grid.innerHTML += `<div onclick="UI.cal('${d}')" class="btn-secondary ${isToday?'today-mark':''}" style="padding:5px; font-size:12px; border-radius:8px; cursor:pointer; background:${sel===d?'#1e293b':'white'}; color:${sel===d?'white':'inherit'}">${i}</div>`;
+                grid.innerHTML += `<div onclick="UI.cal('${d}')" style="padding:5px; text-align:center; border:1px solid #ddd; border-radius:8px; background:${sel===d?'#1e293b':'white'}; color:${sel===d?'white':'inherit'}">${i}</div>`;
             }
             const logs = DB.logs.filter(l => l.date === sel);
             document.getElementById('cal-list').innerHTML = `<h3 style="text-align:center;">${sel}</h3>` + 
@@ -262,22 +244,22 @@
         sleep() {
             const b = document.getElementById('s-btn');
             if(DB.sleep) {
-                b.innerText = "בוקר טוב! ☀️"; b.style.background = var(--amber);
+                b.innerText = "בוקר טוב! ☀️"; b.style.background = "var(--amber)";
                 if(window.sI) clearInterval(window.sI);
                 window.sI = setInterval(() => {
                     const d = Math.floor((Date.now() - DB.sleep)/1000);
                     document.getElementById('s-timer').innerText = Math.floor(d/60).toString().padStart(2,'0') + ":" + (d%60).toString().padStart(2,'0');
                 }, 1000);
-            } else { b.innerText = "התחלת שינה 🌙"; b.style.background = var(--indigo); document.getElementById('s-timer').innerText = "00:00"; clearInterval(window.sI); }
+            } else { b.innerText = "התחלת שינה 🌙"; b.style.background = "var(--indigo)"; document.getElementById('s-timer').innerText = "00:00"; clearInterval(window.sI); }
         }
     };
 
     let nS = null, nSt = 0, nI = null, nD = {R:0, L:0};
     const Core = {
         initProfile() {
-            const n = document.getElementById('reg-name').value, l = document.getElementById('reg-lname').value, g = document.getElementById('reg-gender').value;
-            if(!n || !l || !g) return alert("נא למלא את כל שדות החובה");
-            DB.prof = { name:n, lname:l, gender:g, dob:document.getElementById('reg-dob').value, mom:document.getElementById('reg-mom').value, dad:document.getElementById('reg-dad').value };
+            const n = document.getElementById('reg-name').value, g = document.getElementById('reg-gender').value;
+            if(!n || !g) return alert("שם ומין חובה");
+            DB.prof = { name:n, lname:document.getElementById('reg-lname').value, gender:g, dob:document.getElementById('reg-dob').value, mom:document.getElementById('reg-mom').value, dad:document.getElementById('reg-dad').value };
             DB.save(); Nav.to('scr-home');
         },
         log(type, detail) {
@@ -286,41 +268,19 @@
             DB.save(); Nav.to('scr-home');
         },
         openBottleModal() {
-            UI.modal(`
-                <h3>🍼 כמות בקבוק</h3>
-                <input type="number" id="b-amt" placeholder="כמה מ״ל?">
-                <button class="btn" style="background:var(--blue); color:white;" onclick="Core.saveBottle()">שמור רישום</button>
-                <button class="btn btn-secondary" style="margin-top:10px;" onclick="UI.closeModal()">ביטול</button>
-            `);
+            UI.modal(`<h3>🍼 כמות בקבוק</h3><input type="number" id="b-amt" placeholder="מ״ל"><button class="btn" style="background:var(--blue); color:white;" onclick="Core.saveBottle()">שמור</button><button class="btn btn-secondary" style="margin-top:10px;" onclick="UI.close()">ביטול</button>`);
         },
-        saveBottle() {
-            const a = document.getElementById('b-amt').value;
-            if(a) { this.log('בקבוק', a + ' מ"ל'); UI.closeModal(); }
-        },
+        saveBottle() { const a = document.getElementById('b-amt').value; if(a) { this.log('בקבוק', a + ' מ"ל'); UI.close(); } },
         nursingSide(side) {
             const b = document.getElementById(side==='ימין'?'btn-R':'btn-L');
-            if(nS === side) {
-                nD[side==='ימין'?'R':'L'] += Math.floor((Date.now()-nSt)/1000);
-                nS = null; b.classList.remove('nursing-active'); clearInterval(nI);
-            } else {
-                if(nS) this.nursingSide(nS);
-                nS = side; nSt = Date.now(); b.classList.add('nursing-active');
-                nI = setInterval(() => {
-                    const c = nD[side==='ימין'?'R':'L'] + Math.floor((Date.now()-nSt)/1000);
-                    document.getElementById('n-timer').innerText = Math.floor(c/60).toString().padStart(2,'0') + ":" + (c%60).toString().padStart(2,'0');
-                }, 1000);
+            if(nS === side) { nD[side==='ימין'?'R':'L'] += Math.floor((Date.now()-nSt)/1000); nS = null; b.classList.remove('nursing-active'); clearInterval(nI);
+            } else { if(nS) this.nursingSide(nS); nS = side; nSt = Date.now(); b.classList.add('nursing-active');
+                nI = setInterval(() => { const c = nD[side==='ימין'?'R':'L'] + Math.floor((Date.now()-nSt)/1000); document.getElementById('n-timer').innerText = Math.floor(c/60).toString().padStart(2,'0') + ":" + (c%60).toString().padStart(2,'0'); }, 1000);
             }
         },
         nursingFinish() {
             const total = nD.R + nD.L + (nS ? Math.floor((Date.now()-nSt)/1000) : 0);
-            if(total < 30) {
-                UI.modal(`
-                    <h2 style="color:var(--red)">⚠️ זמן קצר מדי</h2>
-                    <p>לא ניתן לעדכן ארוחה של פחות מ-30 שניות.</p>
-                    <button class="btn" style="background:var(--rose); color:white;" onclick="UI.closeModal()">הבנתי</button>
-                `);
-                return;
-            }
+            if(total < 30) return UI.modal(`<h3 style="color:var(--red)">⚠️ ארוחה קצרה מדי</h3><p>פחות מ-30 שניות לא נחשב ארוחה.</p><button class="btn" onclick="UI.close()">חזור</button>`);
             if(nS) this.nursingSide(nS);
             DB.lastN = { time: new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}), side: nD.R >= nD.L ? 'ימין' : 'שמאל' };
             this.log('הנקה', `ימין: ${Math.floor(nD.R/60)} דק', שמאל: ${Math.floor(nD.L/60)} דק'`);
@@ -332,50 +292,31 @@
             DB.save(); UI.sleep();
         },
         addMed() {
-            const n = document.getElementById('m-name').value, d = document.getElementById('m-dose').value, t = document.getElementById('m-type').value, v = document.getElementById('m-val').value;
+            const n = document.getElementById('m-name').value, v = document.getElementById('m-val').value, t = document.getElementById('m-type').value;
             if(!n) return;
             let ms = t==='daily' ? 86400000 : (t==='hours' ? v*3600000 : v*86400000);
             let txt = t==='daily' ? "פעם ביום" : (t==='hours' ? `כל ${v} שעות` : `כל ${v} ימים`);
-            DB.meds.push({ id:Date.now(), name:n, dose:d, interval:ms, text:txt, type:t });
+            DB.meds.push({ id:Date.now(), name:n, dose:document.getElementById('m-dose').value, interval:ms, text:txt });
             DB.save(); UI.meds();
         },
         deleteMed(id) { DB.meds = DB.meds.filter(m=>m.id!==id); DB.save(); UI.meds(); },
         takeMed(id) {
             const med = DB.meds.find(m => m.id === id);
             const last = DB.logs.find(l => l.type === 'תרופה' && l.detail.includes(med.name));
-            if(last) {
-                const diffMs = Date.now() - last.ts;
-                const diffHrs = Math.floor(diffMs / 3600000);
-                if(diffMs < med.interval) {
-                    UI.modal(`
-                        <h3 style="color:var(--red)">⚠️ אזהרת כפל נטילה</h3>
-                        <p>שים לב! התרופה <b>${med.name}</b> נלקחה כבר לפני ${diffHrs} שעות.</p>
-                        <p>תדירות התרופה: ${med.text}</p>
-                        <button class="btn" style="background:var(--red); color:white;" onclick="Core.log('תרופה','${med.name} (${med.dose})'); UI.closeModal();">אני מאשר נטילה בכל זאת</button>
-                        <button class="btn btn-secondary" style="margin-top:10px;" onclick="UI.closeModal()">ביטול</button>
-                    `);
-                    return;
-                }
+            if(last && (Date.now() - last.ts < med.interval)) {
+                const diffHrs = Math.floor((Date.now() - last.ts) / 3600000);
+                return UI.modal(`<h3 style="color:var(--red)">⚠️ אזהרת כפל נטילה</h3><p>התרופה <b>${med.name}</b> נלקחה כבר לפני ${diffHrs} שעות.</p><button class="btn" style="background:var(--red); color:white;" onclick="Core.log('תרופה','${med.name}'); UI.close();">אשר נטילה נוספת</button><button class="btn btn-secondary" style="margin-top:10px;" onclick="UI.close()">ביטול</button>`);
             }
-            this.log('תרופה', `${med.name} (${med.dose})`);
+            this.log('תרופה', med.name);
         },
         saveMeas() {
             const w = document.getElementById('ms-w').value, h = document.getElementById('ms-h').value;
-            if(!w) return;
             const last = DB.meas[DB.meas.length-1];
             if(last && (Date.now() - last.ts < 86400000)) {
-                UI.modal(`
-                    <h3>⚠️ עדכון צפוף</h3>
-                    <p>עברו פחות מ-24 שעות מהמדד האחרון. האם לעדכן בכל זאת?</p>
-                    <button class="btn" style="background:var(--green); color:white;" onclick="Core.finalizeMeas('${w}','${h}'); UI.closeModal();">כן, שמור</button>
-                    <button class="btn btn-secondary" style="margin-top:10px;" onclick="UI.closeModal()">ביטול</button>
-                `);
+                UI.modal(`<h3>⚠️ עדכון צפוף</h3><p>עברו פחות מ-24 שעות מהמדד האחרון.</p><button class="btn" style="background:var(--green); color:white;" onclick="Core.finalizeMeas('${w}','${h}'); UI.close();">שמור בכל זאת</button>`);
             } else { this.finalizeMeas(w, h); }
         },
-        finalizeMeas(w, h) {
-            DB.meas.push({ w, h, date: new Date().toLocaleDateString('en-GB').slice(0,5), ts: Date.now() });
-            DB.save(); Nav.to('scr-home');
-        },
+        finalizeMeas(w, h) { DB.meas.push({ w, h, date: new Date().toLocaleDateString('en-GB').slice(0,5), ts: Date.now() }); DB.save(); Nav.to('scr-home'); },
         generateReport() {
             const p = DB.prof; const today = new Date().toLocaleDateString('en-GB');
             const logs = DB.logs.filter(l => l.date === today);
@@ -386,27 +327,8 @@
                 if(l.type === 'הנקה') { nCount++; const m = l.detail.match(/\d+/g); if(m) nMin += (parseInt(m[0]) + parseInt(m[1])); }
             });
             const last = DB.meas[DB.meas.length-1] || {w:'-', h:'-'};
-            
-            const html = `
-                <div style="direction:rtl; padding:30px; font-family:Arial;">
-                    <h1>דוח רפואי יומי: ${p.name} ${p.lname}</h1>
-                    <p>ת. לידה: ${p.dob} | הורים: ${p.mom}, ${p.dad} | מין: ${p.gender}</p>
-                    <hr>
-                    <h3>סיכום להיום (${today}):</h3>
-                    <table>
-                        <tr><td>חיתולי פיפי</td><td>${pee}</td></tr>
-                        <tr><td>חיתולי קקי</td><td>${poop}</td></tr>
-                        <tr><td>הנקה</td><td>${nCount} ארוחות (ממוצע ${nCount?Math.round(nMin/nCount):0} דק')</td></tr>
-                        <tr><td>בקבוק</td><td>${bCount} בקבוקים (ממוצע ${bCount?Math.round(bSum/bCount):0} מ"ל)</td></tr>
-                        <tr><td>משקל/גובה אחרון</td><td>${last.w} ק"ג / ${last.h} ס"מ</td></tr>
-                    </table>
-                    <h3>תרופות רשומות:</h3>
-                    <table><tr><th>תרופה</th><th>מינון</th><th>תדירות</th></tr>
-                    ${DB.meds.map(m=>`<tr><td>${m.name}</td><td>${m.dose}</td><td>${m.text}</td></tr>`).join('')}
-                    </table>
-                </div>`;
-            document.getElementById('print-section').innerHTML = html;
-            window.print();
+            const html = `<div style="direction:rtl; padding:30px;"><h1>דוח יומי: ${p.name}</h1><p>תאריך: ${today} | מין: ${p.gender}</p><hr><h3>סיכום:</h3><p>חיתולים: ${pee} פיפי, ${poop} קקי</p><p>הנקה: ${nCount} ארוחות (${nCount?Math.round(nMin/nCount):0} דק' ממוצע)</p><p>בקבוק: ${bSum} מ"ל סה"כ</p><p>מדד אחרון: ${last.w} ק"ג</p></div>`;
+            document.getElementById('print-section').innerHTML = html; window.print();
         }
     };
 
