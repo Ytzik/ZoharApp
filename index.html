@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp Pro - Full Features</title>
+    <title>ZoharApp Pro - Fixed Charts</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&display=swap');
@@ -13,7 +13,6 @@
         body { background-color: var(--bg); color: var(--text); margin: 0; padding: 0; transition: 0.3s; min-height: 100vh; padding-bottom: 30px; }
         .container { max-width: 500px; margin: 0 auto; padding: 15px; }
         
-        /* Dashboard & Summary */
         .stat-card { background: var(--card-bg); padding: 12px; border-radius: 18px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 10px; }
         .summary-box { background: linear-gradient(135deg, var(--rose), #fda4af); color: white; padding: 15px; border-radius: 20px; margin-bottom: 15px; display: flex; justify-content: space-around; box-shadow: 0 4px 12px rgba(251,113,133,0.3); }
         .summary-item { text-align: center; }
@@ -23,7 +22,6 @@
         .dashboard { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
         .time-ago { font-size: 10px; color: var(--rose); font-weight: bold; margin-top: 4px; }
         
-        /* Screens & Transitions */
         .screen { display: none; opacity: 0; transform: translateY(10px); transition: opacity 0.4s ease, transform 0.4s ease; }
         .screen.active { display: block; opacity: 1; transform: translateY(0); }
 
@@ -45,7 +43,6 @@
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        /* Print Styles */
         @media print {
             body { background: white; color: black; }
             .no-print { display: none !important; }
@@ -142,7 +139,7 @@
         <h2 style="text-align:center">📈 מדדים</h2>
         <div class="stat-card">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <input type="number" id="m-weight" step="0.01" placeholder="משקל (ק״ג)">
+                <input type="number" id="m-weight" step="0.001" placeholder="משקל (ק״ג)">
                 <input type="number" id="m-height" step="0.1" placeholder="גובה (ס״מ)">
             </div>
             <button class="btn" style="background:var(--indigo); color:white;" onclick="Actions.saveMeasure()">שמור מדדים</button>
@@ -175,18 +172,13 @@
 <div id="print-view" class="print-only" style="display:none; padding:40px; direction:rtl;">
     <h1 style="text-align:center">דוח מעקב - זוהר</h1>
     <p id="print-date" style="text-align:center"></p>
-    
     <h3>💊 תוכנית תרופות</h3>
     <table id="print-meds-table"><thead><tr><th>שם</th><th>מינון</th><th>תדירות</th></tr></thead><tbody></tbody></table>
-
     <h3>📈 מעקב מדדים (7 אחרונים)</h3>
     <table id="print-measures-table"><thead><tr><th>תאריך</th><th>משקל (ק"ג)</th><th>גובה (ס"מ)</th></tr></thead><tbody></tbody></table>
 </div>
 
 <script>
-    /* ==========================================
-       1. DATA LAYER
-       ========================================== */
     const DataStore = {
         logs: [], meds: [], measures: [], lastSide: "-", sleepStart: null,
         load() {
@@ -226,9 +218,6 @@
         clearAll() { if(confirm("למחוק הכל?")) { localStorage.clear(); location.reload(); } }
     };
 
-    /* ==========================================
-       2. LOGIC LAYER
-       ========================================== */
     const Logic = {
         getTimeAgo(ts) {
             if (!ts) return "";
@@ -240,9 +229,6 @@
         getNowTime() { return new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'}); }
     };
 
-    /* ==========================================
-       3. NAVIGATION LAYER
-       ========================================== */
     const Navigation = {
         show(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -258,41 +244,27 @@
         }
     };
 
-    /* ==========================================
-       4. UI LAYER
-       ========================================== */
     let weightChart = null, heightChart = null;
     const UI = {
         updateDashboard() {
             const today = new Date().toLocaleDateString('en-GB');
             const todayLogs = DataStore.logs.filter(l => l.date === today);
-
             document.getElementById('sum-meals').innerText = todayLogs.filter(l => l.type === 'הנקה' || l.type === 'בקבוק').length;
             document.getElementById('sum-diapers').innerText = todayLogs.filter(l => l.type === 'חיתול').length;
-            
-            // חישוב שעות שינה היום
             const sleepLogs = todayLogs.filter(l => l.type === 'שינה');
             let totalMin = 0;
-            sleepLogs.forEach(l => {
-                const match = l.detail.match(/(\d+) דקות/);
-                if(match) totalMin += parseInt(match[1]);
-            });
+            sleepLogs.forEach(l => { const match = l.detail.match(/(\d+) דקות/); if(match) totalMin += parseInt(match[1]); });
             document.getElementById('sum-sleep').innerText = (totalMin / 60).toFixed(1);
-
             const lastMeal = DataStore.logs.find(l => l.type === 'הנקה' || l.type === 'בקבוק');
             const lastDiaper = DataStore.logs.find(l => l.type === 'חיתול');
             const lastSleep = DataStore.logs.find(l => l.type === 'שינה');
-
             document.getElementById('d-meal').innerText = lastMeal ? lastMeal.time : '-';
             document.getElementById('d-meal-ago').innerText = lastMeal ? Logic.getTimeAgo(lastMeal.ts) : '';
             document.getElementById('d-diaper').innerText = lastDiaper ? lastDiaper.time : '-';
             document.getElementById('d-diaper-ago').innerText = lastDiaper ? Logic.getTimeAgo(lastDiaper.ts) : '';
             document.getElementById('d-sleep').innerText = lastSleep ? lastSleep.time : '-';
-            
-            // עדכון כפתור שינה אם פעיל
             const btn = document.getElementById('sleep-btn');
-            if(DataStore.sleepStart) btn.classList.add('sleep-active');
-            else btn.classList.remove('sleep-active');
+            if(DataStore.sleepStart) btn.classList.add('sleep-active'); else btn.classList.remove('sleep-active');
         },
         renderMeds() {
             const container = document.getElementById('med-list-container');
@@ -308,11 +280,30 @@
         },
         initCharts() {
             const data = DataStore.measures.slice(-7);
+            const lastEntry = DataStore.measures[DataStore.measures.length - 1] || {weight: '-', height: '-'};
             const opt = { responsive: true };
+            
+            // עדכון גרף משקל עם כותרת דינמית
             if(weightChart) weightChart.destroy();
-            weightChart = new Chart(document.getElementById('weightChart'), { type: 'line', data: { labels: data.map(d=>d.date), datasets: [{label: 'משקל', data:data.map(d=>d.weight), borderColor:'#6366f1'}] }, options: opt });
+            weightChart = new Chart(document.getElementById('weightChart'), { 
+                type: 'line', 
+                data: { 
+                    labels: data.map(d=>d.date), 
+                    datasets: [{label: `משקל (${lastEntry.weight} ק"ג)`, data:data.map(d=>d.weight), borderColor:'#6366f1', tension:0.3}] 
+                }, 
+                options: opt 
+            });
+
+            // עדכון גרף גובה עם כותרת דינמית
             if(heightChart) heightChart.destroy();
-            heightChart = new Chart(document.getElementById('heightChart'), { type: 'line', data: { labels: data.map(d=>d.date), datasets: [{label: 'גובה', data:data.map(d=>d.height), borderColor:'#10b981'}] }, options: opt });
+            heightChart = new Chart(document.getElementById('heightChart'), { 
+                type: 'line', 
+                data: { 
+                    labels: data.map(d=>d.date), 
+                    datasets: [{label: `גובה (${lastEntry.height} ס"מ)`, data:data.map(d=>d.height), borderColor:'#10b981', tension:0.3}] 
+                }, 
+                options: opt 
+            });
         },
         renderCalendar(dateStr) {
             const selected = dateStr || new Date().toLocaleDateString('en-GB');
@@ -321,8 +312,7 @@
                 const d = i.toString().padStart(2,'0') + "/" + (new Date().getMonth()+1).toString().padStart(2,'0') + "/" + new Date().getFullYear();
                 const div = document.createElement('div');
                 div.className = 'cal-day' + (selected === d ? ' today' : '');
-                div.innerText = i; div.onclick = () => this.renderCalendar(d);
-                grid.appendChild(div);
+                div.innerText = i; div.onclick = () => this.renderCalendar(d); grid.appendChild(div);
             }
             const filtered = DataStore.logs.filter(l => l.date === selected);
             document.getElementById('day-logs-container').innerHTML = `<h3>${selected}</h3>` + 
@@ -339,13 +329,8 @@
         },
         initSleepView() {
             const btn = document.getElementById('s-toggle');
-            if(DataStore.sleepStart) {
-                btn.innerText = "בוקר טוב / התעוררות ☀️";
-                btn.style.background = "var(--amber)";
-            } else {
-                btn.innerText = "לילה טוב / התחלת שינה 🌙";
-                btn.style.background = "var(--indigo)";
-            }
+            if(DataStore.sleepStart) { btn.innerText = "בוקר טוב / התעוררות ☀️"; btn.style.background = "var(--amber)"; } 
+            else { btn.innerText = "לילה טוב / התחלת שינה 🌙"; btn.style.background = "var(--indigo)"; }
         },
         showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.className = "show"; setTimeout(() => t.className = "", 3000); },
         preparePrint() {
@@ -357,30 +342,19 @@
         }
     };
 
-    /* ==========================================
-       5. ACTIONS LAYER
-       ========================================== */
-    let nInterval = null, nStart = null, nActiveSide = null, nDurations = {R:0, L:0}, sInterval = null;
-
+    let nInterval = null, nStart = null, nActiveSide = null, nDurations = {R:0, L:0};
     const Actions = {
         logSimple(type, detail, side) {
             if(side) DataStore.lastSide = side;
             DataStore.logs.unshift({ type, detail, time: Logic.getNowTime(), ts: Date.now(), date: new Date().toLocaleDateString('en-GB') });
             DataStore.save(); UI.showToast("נרשם!"); Navigation.show('scr-home');
         },
-        deleteLog(ts) {
-            if(confirm("למחוק רשומה זו?")) {
-                DataStore.logs = DataStore.logs.filter(l => l.ts !== ts);
-                DataStore.save(); UI.renderCalendar();
-            }
-        },
+        deleteLog(ts) { if(confirm("למחוק?")) { DataStore.logs = DataStore.logs.filter(l => l.ts !== ts); DataStore.save(); UI.renderCalendar(); } },
         addBottle() { const ml = prompt("כמות במ\"ל:"); if(ml) this.logSimple('בקבוק', ml + ' מ"ל'); },
         toggleNursing(side) {
             if(nActiveSide === side) {
-                clearInterval(nInterval);
-                nDurations[side === 'ימין' ? 'R' : 'L'] += Math.round((Date.now() - nStart) / 1000);
-                nActiveSide = null;
-                document.querySelectorAll('.btn').forEach(b => b.classList.remove('nursing-active'));
+                clearInterval(nInterval); nDurations[side === 'ימין' ? 'R' : 'L'] += Math.round((Date.now() - nStart) / 1000);
+                nActiveSide = null; document.querySelectorAll('.btn').forEach(b => b.classList.remove('nursing-active'));
             } else {
                 if(nActiveSide) this.toggleNursing(nActiveSide);
                 nActiveSide = side; nStart = Date.now();
@@ -398,10 +372,8 @@
             } else Navigation.show('scr-home');
         },
         toggleSleep() {
-            if(!DataStore.sleepStart) {
-                DataStore.sleepStart = Date.now();
-                DataStore.save(); UI.initSleepView(); UI.showToast("שינה התחילה 🌙");
-            } else {
+            if(!DataStore.sleepStart) { DataStore.sleepStart = Date.now(); DataStore.save(); UI.initSleepView(); UI.showToast("שינה התחילה 🌙"); } 
+            else {
                 const diffMin = Math.round((Date.now() - DataStore.sleepStart) / 60000);
                 this.logSimple('שינה', `משך: ${diffMin} דקות (${(diffMin/60).toFixed(1)} שעות)`);
                 DataStore.sleepStart = null; DataStore.save(); Navigation.show('scr-home');
@@ -413,7 +385,7 @@
             DataStore.meds.push({ name: n, dosage: d, interval: i, id: Date.now() });
             DataStore.save(); UI.renderMeds();
         },
-        deleteMed(id) { if(confirm("למחוק תרופה?")) { DataStore.meds = DataStore.meds.filter(m => m.id !== id); DataStore.save(); UI.renderMeds(); } },
+        deleteMed(id) { if(confirm("למחוק?")) { DataStore.meds = DataStore.meds.filter(m => m.id !== id); DataStore.save(); UI.renderMeds(); } },
         saveMeasure() {
             const w = document.getElementById('m-weight').value, h = document.getElementById('m-height').value;
             if(!w && !h) return;
