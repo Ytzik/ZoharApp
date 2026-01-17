@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp v30</title>
+    <title>ZoharApp v31 - Final Stable</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
@@ -34,7 +34,7 @@
         .timer { font-size: 48px; font-weight: 800; color: var(--rose); margin: 15px 0; font-family: monospace; }
         .nursing-active { background: var(--red) !important; color: white !important; }
         .bath-active { background: #06b6d4 !important; color: white !important; }
-        .med-taken { background: #fef08a !important; border-color: #facc15 !important; } /* צבע צהוב בולט לתרופה שניתנה */
+        .med-taken { background: #fef08a !important; border-color: #facc15 !important; } 
         
         input, select { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 16px; }
         label { display: block; text-align: right; font-weight: 600; margin-top: 10px; color: #475569; }
@@ -83,7 +83,7 @@
             <span id="gender-icon" style="font-size:24px;"></span>
         </div>
         
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:15px;">
+        <div class="stats-grid">
             <div class="card" style="margin-bottom:0; text-align:center; border-bottom:4px solid var(--rose);">
                 <small>ארוחה אחרונה</small>
                 <div id="stat-last-feed" style="font-weight:800; font-size:1.1em;">-</div>
@@ -161,13 +161,6 @@
         <div id="med-list"></div>
     </div>
 
-    <div id="scr-cal" class="screen">
-        <button class="btn btn-secondary" onclick="Nav.to('scr-home')">❯ חזרה</button>
-        <div id="cal-grid" class="cal-grid"></div>
-        <div id="cal-summary-card" class="card" style="text-align:center; background: #eef2ff; display:none;"></div>
-        <div id="cal-list"></div>
-    </div>
-
     <div id="scr-diaper" class="screen">
         <button class="btn btn-secondary" onclick="Nav.to('scr-home')">❯ חזרה</button>
         <div class="stats-grid">
@@ -183,6 +176,13 @@
         <button class="btn card" onclick="Core.confirmDiaper('💦 פיפי')">💦 פיפי</button>
         <button class="btn card" onclick="Core.confirmDiaper('💩 קקי')">💩 קקי</button>
         <button class="btn card" onclick="Core.confirmDiaper('🌈 גם וגם')">🌈 גם וגם</button>
+    </div>
+
+    <div id="scr-cal" class="screen">
+        <button class="btn btn-secondary" onclick="Nav.to('scr-home')">❯ חזרה</button>
+        <div id="cal-grid" class="cal-grid"></div>
+        <div id="cal-summary-card" class="card" style="text-align:right; background: #eef2ff; display:none; line-height:1.6;"></div>
+        <div id="cal-list"></div>
     </div>
 
     <div id="scr-meas" class="screen">
@@ -209,7 +209,7 @@
         prof: JSON.parse(localStorage.getItem('z_prof')) || null,
         sleep: localStorage.getItem('z_sleep') || null,
         bath: localStorage.getItem('z_bath') || 0,
-        nState: JSON.parse(localStorage.getItem('z_nstate')) || null, // {side, ts, baseR, baseL}
+        nState: JSON.parse(localStorage.getItem('z_nstate')) || { side:null, ts:null, baseR:0, baseL:0 },
         lastN: JSON.parse(localStorage.getItem('z_lastN')) || {time:'-', side:'-'},
         save() {
             localStorage.setItem('z_logs', JSON.stringify(this.logs));
@@ -244,7 +244,7 @@
         },
         close() { document.getElementById('custom-modal').style.display = 'none'; },
         
-        formatMins(totalMins) {
+        formatToHoursAndMins(totalMins) {
             const h = Math.floor(totalMins / 60);
             const m = totalMins % 60;
             return `${h} שעות ו-${m} דקות`;
@@ -254,24 +254,16 @@
             if(!DB.prof) return Nav.to('scr-reg');
             document.getElementById('home-hello').innerText = `היום של ${DB.prof.name}`;
             document.getElementById('gender-icon').innerText = DB.prof.gender === 'זכר' ? '👦' : '👧';
-            
             const lastF = DB.logs.find(l => l.type==='הנקה' || l.type==='בקבוק');
             document.getElementById('stat-last-feed').innerText = lastF ? lastF.time : '-';
-            
             const lastB = DB.logs.find(l => l.type==='בקבוק');
             document.getElementById('sub-bottle').innerText = lastB ? `${lastB.time} (${lastB.detail})` : 'רישום כמות';
-
             const lastD = DB.logs.find(l => l.type==='חיתול');
             document.getElementById('stat-last-diaper-main').innerText = lastD ? `${lastD.time} (${lastD.detail.replace(' חיתול','')})` : '-';
-            
             const today = new Date().toLocaleDateString('en-GB');
             document.getElementById('sub-diaper').innerText = lastD ? `אחרון: ${lastD.time}` : 'טרם הוחלף';
-            
             document.getElementById('sub-nursing').innerText = `${DB.lastN.time} (${DB.lastN.side})`;
-            
-            const sleepMins = Core.getDailySleepMins(today);
-            document.getElementById('sub-sleep').innerText = `${this.formatMins(sleepMins)} היום`;
-
+            document.getElementById('sub-sleep').innerText = `${this.formatToHoursAndMins(Core.getDailySleepMins(today))} היום`;
             const b = document.getElementById('btn-bath');
             if(Date.now() - DB.bath < 86400000) b.classList.add('bath-active'); else b.classList.remove('bath-active');
         },
@@ -281,17 +273,17 @@
             document.getElementById('btn-R').classList.remove('nursing-active');
             document.getElementById('btn-L').classList.remove('nursing-active');
             clearInterval(window.nI);
-
-            if(DB.nState) {
+            if(DB.nState.side) {
                 const b = document.getElementById(DB.nState.side === 'ימין' ? 'btn-R' : 'btn-L');
                 b.classList.add('nursing-active');
                 window.nI = setInterval(() => {
-                    const diff = Math.floor((Date.now() - DB.nState.ts) / 1000);
-                    const currentTotal = (DB.nState.side === 'ימין' ? DB.nState.baseR : DB.nState.baseL) + diff;
+                    const elapsedSec = Math.floor((Date.now() - DB.nState.ts) / 1000);
+                    const currentTotal = (DB.nState.side === 'ימין' ? DB.nState.baseR : DB.nState.baseL) + elapsedSec;
                     document.getElementById('n-timer').innerText = Math.floor(currentTotal/60).toString().padStart(2,'0') + ":" + (currentTotal%60).toString().padStart(2,'0');
                 }, 1000);
             } else {
-                document.getElementById('n-timer').innerText = "00:00";
+                const total = DB.nState.baseR + DB.nState.baseL;
+                document.getElementById('n-timer').innerText = Math.floor(total/60).toString().padStart(2,'0') + ":" + (total%60).toString().padStart(2,'0');
             }
         },
 
@@ -299,15 +291,13 @@
             document.getElementById('med-list').innerHTML = DB.meds.map(m => {
                 const lastLog = DB.logs.find(l => l.type === 'תרופה' && l.detail === m.name);
                 const isTaken = lastLog && (Date.now() - lastLog.ts < m.interval);
-                return `
-                    <div class="card ${isTaken ? 'med-taken' : ''}" style="display:flex; justify-content:space-between; align-items:center;">
-                        <div><b>${m.name}</b><br><small>${m.dose} | ${m.text}</small></div>
-                        <div style="display:flex; gap:5px;">
-                            <button class="btn" style="width:auto; padding:8px; background:var(--green); color:white;" onclick="Core.takeMed(${m.id})">נטילה</button>
-                            <button class="btn" style="width:auto; padding:8px; background:#f1f5f9;" onclick="Core.deleteMed(${m.id})">🗑️</button>
-                        </div>
+                return `<div class="card ${isTaken ? 'med-taken' : ''}" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>${m.name}</b><br><small>${m.dose} | ${m.text}</small></div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn" style="width:auto; padding:8px; background:var(--green); color:white;" onclick="Core.takeMed(${m.id})">נטילה</button>
+                        <button class="btn" style="width:auto; padding:8px; background:#f1f5f9;" onclick="Core.deleteMed(${m.id})">🗑️</button>
                     </div>
-                `;
+                </div>`;
             }).join('');
         },
 
@@ -321,17 +311,18 @@
             }
             const logs = DB.logs.filter(l => l.date === sel);
             const daySleep = Core.getDailySleepMins(sel);
+            const dayFeeds = logs.filter(l => l.type === 'הנקה' || l.type === 'בקבוק').length;
             const sumCard = document.getElementById('cal-summary-card');
             sumCard.style.display = 'block';
-            sumCard.innerHTML = `<b>סיכום שינה יומי:</b> ${this.formatMins(daySleep)}`;
+            sumCard.innerHTML = `<b>סיכום ארוחות היום:</b> ${dayFeeds}<br><b>סיכום שינה יומי:</b> ${this.formatToHoursAndMins(daySleep)}`;
             document.getElementById('cal-list').innerHTML = `<h3 style="text-align:center;">${sel}</h3>` + 
-                (logs.length ? logs.map(l => `<div class="card"><b>${l.time}</b> | ${l.type}: ${l.detail}</div>`).join('') : `<p style="text-align:center; color:gray;">אין נתונים להצגה</p>`);
+                (logs.length ? logs.map(l => `<div class="card"><b>${l.time}</b> | ${l.type}: ${l.detail}</div>`).join('') : `<p style="text-align:center; color:gray;">אין נתונים</p>`);
         },
 
         sleep() {
-            const b = document.getElementById('s-btn');
             const today = new Date().toLocaleDateString('en-GB');
-            document.getElementById('sleep-today-stat').innerText = this.formatMins(Core.getDailySleepMins(today));
+            document.getElementById('sleep-today-stat').innerText = this.formatToHoursAndMins(Core.getDailySleepMins(today));
+            const b = document.getElementById('s-btn');
             if(DB.sleep) {
                 b.innerText = "בוקר טוב! ☀️"; b.style.background = "var(--amber)";
                 if(window.sI) clearInterval(window.sI);
@@ -351,7 +342,7 @@
 
         meas() {
             const last = DB.meas[DB.meas.length-1];
-            document.getElementById('meas-last-text').innerText = last ? `מדידה אחרונה: ${last.w} ק"ג ב-${last.date}` : "טרם הוזנו מדדים";
+            document.getElementById('meas-last-text').innerText = last ? `אחרון: ${last.w} ק"ג ב-${last.date}` : "אין מדדים";
             if(window.cW) window.cW.destroy(); if(window.cH) window.cH.destroy();
             const cfg = (l, d, c) => ({ type:'line', data:{labels:DB.meas.map(m=>m.date), datasets:[{label:l, data:d, borderColor:c, tension:0.2}]} });
             window.cW = new Chart(document.getElementById('chW'), cfg('משקל', DB.meas.map(m=>m.w), '#3b82f6'));
@@ -378,15 +369,14 @@
         },
 
         doBath() {
-            if(Date.now() - DB.bath < 86400000) {
-                UI.modal(`<h3>רחצה כבר בוצעה</h3><p>כבר רחצת את התינוק/ת היום.</p><button class="btn" onclick="UI.close()">סגור</button>`);
-            } else { DB.bath = Date.now(); this.log('רחצה', '🛁 בוצעה רחצה'); }
+            if(Date.now() - DB.bath < 86400000) UI.modal(`<h3>כבר בוצע</h3><p>רחצת כבר היום.</p><button class="btn" onclick="UI.close()">סגור</button>`);
+            else { DB.bath = Date.now(); this.log('רחצה', '🛁 בוצעה רחצה'); }
         },
 
         openBottleModal() {
             const lastB = DB.logs.find(l => l.type==='בקבוק');
             const preview = lastB ? `<p style="background:#f1f5f9; padding:10px; border-radius:10px;"><small>ארוחה אחרונה:</small><br><b>${lastB.date} ב-${lastB.time} (${lastB.detail})</b></p>` : '';
-            UI.modal(`<h3>🍼 כמות בקבוק</h3>${preview}<input type="number" id="b-amt" placeholder="מ״ל"><button class="btn" style="background:var(--blue); color:white;" onclick="Core.saveBottle()">שמור ארוחה</button><button class="btn btn-secondary" style="margin-top:10px;" onclick="UI.close()">ביטול</button>`);
+            UI.modal(`<h3>🍼 בקבוק</h3>${preview}<input type="number" id="b-amt" placeholder="מ״ל"><button class="btn" style="background:var(--blue); color:white;" onclick="Core.saveBottle()">שמור</button><button class="btn btn-secondary" style="margin-top:10px;" onclick="UI.close()">ביטול</button>`);
         },
 
         saveBottle() {
@@ -395,39 +385,38 @@
         },
 
         confirmDiaper(type) {
-            UI.modal(`<h3>אישור החלפה</h3><p>בוצעה החלפת חיתול עם ${type}?</p><button class="btn" style="background:var(--amber); color:white;" onclick="Core.log('חיתול', '${type}'); UI.close(); Nav.to('scr-diaper');">אשר החלפה</button><button class="btn btn-secondary" style="margin-top:10px;" onclick="UI.close()">ביטול</button>`);
+            UI.modal(`<h3>אישור החלפה</h3><p>חיתול עם ${type}?</p><button class="btn" style="background:var(--amber); color:white;" onclick="Core.log('חיתול', '${type}'); UI.close(); Nav.to('scr-diaper');">אשר</button><button class="btn btn-secondary" onclick="UI.close()">בטל</button>`);
         },
 
         nursingSide(side) {
-            if(DB.nState && DB.nState.side === side) {
-                // Stop
-                const diff = Math.floor((Date.now() - DB.nState.ts) / 1000);
+            const now = Date.now();
+            if(DB.nState.side === side) {
+                // Stop current
+                const diff = Math.floor((now - DB.nState.ts) / 1000);
                 if(side === 'ימין') DB.nState.baseR += diff; else DB.nState.baseL += diff;
-                DB.nState = { ...DB.nState, side: null, ts: null };
+                DB.nState.side = null; DB.nState.ts = null;
             } else {
-                // Switch or Start
-                if(DB.nState && DB.nState.side) {
-                    const diff = Math.floor((Date.now() - DB.nState.ts) / 1000);
+                // Switch side or Start
+                if(DB.nState.side) {
+                    const diff = Math.floor((now - DB.nState.ts) / 1000);
                     if(DB.nState.side === 'ימין') DB.nState.baseR += diff; else DB.nState.baseL += diff;
                 }
-                if(!DB.nState) DB.nState = { baseR:0, baseL:0 };
                 DB.nState.side = side;
-                DB.nState.ts = Date.now();
+                DB.nState.ts = now;
             }
             DB.save(); UI.nursing();
         },
 
         nursingFinish() {
-            if(DB.nState && DB.nState.side) {
+            if(DB.nState.side) {
                 const diff = Math.floor((Date.now() - DB.nState.ts) / 1000);
                 if(DB.nState.side === 'ימין') DB.nState.baseR += diff; else DB.nState.baseL += diff;
             }
-            if(!DB.nState || (DB.nState.baseR + DB.nState.baseL < 30)) {
-                DB.nState = null; DB.save(); return Nav.to('scr-home');
-            }
+            const total = DB.nState.baseR + DB.nState.baseL;
+            if(total < 30) { DB.nState = {side:null, ts:null, baseR:0, baseL:0}; DB.save(); return Nav.to('scr-home'); }
             DB.lastN = { time: new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}), side: DB.nState.baseR >= DB.nState.baseL ? 'ימין' : 'שמאל' };
             this.log('הנקה', `ימין: ${Math.floor(DB.nState.baseR/60)} דק', שמאל: ${Math.floor(DB.nState.baseL/60)} דק'`);
-            DB.nState = null; DB.save(); Nav.to('scr-home');
+            DB.nState = {side:null, ts:null, baseR:0, baseL:0}; DB.save(); Nav.to('scr-home');
         },
 
         toggleSleep() {
@@ -437,14 +426,22 @@
         },
 
         openManualSleepModal() {
-            UI.modal(`<h3>הזנת שינה ידנית</h3><div style="display:flex; gap:5px;"><input type="number" id="man-h" placeholder="שעות" min="0"><input type="number" id="man-m" placeholder="דקות" min="0" max="59"></div><button class="btn" style="background:var(--indigo); color:white; margin-top:10px;" onclick="Core.saveManualSleep(true)">הוסף כמקטע בודד</button><button class="btn" style="background:var(--amber); color:white; margin-top:10px;" onclick="Core.saveManualSleep(false)">קבע כסך הכל יומי</button><button class="btn btn-secondary" style="margin-top:10px;" onclick="UI.close()">ביטול</button>`);
+            UI.modal(`<h3>שינה ידנית</h3><div style="display:flex; gap:5px;"><input type="number" id="man-h" placeholder="שעות"><input type="number" id="man-m" placeholder="דקות"></div><button class="btn" style="background:var(--indigo); color:white; margin-top:10px;" onclick="Core.saveManualSleep(true)">הוסף מקטע</button><button class="btn" style="background:var(--amber); color:white;" onclick="Core.saveManualSleep(false)">קבע סך יומי</button>`);
         },
 
-        saveManualSleep(isSegment) {
+        saveManualSleep(isSeg) {
             const h = parseInt(document.getElementById('man-h').value) || 0, m = parseInt(document.getElementById('man-m').value) || 0;
-            const total = (h * 60) + m, today = new Date().toLocaleDateString('en-GB');
-            if(!isSegment) DB.logs = DB.logs.filter(l => !(l.date === today && l.type === 'שינה'));
+            const total = (h * 60) + m;
+            if(!isSeg) DB.logs = DB.logs.filter(l => !(l.date === new Date().toLocaleDateString('en-GB') && l.type === 'שינה'));
             this.log('שינה', `${total} דקות`); UI.close(); UI.sleep();
+        },
+
+        takeMed(id) {
+            const med = DB.meds.find(m => m.id === id);
+            const lastLog = DB.logs.find(l => l.type === 'תרופה' && l.detail === med.name);
+            if(lastLog && (Date.now() - lastLog.ts < med.interval)) {
+                UI.modal(`<h3>אזהרה</h3><p>כבר נלקחה.</p><button class="btn" onclick="Core.log('תרופה','${med.name}'); UI.close(); UI.meds();">אשר נטילה נוספת</button><button class="btn btn-secondary" onclick="UI.close()">ביטול</button>`);
+            } else { this.log('תרופה', med.name); UI.meds(); }
         },
 
         addMed() {
@@ -452,29 +449,28 @@
             if(!n.value) return;
             let ms = t.value==='daily' ? 86400000 : (t.value==='hours' ? v.value*3600000 : v.value*86400000);
             DB.meds.push({ id:Date.now(), name:n.value, dose:d.value, interval:ms, text: t.value==='daily' ? "פעם ביום" : (t.value==='hours' ? `כל ${v.value} שעות` : `כל ${v.value} ימים`) });
-            n.value=''; d.value=''; v.value=''; DB.save(); UI.meds();
-        },
-
-        takeMed(id) {
-            const med = DB.meds.find(m => m.id === id);
-            const lastLog = DB.logs.find(l => l.type === 'תרופה' && l.detail === med.name);
-            if(lastLog && (Date.now() - lastLog.ts < med.interval)) {
-                UI.modal(`<h3>⚠️ אזהרת כפל נטילה</h3><p>התרופה <b>${med.name}</b> כבר נלקחה.</p><button class="btn" style="background:var(--red); color:white;" onclick="Core.log('תרופה','${med.name}'); UI.close(); UI.meds();">אשר נטילה נוספת</button><button class="btn btn-secondary" style="margin-top:10px;" onclick="UI.close()">ביטול</button>`);
-            } else { this.log('תרופה', med.name); UI.meds(); }
+            DB.save(); UI.meds();
         },
 
         deleteMed(id) { DB.meds = DB.meds.filter(m=>m.id!==id); DB.save(); UI.meds(); },
-        
+
         saveMeas() {
             const w = document.getElementById('ms-w').value, h = document.getElementById('ms-h').value;
+            const last = DB.meas[DB.meas.length-1];
+            if(last && (Date.now() - last.ts < 86400000)) {
+                UI.modal(`<h3>עדכון צפוף</h3><p>עברו פחות מ-24 שעות. לשמור?</p><button class="btn" onclick="Core.confirmMeas('${w}','${h}')">כן</button><button class="btn btn-secondary" onclick="UI.close()">לא</button>`);
+            } else { this.confirmMeas(w,h); }
+        },
+
+        confirmMeas(w, h) {
             DB.meas.push({ w, h, date: new Date().toLocaleDateString('en-GB'), ts: Date.now() });
-            DB.save(); Nav.to('scr-home');
+            DB.save(); UI.close(); Nav.to('scr-home');
         },
 
         generateReport() {
             const p = DB.prof; const today = new Date().toLocaleDateString('en-GB');
             const logs = DB.logs.filter(l => l.date === today);
-            const html = `<div style="direction:rtl; text-align:right;"><h1>דוח רפואי: ${p.name} ${p.lname}</h1><p>תאריך: ${today}</p><hr>${logs.map(l => `<p><b>${l.time}</b>: ${l.type} - ${l.detail}</p>`).join('')}</div>`;
+            const html = `<div style="direction:rtl; text-align:right;"><h1>דוח: ${p.name}</h1><p>תאריך: ${today}</p><hr>${logs.map(l => `<p><b>${l.time}</b>: ${l.type} - ${l.detail}</p>`).join('')}</div>`;
             const area = document.getElementById('print-area'); area.innerHTML = html; area.style.display = 'block';
             setTimeout(() => { window.print(); area.style.display = 'none'; }, 500);
         },
