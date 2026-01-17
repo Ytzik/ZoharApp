@@ -3,70 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp v37 - FULL VERSION FIXED</title>
+    <title>ZoharApp v38 - Final Sleep Fix</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
         
         :root {
-            --rose: #fb7185;
-            --blue: #3b82f6;
-            --green: #10b981;
-            --red: #ef4444; 
-            --amber: #f59e0b;
-            --indigo: #6366f1;
-            --bg: #f1f5f9;
-            --slate: #475569;
+            --rose: #fb7185; --blue: #3b82f6; --green: #10b981; --red: #ef4444; 
+            --amber: #f59e0b; --indigo: #6366f1; --bg: #f1f5f9; --slate: #475569;
         }
 
-        * { 
-            box-sizing: border-box; 
-            font-family: 'Assistant', sans-serif; 
-            -webkit-tap-highlight-color: transparent; 
-        }
+        * { box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        body { 
-            background: var(--bg); 
-            margin: 0; 
-            padding: 15px; 
-            color: #0f172a; 
-            direction: rtl; 
-            line-height: 1.5;
-        }
+        body { background: var(--bg); margin: 0; padding: 15px; color: #0f172a; direction: rtl; line-height: 1.5; }
 
-        /* Modal Styles */
         #custom-modal {
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
-            background: rgba(0,0,0,0.8); 
-            z-index: 9999; 
-            align-items: center; 
-            justify-content: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;
             backdrop-filter: blur(4px);
         }
 
         .modal-content {
-            background: white; 
-            width: 90%; 
-            max-width: 400px; 
-            padding: 30px; 
-            border-radius: 28px; 
-            text-align: center; 
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            background: white; width: 90%; max-width: 400px; padding: 30px; 
+            border-radius: 28px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
         }
 
-        /* Screen Management */
-        .screen { 
-            display: none; 
-            max-width: 500px; 
-            margin: 0 auto; 
-            animation: slideUp 0.3s ease-out; 
-        }
-
+        .screen { display: none; max-width: 500px; margin: 0 auto; animation: slideUp 0.3s ease-out; }
         .active { display: block; }
 
         @keyframes slideUp {
@@ -74,105 +36,45 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Cards and Elements */
         .card { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 24px; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
-            margin-bottom: 16px; 
-            border: 1px solid #e2e8f0; 
+            background: white; padding: 20px; border-radius: 24px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 16px; border: 1px solid #e2e8f0; 
         }
 
         .btn { 
-            width: 100%; 
-            padding: 18px; 
-            border-radius: 18px; 
-            border: none; 
-            font-weight: 800; 
-            cursor: pointer; 
-            font-size: 17px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 12px; 
-            transition: transform 0.1s;
+            width: 100%; padding: 18px; border-radius: 18px; border: none; font-weight: 800; 
+            cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; gap: 12px; 
         }
 
-        .btn:active { transform: scale(0.98); }
+        .btn-secondary { background: white; border: 2px solid #e2e8f0; color: var(--slate); }
 
-        .btn-secondary { 
-            background: white; 
-            border: 2px solid #e2e8f0; 
-            color: var(--slate); 
-        }
-
-        /* Inputs */
         input, select { 
-            width: 100%; 
-            padding: 15px; 
-            margin: 10px 0; 
-            border: 2px solid #e2e8f0; 
-            border-radius: 14px; 
-            font-size: 16px; 
-            outline: none;
-            transition: border-color 0.2s;
+            width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #e2e8f0; 
+            border-radius: 14px; font-size: 16px; outline: none;
         }
 
-        input:focus { border-color: var(--indigo); }
+        label { display: block; text-align: right; font-weight: 600; margin-top: 12px; color: var(--slate); }
 
-        label { 
-            display: block; 
-            text-align: right; 
-            font-weight: 600; 
-            margin-top: 12px; 
-            color: var(--slate); 
-        }
-
-        /* Timers and Specific Styles */
         .timer { 
-            font-size: 56px; 
-            font-weight: 800; 
-            color: var(--rose); 
-            margin: 20px 0; 
-            font-family: monospace; 
-            letter-spacing: 2px;
+            font-size: 56px; font-weight: 800; color: var(--rose); margin: 20px 0; 
+            font-family: monospace; letter-spacing: 2px;
         }
 
         .nursing-active { background: var(--red) !important; color: white !important; }
         .bath-active { background: #06b6d4 !important; color: white !important; }
         
-        .cal-grid { 
-            display: grid; 
-            grid-template-columns: repeat(7, 1fr); 
-            gap: 8px; 
-            margin: 20px 0; 
-        }
-
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin: 20px 0; }
         .cal-day { 
-            padding: 12px 5px; 
-            text-align: center; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            background: white; 
-            font-weight: 600; 
-            border: 1px solid #e2e8f0;
-            font-size: 14px;
+            padding: 12px 5px; text-align: center; border-radius: 12px; cursor: pointer; 
+            background: white; font-weight: 600; border: 1px solid #e2e8f0; font-size: 14px;
         }
-
         .cal-selected { background: var(--indigo) !important; color: white; }
         .cal-today { border: 2px solid var(--amber); }
 
-        .stats-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 12px; 
-            margin-bottom: 16px; 
-        }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
 
         @media print {
             .no-print { display: none !important; }
-            body { background: white; }
             #print-area { display: block !important; padding: 40px; }
         }
     </style>
@@ -186,88 +88,61 @@
     <div id="scr-reg" class="screen">
         <div style="text-align:center; padding: 20px;">
             <h1 style="color:var(--rose); font-weight:800; font-size:32px;">ZoharApp</h1>
-            <p>העוזר האישי שלך לגידול התינוק</p>
+            <p>ניהול יומן תינוק חכם</p>
         </div>
         <div class="card">
-            <h3>פרופיל חדש</h3>
             <input type="text" id="reg-name" placeholder="שם התינוק">
             <select id="reg-gender">
-                <option value="">בחר מין</option>
+                <option value="">מין התינוק</option>
                 <option value="זכר">זכר 👦</option>
                 <option value="נקבה">נקבה 👧</option>
             </select>
             <label>תאריך לידה:</label>
             <input type="date" id="reg-dob">
-            <button class="btn" style="background:var(--rose); color:white; margin-top:10px;" onclick="Core.initProfile()">בואו נתחיל</button>
+            <button class="btn" style="background:var(--rose); color:white;" onclick="Core.initProfile()">התחל עכשיו</button>
         </div>
     </div>
 
     <div id="scr-home" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <div>
-                <h2 id="home-hello" style="margin:0;">שלום</h2>
-                <small id="home-date" style="color:var(--slate)"></small>
-            </div>
+            <h2 id="home-hello" style="margin:0;">שלום</h2>
             <div id="gender-icon" style="font-size:32px;"></div>
         </div>
 
         <div class="stats-grid">
             <div class="card" style="text-align:center; border-bottom:5px solid var(--rose); margin:0;">
                 <small>ארוחה אחרונה</small>
-                <div id="stat-last-feed" style="font-weight:800; font-size:1.2em; margin-top:5px;">-</div>
+                <div id="stat-last-feed" style="font-weight:800;">-</div>
             </div>
             <div class="card" style="text-align:center; border-bottom:5px solid var(--amber); margin:0;">
                 <small>חיתול אחרון</small>
-                <div id="stat-last-diaper" style="font-weight:800; font-size:1.2em; margin-top:5px;">-</div>
+                <div id="stat-last-diaper" style="font-weight:800;">-</div>
             </div>
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-            <div class="card" onclick="Nav.to('scr-nursing')" style="border-right:6px solid var(--rose)">
-                <b>🤱 הנקה</b><br><small id="sub-nursing">-</small>
-            </div>
-            <div class="card" onclick="Core.openBottleModal()" style="border-right:6px solid var(--blue)">
-                <b>🍼 בקבוק</b><br><small>רישום כמות</small>
-            </div>
-            <div class="card" onclick="Nav.to('scr-diaper')" style="border-right:6px solid var(--amber)">
-                <b>✨ חיתול</b><br><small id="sub-diaper">-</small>
-            </div>
-            <div class="card" onclick="Nav.to('scr-sleep')" style="border-right:6px solid var(--indigo)">
-                <b>🌙 שינה</b><br><small id="sub-sleep">-</small>
-            </div>
-            <div class="card" onclick="Nav.to('scr-meds')" style="border-right:6px solid var(--red)">
-                <b>💊 תרופות</b><br><small>ניהול נטילה</small>
-            </div>
-            <div class="card" onclick="Nav.to('scr-meas')" style="border-right:6px solid var(--green)">
-                <b>📈 מדדים</b><br><small>משקל וגובה</small>
-            </div>
-            <button id="btn-bath" class="btn card" style="grid-column: span 2; border-right: 6px solid #06b6d4;" onclick="Core.doBath()">
-                🛁 <b>רחצה יומית</b>
-            </button>
+            <div class="card" onclick="Nav.to('scr-nursing')" style="border-right:6px solid var(--rose)">🤱 <b>הנקה</b><br><small id="sub-nursing">-</small></div>
+            <div class="card" onclick="Core.openBottleModal()" style="border-right:6px solid var(--blue)">🍼 <b>בקבוק</b><br><small>רישום מ"ל</small></div>
+            <div class="card" onclick="Nav.to('scr-diaper')" style="border-right:6px solid var(--amber)">✨ <b>חיתול</b><br><small id="sub-diaper">-</small></div>
+            <div class="card" onclick="Nav.to('scr-sleep')" style="border-right:6px solid var(--indigo)">🌙 <b>שינה</b><br><small id="sub-sleep">-</small></div>
+            <div class="card" onclick="Nav.to('scr-meds')" style="border-right:6px solid var(--red)">💊 <b>תרופות</b></div>
+            <div class="card" onclick="Nav.to('scr-meas')" style="border-right:6px solid var(--green)">📈 <b>מדדים</b></div>
+            <button id="btn-bath" class="btn card" style="grid-column: span 2; border-right: 6px solid #06b6d4;" onclick="Core.doBath()">🛁 <b>רחצה</b></button>
         </div>
 
-        <div style="margin-top:10px;">
-            <button class="btn btn-secondary" onclick="Nav.to('scr-cal')">📅 יומן פעילות מלא</button>
-            <button class="btn" style="background:var(--slate); color:white; margin-top:10px;" onclick="Core.generateReport()">📋 הפקת דוח לרופא</button>
-        </div>
-
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn btn-secondary" style="font-size:12px; flex:1;" onclick="Core.exportData()">📤 גיבוי</button>
-            <button class="btn btn-secondary" style="font-size:12px; flex:1;" onclick="document.getElementById('file-in').click()">📥 שחזור</button>
-            <input type="file" id="file-in" style="display:none" onchange="Core.importData(event)">
-        </div>
+        <button class="btn btn-secondary" style="margin-top:15px;" onclick="Nav.to('scr-cal')">📅 יומן פעילות</button>
+        <button class="btn" style="background:var(--slate); color:white; margin-top:10px;" onclick="Core.generateReport()">📋 דוח לרופא</button>
     </div>
 
     <div id="scr-nursing" class="screen">
-        <button class="btn btn-secondary no-print" onclick="Nav.to('scr-home')">❯ חזרה לתפריט</button>
+        <button class="btn btn-secondary" onclick="Nav.to('scr-home')">❯ חזרה</button>
         <div class="card" style="text-align:center; margin-top:15px;">
-            <p id="n-info" style="color:var(--rose); font-weight:700;">טרם בוצעה הנקה היום</p>
             <div id="n-timer" class="timer">00:00</div>
             <div style="display:flex; gap:15px;">
-                <button id="btn-R" class="btn btn-secondary" style="height:120px; flex:1;" onclick="Core.nursingSide('ימין')">צד ימין</button>
-                <button id="btn-L" class="btn btn-secondary" style="height:120px; flex:1;" onclick="Core.nursingSide('שמאל')">צד שמאל</button>
+                <button id="btn-R" class="btn btn-secondary" style="height:100px; flex:1;" onclick="Core.nursingSide('ימין')">צד ימין</button>
+                <button id="btn-L" class="btn btn-secondary" style="height:100px; flex:1;" onclick="Core.nursingSide('שמאל')">צד שמאל</button>
             </div>
-            <button class="btn" style="background:var(--green); color:white; margin-top:30px;" onclick="Core.nursingFinish()">סיום ועדכון</button>
+            <button class="btn" style="background:var(--green); color:white; margin-top:30px;" onclick="Core.nursingFinish()">סיום ארוחה</button>
         </div>
     </div>
 
@@ -275,46 +150,35 @@
         <button class="btn btn-secondary" onclick="Nav.to('scr-home')">❯ חזרה</button>
         <div class="stats-grid" style="margin-top:15px;">
             <div class="stat-box card" style="margin:0;">
-                <small>זמן שינה היום</small>
-                <div id="sleep-today-stat" style="font-weight:800; font-size:16px;">-</div>
+                <small>היום ישן סה"כ</small>
+                <div id="sleep-today-stat" style="font-weight:800; color:var(--indigo);">0 שעות ו-0 דקות</div>
             </div>
-            <div class="stat-box card" onclick="Core.openManualSleepModal()" style="margin:0; border:2px dashed var(--indigo); cursor:pointer;">
-                <small>הזנה ידנית</small>
-                <div style="font-size:14px; font-weight:800;">הוסף ✍️</div>
+            <div class="card" onclick="Core.openManualSleepModal()" style="margin:0; border:2px dashed var(--indigo); text-align:center;">
+                <small>הזנה ידנית</small><br><b>✍️</b>
             </div>
         </div>
         <div class="card" style="text-align:center;">
             <div id="s-timer" class="timer">00:00</div>
-            <button id="s-btn" class="btn" style="height:140px; background:var(--indigo); color:white; font-size:22px;" onclick="Core.toggleSleep()">התחלת שינה 🌙</button>
+            <button id="s-btn" class="btn" style="height:120px; background:var(--indigo); color:white;" onclick="Core.toggleSleep()">התחלת שינה 🌙</button>
         </div>
     </div>
 
     <div id="scr-meds" class="screen">
         <button class="btn btn-secondary" onclick="Nav.to('scr-home')">❯ חזרה</button>
         <div class="card" style="margin-top:15px;">
-            <h3>תרופה חדשה</h3>
-            <input type="text" id="m-name" placeholder="שם התרופה (למשל: ויטמין D)">
-            <input type="text" id="m-dose" placeholder="מינון (למשל: 2 טיפות)">
+            <input type="text" id="m-name" placeholder="שם התרופה">
+            <input type="text" id="m-dose" placeholder="מינון">
             <input type="number" id="m-val" placeholder="כל כמה שעות?">
-            <button class="btn" style="background:var(--red); color:white;" onclick="Core.addMed()">הוסף לרשימה</button>
+            <button class="btn" style="background:var(--red); color:white;" onclick="Core.addMed()">הוסף</button>
         </div>
         <div id="med-list"></div>
-    </div>
-
-    <div id="scr-diaper" class="screen">
-        <button class="btn btn-secondary" onclick="Nav.to('scr-home')">❯ חזרה</button>
-        <div style="margin-top:20px;">
-            <button class="btn card" style="height:100px; font-size:20px;" onclick="Core.confirmDiaper('💦 פיפי')">💦 פיפי</button>
-            <button class="btn card" style="height:100px; font-size:20px;" onclick="Core.confirmDiaper('💩 קקי')">💩 קקי</button>
-            <button class="btn card" style="height:100px; font-size:20px;" onclick="Core.confirmDiaper('🌈 גם וגם')">🌈 גם וגם</button>
-        </div>
     </div>
 
     <div id="scr-cal" class="screen">
         <button class="btn btn-secondary" onclick="Nav.to('scr-home')">❯ חזרה</button>
         <div id="cal-grid" class="cal-grid"></div>
-        <div id="cal-summary-card" class="card" style="background:#eef2ff; border:1px solid var(--indigo);">
-            <div id="cal-total-sleep" style="font-weight:800; color:var(--indigo);"></div>
+        <div id="cal-summary-card" class="card" style="background:#eef2ff; border:2px solid var(--indigo);">
+            <div id="cal-total-sleep" style="font-weight:800; font-size:1.1em;"></div>
         </div>
         <div id="cal-list"></div>
     </div>
@@ -322,24 +186,12 @@
     <div id="scr-meas" class="screen">
         <button class="btn btn-secondary" onclick="Nav.to('scr-home')">❯ חזרה</button>
         <div class="card" style="margin-top:15px;">
-            <div style="display:flex; gap:10px;">
-                <div style="flex:1;">
-                    <label>משקל (ק"ג):</label>
-                    <input type="number" id="ms-w" step="0.001" placeholder="0.000">
-                </div>
-                <div style="flex:1;">
-                    <label>גובה (ס"מ):</label>
-                    <input type="number" id="ms-h" placeholder="0">
-                </div>
-            </div>
-            <button class="btn" style="background:var(--green); color:white; margin-top:10px;" onclick="Core.saveMeas()">שמור נתונים</button>
+            <input type="number" id="ms-w" step="0.001" placeholder="משקל (ק״ג)">
+            <input type="number" id="ms-h" placeholder="גובה (ס״מ)">
+            <button class="btn" style="background:var(--green); color:white;" onclick="Core.saveMeas()">שמור</button>
         </div>
-        <div class="card">
-            <canvas id="chW"></canvas>
-        </div>
+        <div class="card"><canvas id="chW"></canvas></div>
     </div>
-
-    <div id="print-area" style="display:none;"></div>
 
 <script>
     const DB = {
@@ -351,7 +203,6 @@
         bath: localStorage.getItem('z_bath') || 0,
         nState: JSON.parse(localStorage.getItem('z_nstate')) || { side:null, ts:null, baseR:0, baseL:0 },
         lastN: JSON.parse(localStorage.getItem('z_lastN')) || {time:'-', side:'-'},
-        
         save() {
             localStorage.setItem('z_logs', JSON.stringify(this.logs));
             localStorage.setItem('z_meds', JSON.stringify(this.meds));
@@ -371,29 +222,24 @@
         },
         close() { document.getElementById('custom-modal').style.display = 'none'; },
 
-        // פונקציית עיבוד זמן מרכזית - התיקון המבוקש
-        formatSleepTime(totalMinutes) {
-            const mins = parseInt(totalMinutes) || 0;
-            const h = Math.floor(mins / 60);
-            const m = mins % 60;
+        // פונקציית המרה מרכזית - תמיד מחזירה טקסט נקי
+        formatMinsToText(totalMins) {
+            const raw = parseInt(totalMins.toString().replace(/\D/g, '')) || 0;
+            const h = Math.floor(raw / 60);
+            const m = raw % 60;
             return `${h} שעות ו-${m} דקות`;
         },
 
         home() {
             if(!DB.prof) return Nav.to('scr-reg');
-            document.getElementById('home-hello').innerText = `היום של ${DB.prof.name}`;
-            document.getElementById('home-date').innerText = new Date().toLocaleDateString('he-IL', {weekday:'long', day:'numeric', month:'long'});
+            document.getElementById('home-hello').innerText = `שלום, ${DB.prof.name}`;
             document.getElementById('gender-icon').innerText = DB.prof.gender === 'זכר' ? '👦' : '👧';
-            
             const today = new Date().toLocaleDateString('en-GB');
             const lastF = DB.logs.find(l => l.type==='הנקה' || l.type==='בקבוק');
             document.getElementById('stat-last-feed').innerText = lastF ? lastF.time : '-';
-            
             const lastD = DB.logs.find(l => l.type==='חיתול');
             document.getElementById('stat-last-diaper').innerText = lastD ? lastD.time : '-';
-            
-            document.getElementById('sub-nursing').innerText = `אחרונה: ${DB.lastN.time}`;
-            document.getElementById('sub-sleep').innerText = this.formatSleepTime(Core.getDailySleepMins(today));
+            document.getElementById('sub-sleep').innerText = this.formatMinsToText(Core.getDailySleepMins(today));
             
             const b = document.getElementById('btn-bath');
             if(Date.now() - DB.bath < 86400000) b.classList.add('bath-active'); else b.classList.remove('bath-active');
@@ -402,25 +248,27 @@
         cal(dateStr) {
             const sel = dateStr || new Date().toLocaleDateString('en-GB');
             const grid = document.getElementById('cal-grid'); grid.innerHTML = '';
-            
             for(let i=1; i<=31; i++) {
                 const d = i.toString().padStart(2,'0') + "/" + (new Date().getMonth()+1).toString().padStart(2,'0') + "/" + new Date().getFullYear();
                 grid.innerHTML += `<div onclick="UI.cal('${d}')" class="cal-day ${sel===d?'cal-selected':''}">${i}</div>`;
             }
             
             const dayMins = Core.getDailySleepMins(sel);
-            document.getElementById('cal-total-sleep').innerText = `סיכום שינה יומי: ${this.formatSleepTime(dayMins)}`;
+            document.getElementById('cal-total-sleep').innerText = `סה"כ שינה ביום זה: ${this.formatMinsToText(dayMins)}`;
             
             const logs = DB.logs.filter(l => l.date === sel);
-            document.getElementById('cal-list').innerHTML = logs.length ? logs.map(l => `
+            document.getElementById('cal-list').innerHTML = logs.map(l => {
+                // בדיקה אם זו רשומת שינה - אם כן, נמיר את התצוגה של ה-detail
+                const displayDetail = (l.type === 'שינה') ? this.formatMinsToText(l.detail) : l.detail;
+                return `
                 <div class="card" style="padding:12px; margin-bottom:8px;">
                     <div style="display:flex; justify-content:space-between;">
                         <b>${l.time}</b>
-                        <span style="color:var(--indigo)">${l.type}</span>
+                        <span style="color:var(--indigo); font-weight:800;">${l.type}</span>
                     </div>
-                    <div style="font-size:14px; margin-top:5px;">${l.detail}</div>
-                </div>
-            `).join('') : '<p style="text-align:center;">אין רישומים ליום זה</p>';
+                    <div>${displayDetail}</div>
+                </div>`;
+            }).join('');
         }
     };
 
@@ -428,30 +276,27 @@
         to(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            window.scrollTo(0,0);
             if(id === 'scr-home') UI.home();
             if(id === 'scr-cal') UI.cal();
             if(id === 'scr-sleep') Core.initSleepScreen();
             if(id === 'scr-meds') Core.renderMeds();
-            if(id === 'scr-meas') Core.initMeasChart();
+            if(id === 'scr-meas') Core.initChart();
         }
     };
 
     const Core = {
         initProfile() {
-            const name = document.getElementById('reg-name').value;
-            const gender = document.getElementById('reg-gender').value;
-            if(!name || !gender) return alert("נא למלא שם ומין");
-            DB.prof = { name, gender, dob: document.getElementById('reg-dob').value };
+            const n = document.getElementById('reg-name').value;
+            if(!n) return;
+            DB.prof = { name: n, gender: document.getElementById('reg-gender').value };
             DB.save(); Nav.to('scr-home');
         },
 
         log(type, detail) {
             const now = new Date();
             DB.logs.unshift({
-                type,
-                detail: detail.toString(),
-                time: now.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'}),
+                type, detail,
+                time: now.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}),
                 date: now.toLocaleDateString('en-GB'),
                 ts: Date.now()
             });
@@ -461,10 +306,73 @@
         getDailySleepMins(dateStr) {
             return DB.logs
                 .filter(l => l.date === dateStr && l.type === 'שינה')
-                .reduce((acc, l) => acc + (parseInt(l.detail.replace(/\D/g, '')) || 0), 0);
+                .reduce((acc, l) => acc + (parseInt(l.detail.toString().replace(/\D/g, '')) || 0), 0);
         },
 
-        // --- Nursing Logic ---
+        // --- Sleep ---
+        initSleepScreen() {
+            const today = new Date().toLocaleDateString('en-GB');
+            document.getElementById('sleep-today-stat').innerText = UI.formatMinsToText(this.getDailySleepMins(today));
+            this.updateSleepTimer();
+        },
+
+        toggleSleep() {
+            if(!DB.sleep) {
+                DB.sleep = Date.now();
+            } else {
+                const diff = Math.floor((Date.now() - DB.sleep) / 60000);
+                this.log('שינה', diff); // שומר רק את המספר
+                DB.sleep = null;
+            }
+            DB.save(); this.initSleepScreen();
+        },
+
+        updateSleepTimer() {
+            clearInterval(window.sI);
+            if(DB.sleep) {
+                document.getElementById('s-btn').innerText = "בוקר טוב ☀️";
+                window.sI = setInterval(() => {
+                    const sec = Math.floor((Date.now() - DB.sleep) / 1000);
+                    document.getElementById('s-timer').innerText = Math.floor(sec/60).toString().padStart(2,'0') + ":" + (sec%60).toString().padStart(2,'0');
+                }, 1000);
+            } else {
+                document.getElementById('s-btn').innerText = "התחלת שינה 🌙";
+                document.getElementById('s-timer').innerText = "00:00";
+            }
+        },
+
+        openManualSleepModal() {
+            UI.modal(`<h3>שינה ידנית</h3><input type="number" id="mh" placeholder="שעות"><input type="number" id="mm" placeholder="דקות"><button class="btn" onclick="Core.saveManualSleep()">שמור</button>`);
+        },
+
+        saveManualSleep() {
+            const h = parseInt(document.getElementById('mh').value) || 0;
+            const m = parseInt(document.getElementById('mm').value) || 0;
+            this.log('שינה', (h*60 + m));
+            UI.close(); this.initSleepScreen();
+        },
+
+        // --- Meds ---
+        addMed() {
+            const n = document.getElementById('m-name'), d = document.getElementById('m-dose'), v = document.getElementById('m-val');
+            if(!n.value) return;
+            DB.meds.push({ id:Date.now(), name:n.value, dose:d.value, hrs:v.value });
+            DB.save();
+            // איפוס שדות - פתרון סופי
+            n.value = ''; d.value = ''; v.value = '';
+            this.renderMeds();
+        },
+
+        renderMeds() {
+            document.getElementById('med-list').innerHTML = DB.meds.map(m => `
+                <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>${m.name}</b><br><small>${m.dose}</small></div>
+                    <button class="btn" style="width:auto; padding:8px 15px; background:var(--green); color:white;" onclick="Core.log('תרופה','${m.name}')">נטילה</button>
+                </div>
+            `).join('');
+        },
+
+        // --- Nursing ---
         nursingSide(side) {
             const now = Date.now();
             if(DB.nState.side) {
@@ -490,122 +398,17 @@
         },
 
         nursingFinish() {
-            if(DB.nState.side) {
-                const diff = Math.floor((Date.now() - DB.nState.ts) / 1000);
-                if(DB.nState.side === 'ימין') DB.nState.baseR += diff; else DB.nState.baseL += diff;
-            }
-            const summary = `ימין: ${Math.floor(DB.nState.baseR/60)} דק', שמאל: ${Math.floor(DB.nState.baseL/60)} דק'`;
-            this.log('הנקה', summary);
-            DB.lastN = { time: new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}), side: DB.nState.baseR >= DB.nState.baseL ? 'ימין' : 'שמאל' };
+            this.log('הנקה', `ימין: ${Math.floor(DB.nState.baseR/60)} דק', שמאל: ${Math.floor(DB.nState.baseL/60)} דק'`);
             DB.nState = { side:null, ts:null, baseR:0, baseL:0 };
             DB.save(); Nav.to('scr-home');
         },
 
-        // --- Sleep Logic ---
-        initSleepScreen() {
-            const today = new Date().toLocaleDateString('en-GB');
-            document.getElementById('sleep-today-stat').innerText = UI.formatSleepTime(this.getDailySleepMins(today));
-            this.updateSleepTimer();
-        },
-
-        toggleSleep() {
-            if(!DB.sleep) {
-                DB.sleep = Date.now();
-            } else {
-                const diffMins = Math.floor((Date.now() - DB.sleep) / 60000);
-                this.log('שינה', diffMins + " דקות");
-                DB.sleep = null;
-            }
-            DB.save(); this.initSleepScreen();
-        },
-
-        updateSleepTimer() {
-            clearInterval(window.sI);
-            const btn = document.getElementById('s-btn');
-            if(DB.sleep) {
-                btn.innerText = "בוקר טוב ☀️";
-                btn.style.background = "var(--amber)";
-                window.sI = setInterval(() => {
-                    const sec = Math.floor((Date.now() - DB.sleep) / 1000);
-                    document.getElementById('s-timer').innerText = Math.floor(sec/60).toString().padStart(2,'0') + ":" + (sec%60).toString().padStart(2,'0');
-                }, 1000);
-            } else {
-                btn.innerText = "התחלת שינה 🌙";
-                btn.style.background = "var(--indigo)";
-                document.getElementById('s-timer').innerText = "00:00";
-            }
-        },
-
-        openManualSleepModal() {
-            UI.modal(`
-                <h3>הוספת שינה ידנית</h3>
-                <div style="display:flex; gap:10px;">
-                    <input type="number" id="man-h" placeholder="שעות">
-                    <input type="number" id="man-m" placeholder="דקות">
-                </div>
-                <button class="btn" style="background:var(--indigo); color:white; margin-top:15px;" onclick="Core.saveManualSleep()">שמור</button>
-            `);
-        },
-
-        saveManualSleep() {
-            const h = parseInt(document.getElementById('man-h').value) || 0;
-            const m = parseInt(document.getElementById('man-m').value) || 0;
-            this.log('שינה', (h * 60 + m) + " דקות");
-            UI.close(); this.initSleepScreen();
-        },
-
-        // --- Meds Logic - התיקון השני המבוקש ---
-        addMed() {
-            const nameEl = document.getElementById('m-name');
-            const doseEl = document.getElementById('m-dose');
-            const valEl = document.getElementById('m-val');
-            
-            if(!nameEl.value) return;
-            
-            DB.meds.push({
-                id: Date.now(),
-                name: nameEl.value,
-                dose: doseEl.value,
-                hrs: valEl.value
-            });
-            
-            DB.save();
-            // איפוס שדות מיידי
-            nameEl.value = '';
-            doseEl.value = '';
-            valEl.value = '';
-            
-            this.renderMeds();
-        },
-
-        renderMeds() {
-            const list = document.getElementById('med-list');
-            list.innerHTML = DB.meds.map(m => `
-                <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <b style="font-size:18px;">${m.name}</b><br>
-                        <small>${m.dose} (כל ${m.hrs} שעות)</small>
-                    </div>
-                    <button class="btn" style="width:auto; padding:8px 20px; background:var(--green); color:white;" onclick="Core.log('תרופה', '${m.name}')">נטילה</button>
-                </div>
-            `).join('');
-        },
-
-        // --- Utils ---
         confirmDiaper(type) {
-            UI.modal(`
-                <h3>אישור חיתול</h3>
-                <p>האם לרשום החלפת <b>${type}</b>?</p>
-                <button class="btn" style="background:var(--amber); color:white;" onclick="Core.log('חיתול', '${type}'); UI.close(); Nav.to('scr-home');">כן, רשום</button>
-            `);
+            UI.modal(`<h3>חיתול</h3><p>${type}</p><button class="btn" onclick="Core.log('חיתול','${type}'); UI.close(); Nav.to('scr-home');">אשר</button>`);
         },
 
         openBottleModal() {
-            UI.modal(`
-                <h3>🍼 בקבוק</h3>
-                <input type="number" id="b-amt" placeholder="כמות במ״ל">
-                <button class="btn" style="background:var(--blue); color:white;" onclick="Core.log('בקבוק', document.getElementById('b-amt').value + ' מ״ל'); UI.close(); Nav.to('scr-home');">שמור</button>
-            `);
+            UI.modal(`<h3>בקבוק</h3><input type="number" id="ba" placeholder="מ״ל"><button class="btn" onclick="Core.log('בקבוק', document.getElementById('ba').value + ' מ״ל'); UI.close(); Nav.to('scr-home');">שמור</button>`);
         },
 
         doBath() { DB.bath = Date.now(); DB.save(); UI.home(); },
@@ -613,66 +416,22 @@
         generateReport() {
             const today = new Date().toLocaleDateString('en-GB');
             const logs = DB.logs.filter(l => l.date === today);
-            const html = `
-                <div style="direction:rtl; text-align:right; font-family:sans-serif;">
-                    <h1>דוח יומי - ${DB.prof.name}</h1>
-                    <p>תאריך: ${today}</p>
-                    <hr>
-                    ${logs.map(l => `<p><b>${l.time}</b>: ${l.type} - ${l.detail}</p>`).join('')}
-                </div>
-            `;
-            const win = window.open('', '_blank');
-            win.document.write(html);
-            win.print();
+            const html = `<h1>דוח ${DB.prof.name}</h1><p>${today}</p><hr>${logs.map(l => `<p>${l.time} - ${l.type}: ${l.detail}</p>`).join('')}`;
+            const w = window.open(); w.document.write(html); w.print();
         },
 
-        exportData() {
-            const data = JSON.stringify(DB);
-            const blob = new Blob([data], {type: 'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `zohar_backup_${new Date().toLocaleDateString()}.json`;
-            a.click();
-        },
-
-        importData(e) {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const imported = JSON.parse(ev.target.result);
-                Object.assign(DB, imported);
-                DB.save();
-                location.reload();
-            };
-            reader.readAsText(e.target.files[0]);
-        },
-
-        initMeasChart() {
-            if(window.myChart) window.myChart.destroy();
+        initChart() {
+            if(window.ch) window.ch.destroy();
             const ctx = document.getElementById('chW').getContext('2d');
-            window.myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: DB.meas.map(m => m.date),
-                    datasets: [{
-                        label: 'משקל (ק"ג)',
-                        data: DB.meas.map(m => m.w),
-                        borderColor: '#3b82f6',
-                        tension: 0.1
-                    }]
-                }
-            });
+            window.ch = new Chart(ctx, { type:'line', data:{ labels:DB.meas.map(m=>m.date), datasets:[{label:'משקל', data:DB.meas.map(m=>m.w), borderColor:'#3b82f6'}] } });
         },
 
         saveMeas() {
-            const w = document.getElementById('ms-w').value;
-            const h = document.getElementById('ms-h').value;
-            if(!w) return;
-            DB.meas.push({ w, h, date: new Date().toLocaleDateString('en-GB') });
+            DB.meas.push({ w:document.getElementById('ms-w').value, date:new Date().toLocaleDateString('en-GB') });
             DB.save(); Nav.to('scr-home');
         }
     };
 
-    // Start App
     Nav.to('scr-home');
 </script>
 </body>
