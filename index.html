@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp v31 - Final Stable</title>
+    <title>ZoharApp v32</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
@@ -314,7 +314,7 @@
             const dayFeeds = logs.filter(l => l.type === 'הנקה' || l.type === 'בקבוק').length;
             const sumCard = document.getElementById('cal-summary-card');
             sumCard.style.display = 'block';
-            sumCard.innerHTML = `<b>סיכום ארוחות היום:</b> ${dayFeeds}<br><b>סיכום שינה יומי:</b> ${this.formatToHoursAndMins(daySleep)}`;
+            sumCard.innerHTML = `<b>סה"כ ארוחות היום:</b> ${dayFeeds}<br><b>סיכום שינה יומי:</b> ${this.formatToHoursAndMins(daySleep)}`;
             document.getElementById('cal-list').innerHTML = `<h3 style="text-align:center;">${sel}</h3>` + 
                 (logs.length ? logs.map(l => `<div class="card"><b>${l.time}</b> | ${l.type}: ${l.detail}</div>`).join('') : `<p style="text-align:center; color:gray;">אין נתונים</p>`);
         },
@@ -343,10 +343,23 @@
         meas() {
             const last = DB.meas[DB.meas.length-1];
             document.getElementById('meas-last-text').innerText = last ? `אחרון: ${last.w} ק"ג ב-${last.date}` : "אין מדדים";
+            
+            // עיבוד נתונים לגרף - רק מדידה אחרונה לכל יום
+            const distinctMeas = [];
+            const seenDates = new Set();
+            [...DB.meas].reverse().forEach(m => {
+                if(!seenDates.has(m.date)) {
+                    distinctMeas.unshift(m);
+                    seenDates.add(m.date);
+                }
+            });
+
             if(window.cW) window.cW.destroy(); if(window.cH) window.cH.destroy();
-            const cfg = (l, d, c) => ({ type:'line', data:{labels:DB.meas.map(m=>m.date), datasets:[{label:l, data:d, borderColor:c, tension:0.2}]} });
-            window.cW = new Chart(document.getElementById('chW'), cfg('משקל', DB.meas.map(m=>m.w), '#3b82f6'));
-            window.cH = new Chart(document.getElementById('chH'), cfg('גובה', DB.meas.map(m=>m.h), '#10b981'));
+            const cfg = (l, d, c, labels) => ({ type:'line', data:{labels:labels, datasets:[{label:l, data:d, borderColor:c, tension:0.2}]} });
+            
+            const labels = distinctMeas.map(m=>m.date);
+            window.cW = new Chart(document.getElementById('chW'), cfg('משקל', distinctMeas.map(m=>m.w), '#3b82f6', labels));
+            window.cH = new Chart(document.getElementById('chH'), cfg('גובה', distinctMeas.map(m=>m.h), '#10b981', labels));
         }
     };
 
@@ -365,7 +378,9 @@
         },
 
         getDailySleepMins(dateStr) {
-            return DB.logs.filter(l => l.date === dateStr && l.type === 'שינה').reduce((acc, l) => acc + (parseInt(l.detail) || 0), 0);
+            return DB.logs
+                .filter(l => l.date === dateStr && l.type === 'שינה')
+                .reduce((acc, l) => acc + (parseInt(l.detail) || 0), 0);
         },
 
         doBath() {
@@ -391,12 +406,10 @@
         nursingSide(side) {
             const now = Date.now();
             if(DB.nState.side === side) {
-                // Stop current
                 const diff = Math.floor((now - DB.nState.ts) / 1000);
                 if(side === 'ימין') DB.nState.baseR += diff; else DB.nState.baseL += diff;
                 DB.nState.side = null; DB.nState.ts = null;
             } else {
-                // Switch side or Start
                 if(DB.nState.side) {
                     const diff = Math.floor((now - DB.nState.ts) / 1000);
                     if(DB.nState.side === 'ימין') DB.nState.baseR += diff; else DB.nState.baseL += diff;
@@ -436,6 +449,17 @@
             this.log('שינה', `${total} דקות`); UI.close(); UI.sleep();
         },
 
+        addMed() {
+            const n = document.getElementById('m-name'), d = document.getElementById('m-dose'), t = document.getElementById('m-type'), v = document.getElementById('m-val');
+            if(!n.value) return;
+            let ms = t.value==='daily' ? 86400000 : (t.value==='hours' ? v.value*3600000 : v.value*86400000);
+            DB.meds.push({ id:Date.now(), name:n.value, dose:d.value, interval:ms, text: t.value==='daily' ? "פעם ביום" : (t.value==='hours' ? `כל ${v.value} שעות` : `כל ${v.value} ימים`) });
+            DB.save(); 
+            // איפוס שדות
+            n.value = ''; d.value = ''; v.value = ''; t.selectedIndex = 0;
+            UI.meds();
+        },
+
         takeMed(id) {
             const med = DB.meds.find(m => m.id === id);
             const lastLog = DB.logs.find(l => l.type === 'תרופה' && l.detail === med.name);
@@ -444,26 +468,27 @@
             } else { this.log('תרופה', med.name); UI.meds(); }
         },
 
-        addMed() {
-            const n = document.getElementById('m-name'), d = document.getElementById('m-dose'), t = document.getElementById('m-type'), v = document.getElementById('m-val');
-            if(!n.value) return;
-            let ms = t.value==='daily' ? 86400000 : (t.value==='hours' ? v.value*3600000 : v.value*86400000);
-            DB.meds.push({ id:Date.now(), name:n.value, dose:d.value, interval:ms, text: t.value==='daily' ? "פעם ביום" : (t.value==='hours' ? `כל ${v.value} שעות` : `כל ${v.value} ימים`) });
-            DB.save(); UI.meds();
-        },
-
         deleteMed(id) { DB.meds = DB.meds.filter(m=>m.id!==id); DB.save(); UI.meds(); },
 
         saveMeas() {
             const w = document.getElementById('ms-w').value, h = document.getElementById('ms-h').value;
-            const last = DB.meas[DB.meas.length-1];
-            if(last && (Date.now() - last.ts < 86400000)) {
-                UI.modal(`<h3>עדכון צפוף</h3><p>עברו פחות מ-24 שעות. לשמור?</p><button class="btn" onclick="Core.confirmMeas('${w}','${h}')">כן</button><button class="btn btn-secondary" onclick="UI.close()">לא</button>`);
-            } else { this.confirmMeas(w,h); }
+            const today = new Date().toLocaleDateString('en-GB');
+            const exists = DB.meas.findIndex(m => m.date === today);
+            
+            if(exists !== -1) {
+                UI.modal(`<h3>עדכון מדד</h3><p>כבר קיים מדד להיום. האם לעדכן אותו?</p><button class="btn" onclick="Core.confirmUpdateMeas(${exists},'${w}','${h}')">עדכן</button><button class="btn btn-secondary" onclick="UI.close()">ביטול</button>`);
+            } else {
+                this.confirmMeas(w,h);
+            }
         },
 
         confirmMeas(w, h) {
             DB.meas.push({ w, h, date: new Date().toLocaleDateString('en-GB'), ts: Date.now() });
+            DB.save(); UI.close(); Nav.to('scr-home');
+        },
+
+        confirmUpdateMeas(index, w, h) {
+            DB.meas[index] = { w, h, date: new Date().toLocaleDateString('en-GB'), ts: Date.now() };
             DB.save(); UI.close(); Nav.to('scr-home');
         },
 
