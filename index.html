@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp v33</title>
+    <title>ZoharApp v33.1 - Stable Plus</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
@@ -13,6 +13,7 @@
         }
         * { box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); margin: 0; padding: 15px; color: #0f172a; direction: rtl; }
+        body.modal-open { overflow: hidden; } /* מניעת גלילה כשהמודאל פתוח */
         
         #custom-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -120,8 +121,8 @@
             <p id="n-info" style="color:var(--rose); font-weight:700;">-</p>
             <div id="n-timer" class="timer">00:00</div>
             <div style="display:flex; gap:12px;">
-                <button id="btn-R" class="btn btn-secondary" style="height:100px;" onclick="Core.nursingSide('ימין')">צד ימין</button>
-                <button id="btn-L" class="btn btn-secondary" style="height:100px;" onclick="Core.nursingSide('שמאל')">צד שמאל</button>
+                <button id="btn-R" class="btn btn-secondary" style="height:100px; flex:1;" onclick="Core.nursingSide('ימין')">צד ימין</button>
+                <button id="btn-L" class="btn btn-secondary" style="height:100px; flex:1;" onclick="Core.nursingSide('שמאל')">צד שמאל</button>
             </div>
             <button class="btn" style="background:var(--green); color:white; margin-top:25px;" onclick="Core.nursingFinish()">סיום ועדכון ארוחה</button>
         </div>
@@ -241,17 +242,18 @@
         modal(html) {
             document.getElementById('modal-inner').innerHTML = html;
             document.getElementById('custom-modal').style.display = 'flex';
+            document.body.classList.add('modal-open');
         },
-        close() { document.getElementById('custom-modal').style.display = 'none'; },
-        
-        // פונקציית העזר הקריטית להמרת דקות לשעות ודקות
+        close() { 
+            document.getElementById('custom-modal').style.display = 'none'; 
+            document.body.classList.remove('modal-open');
+        },
         formatToHoursAndMins(totalMins) {
             const numMins = parseInt(totalMins) || 0;
             const h = Math.floor(numMins / 60);
             const m = numMins % 60;
             return `${h} שעות ו-${m} דקות`;
         },
-
         home() {
             if(!DB.prof) return Nav.to('scr-reg');
             document.getElementById('home-hello').innerText = `היום של ${DB.prof.name}`;
@@ -269,7 +271,6 @@
             const b = document.getElementById('btn-bath');
             if(Date.now() - DB.bath < 86400000) b.classList.add('bath-active'); else b.classList.remove('bath-active');
         },
-        
         nursing() {
             document.getElementById('n-info').innerText = `אחרונה: ${DB.lastN.time} (צד ${DB.lastN.side})`;
             document.getElementById('btn-R').classList.remove('nursing-active');
@@ -288,21 +289,19 @@
                 document.getElementById('n-timer').innerText = Math.floor(total/60).toString().padStart(2,'0') + ":" + (total%60).toString().padStart(2,'0');
             }
         },
-
         meds() {
             document.getElementById('med-list').innerHTML = DB.meds.map(m => {
                 const lastLog = DB.logs.find(l => l.type === 'תרופה' && l.detail === m.name);
                 const isTaken = lastLog && (Date.now() - lastLog.ts < m.interval);
-                return `<div class="card ${isTaken ? 'med-taken' : ''}" style="display:flex; justify-content:space-between; align-items:center;">
-                    <div><b>${m.name}</b><br><small>${m.dose} | ${m.text}</small></div>
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn" style="width:auto; padding:8px; background:var(--green); color:white;" onclick="Core.takeMed(${m.id})">נטילה</button>
-                        <button class="btn" style="width:auto; padding:8px; background:#f1f5f9;" onclick="Core.deleteMed(${m.id})">🗑️</button>
+                return `<div class="card ${isTaken ? 'med-taken' : ''}" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                    <div style="flex:1;"><b>${m.name}</b><br><small>${m.dose} | ${m.text}</small></div>
+                    <div style="display:flex; gap:8px; flex-shrink:0;">
+                        <button class="btn" style="width:auto; padding:10px 15px; background:var(--green); color:white;" onclick="Core.takeMed(${m.id})">נטילה</button>
+                        <button class="btn" style="width:auto; padding:10px; background:#f1f5f9;" onclick="Core.deleteMed(${m.id})">🗑️</button>
                     </div>
                 </div>`;
             }).join('');
         },
-
         cal(dateStr) {
             const sel = dateStr || new Date().toLocaleDateString('en-GB');
             const grid = document.getElementById('cal-grid'); grid.innerHTML = '';
@@ -312,7 +311,6 @@
                 grid.innerHTML += `<div onclick="UI.cal('${d}')" class="cal-day ${i===todayD?'cal-today':''} ${sel===d?'cal-selected':''}">${i}</div>`;
             }
             const logs = DB.logs.filter(l => l.date === sel);
-            // תיקון: הבטחת המרה לשעות ודקות ביומן
             const daySleepMins = Core.getDailySleepMins(sel);
             const dayFeeds = logs.filter(l => l.type === 'הנקה' || l.type === 'בקבוק').length;
             const sumCard = document.getElementById('cal-summary-card');
@@ -321,7 +319,6 @@
             document.getElementById('cal-list').innerHTML = `<h3 style="text-align:center;">${sel}</h3>` + 
                 (logs.length ? logs.map(l => `<div class="card"><b>${l.time}</b> | ${l.type}: ${l.detail}</div>`).join('') : `<p style="text-align:center; color:gray;">אין נתונים</p>`);
         },
-
         sleep() {
             const today = new Date().toLocaleDateString('en-GB');
             document.getElementById('sleep-today-stat').innerText = this.formatToHoursAndMins(Core.getDailySleepMins(today));
@@ -335,14 +332,12 @@
                 }, 1000);
             } else { b.innerText = "התחלת שינה 🌙"; b.style.background = "var(--indigo)"; document.getElementById('s-timer').innerText = "00:00"; clearInterval(window.sI); }
         },
-
         diaper() {
             const today = new Date().toLocaleDateString('en-GB');
             const lastD = DB.logs.find(l => l.type==='חיתול');
             document.getElementById('diaper-last-box').innerText = lastD ? `${lastD.time} (${lastD.detail})` : '-';
             document.getElementById('diaper-count-box').innerText = DB.logs.filter(l => l.date === today && l.type === 'חיתול').length;
         },
-
         meas() {
             const last = DB.meas[DB.meas.length-1];
             document.getElementById('meas-last-text').innerText = last ? `אחרון: ${last.w} ק"ג ב-${last.date}` : "אין מדדים";
@@ -356,11 +351,16 @@
                 }
             });
 
-            if(window.cW) window.cW.destroy(); if(window.cH) window.cH.destroy();
+            if(window.cW) window.cW.destroy(); 
+            if(window.cH) window.cH.destroy();
+            
             const cfg = (l, d, c, labels) => ({ type:'line', data:{labels:labels, datasets:[{label:l, data:d, borderColor:c, tension:0.2}]} });
             const labels = distinctMeas.map(m=>m.date);
-            window.cW = new Chart(document.getElementById('chW'), cfg('משקל', distinctMeas.map(m=>m.w), '#3b82f6', labels));
-            window.cH = new Chart(document.getElementById('chH'), cfg('גובה', distinctMeas.map(m=>m.h), '#10b981', labels));
+            
+            const ctxW = document.getElementById('chW');
+            const ctxH = document.getElementById('chH');
+            if(ctxW) window.cW = new Chart(ctxW, cfg('משקל', distinctMeas.map(m=>m.w), '#3b82f6', labels));
+            if(ctxH) window.cH = new Chart(ctxH, cfg('גובה', distinctMeas.map(m=>m.h), '#10b981', labels));
         }
     };
 
@@ -371,39 +371,32 @@
             DB.prof = { name:n, lname:document.getElementById('reg-lname').value, gender:document.getElementById('reg-gender').value, dob:document.getElementById('reg-dob').value, mom:document.getElementById('reg-mom').value, dad:document.getElementById('reg-dad').value };
             DB.save(); Nav.to('scr-home');
         },
-        
         log(type, detail) {
             const now = new Date();
             DB.logs.unshift({ type, detail, time: now.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}), date: now.toLocaleDateString('en-GB'), ts: Date.now() });
             DB.save(); UI.home();
         },
-
         getDailySleepMins(dateStr) {
             return DB.logs
                 .filter(l => l.date === dateStr && l.type === 'שינה')
                 .reduce((acc, l) => acc + (parseInt(l.detail) || 0), 0);
         },
-
         doBath() {
             if(Date.now() - DB.bath < 86400000) UI.modal(`<h3>כבר בוצע</h3><p>רחצת כבר היום.</p><button class="btn" onclick="UI.close()">סגור</button>`);
             else { DB.bath = Date.now(); this.log('רחצה', '🛁 בוצעה רחצה'); }
         },
-
         openBottleModal() {
             const lastB = DB.logs.find(l => l.type==='בקבוק');
             const preview = lastB ? `<p style="background:#f1f5f9; padding:10px; border-radius:10px;"><small>ארוחה אחרונה:</small><br><b>${lastB.date} ב-${lastB.time} (${lastB.detail})</b></p>` : '';
             UI.modal(`<h3>🍼 בקבוק</h3>${preview}<input type="number" id="b-amt" placeholder="מ״ל"><button class="btn" style="background:var(--blue); color:white;" onclick="Core.saveBottle()">שמור</button><button class="btn btn-secondary" style="margin-top:10px;" onclick="UI.close()">ביטול</button>`);
         },
-
         saveBottle() {
             const a = document.getElementById('b-amt').value;
             if(a) { this.log('בקבוק', a + ' מ"ל'); UI.close(); }
         },
-
         confirmDiaper(type) {
             UI.modal(`<h3>אישור החלפה</h3><p>חיתול עם ${type}?</p><button class="btn" style="background:var(--amber); color:white;" onclick="Core.log('חיתול', '${type}'); UI.close(); Nav.to('scr-diaper');">אשר</button><button class="btn btn-secondary" onclick="UI.close()">בטל</button>`);
         },
-
         nursingSide(side) {
             const now = Date.now();
             if(DB.nState.side === side) {
@@ -420,7 +413,6 @@
             }
             DB.save(); UI.nursing();
         },
-
         nursingFinish() {
             if(DB.nState.side) {
                 const diff = Math.floor((Date.now() - DB.nState.ts) / 1000);
@@ -432,39 +424,32 @@
             this.log('הנקה', `ימין: ${Math.floor(DB.nState.baseR/60)} דק', שמאל: ${Math.floor(DB.nState.baseL/60)} דק'`);
             DB.nState = {side:null, ts:null, baseR:0, baseL:0}; DB.save(); Nav.to('scr-home');
         },
-
         toggleSleep() {
             if(!DB.sleep) DB.sleep = Date.now();
             else { const mins = Math.floor((Date.now()-DB.sleep)/60000); this.log('שינה', `${mins} דקות`); DB.sleep = null; }
             DB.save(); UI.sleep();
         },
-
         openManualSleepModal() {
             UI.modal(`<h3>שינה ידנית</h3><div style="display:flex; gap:5px;"><input type="number" id="man-h" placeholder="שעות"><input type="number" id="man-m" placeholder="דקות"></div><button class="btn" style="background:var(--indigo); color:white; margin-top:10px;" onclick="Core.saveManualSleep(true)">הוסף מקטע</button><button class="btn" style="background:var(--amber); color:white;" onclick="Core.saveManualSleep(false)">קבע סך יומי</button>`);
         },
-
         saveManualSleep(isSeg) {
+            if(!isSeg) {
+                if(!confirm("פעולה זו תמחק את כל רישומי השינה של היום ותחליף אותם בסך הכולל שהזנת. להמשיך?")) return;
+                DB.logs = DB.logs.filter(l => !(l.date === new Date().toLocaleDateString('en-GB') && l.type === 'שינה'));
+            }
             const h = parseInt(document.getElementById('man-h').value) || 0, m = parseInt(document.getElementById('man-m').value) || 0;
             const total = (h * 60) + m;
-            if(!isSeg) DB.logs = DB.logs.filter(l => !(l.date === new Date().toLocaleDateString('en-GB') && l.type === 'שינה'));
             this.log('שינה', `${total} דקות`); UI.close(); UI.sleep();
         },
-
-        // תיקון: איפוס שדות תרופות לאחר הוספה
         addMed() {
             const n = document.getElementById('m-name'), d = document.getElementById('m-dose'), t = document.getElementById('m-type'), v = document.getElementById('m-val');
             if(!n.value) return;
             let ms = t.value==='daily' ? 86400000 : (t.value==='hours' ? v.value*3600000 : v.value*86400000);
             DB.meds.push({ id:Date.now(), name:n.value, dose:d.value, interval:ms, text: t.value==='daily' ? "פעם ביום" : (t.value==='hours' ? `כל ${v.value} שעות` : `כל ${v.value} ימים`) });
             DB.save(); 
-            // ניקוי שדות אגרסיבי
-            document.getElementById('m-name').value = '';
-            document.getElementById('m-dose').value = '';
-            document.getElementById('m-val').value = '';
-            document.getElementById('m-type').selectedIndex = 0;
+            n.value = ''; d.value = ''; v.value = ''; t.selectedIndex = 0;
             UI.meds();
         },
-
         takeMed(id) {
             const med = DB.meds.find(m => m.id === id);
             const lastLog = DB.logs.find(l => l.type === 'תרופה' && l.detail === med.name);
@@ -472,9 +457,7 @@
                 UI.modal(`<h3>אזהרה</h3><p>כבר נלקחה.</p><button class="btn" onclick="Core.log('תרופה','${med.name}'); UI.close(); UI.meds();">אשר נטילה נוספת</button><button class="btn btn-secondary" onclick="UI.close()">ביטול</button>`);
             } else { this.log('תרופה', med.name); UI.meds(); }
         },
-
         deleteMed(id) { DB.meds = DB.meds.filter(m=>m.id!==id); DB.save(); UI.meds(); },
-
         saveMeas() {
             const w = document.getElementById('ms-w').value, h = document.getElementById('ms-h').value;
             const today = new Date().toLocaleDateString('en-GB');
@@ -485,17 +468,14 @@
                 this.confirmMeas(w,h);
             }
         },
-
         confirmMeas(w, h) {
             DB.meas.push({ w, h, date: new Date().toLocaleDateString('en-GB'), ts: Date.now() });
             DB.save(); UI.close(); Nav.to('scr-home');
         },
-
         confirmUpdateMeas(index, w, h) {
             DB.meas[index] = { w, h, date: new Date().toLocaleDateString('en-GB'), ts: Date.now() };
             DB.save(); UI.close(); Nav.to('scr-home');
         },
-
         generateReport() {
             const p = DB.prof; const today = new Date().toLocaleDateString('en-GB');
             const logs = DB.logs.filter(l => l.date === today);
@@ -503,12 +483,10 @@
             const area = document.getElementById('print-area'); area.innerHTML = html; area.style.display = 'block';
             setTimeout(() => { window.print(); area.style.display = 'none'; }, 500);
         },
-
         exportData() {
             const blob = new Blob([JSON.stringify(DB)], {type:'application/json'});
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `zohar_backup.json`; a.click();
         },
-
         importData(e) {
             const reader = new FileReader();
             reader.onload = (ev) => { Object.assign(DB, JSON.parse(ev.target.result)); DB.save(); location.reload(); };
