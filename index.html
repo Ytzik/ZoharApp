@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZoharApp v33.1 - Stable Plus</title>
+    <title>ZoharApp v33.2 - Calendar Fixed</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
@@ -13,7 +13,7 @@
         }
         * { box-sizing: border-box; font-family: 'Assistant', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); margin: 0; padding: 15px; color: #0f172a; direction: rtl; }
-        body.modal-open { overflow: hidden; } /* מניעת גלילה כשהמודאל פתוח */
+        body.modal-open { overflow: hidden; }
         
         #custom-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -316,8 +316,17 @@
             const sumCard = document.getElementById('cal-summary-card');
             sumCard.style.display = 'block';
             sumCard.innerHTML = `<b>סה"כ ארוחות היום:</b> ${dayFeeds}<br><b>סיכום שינה יומי:</b> ${this.formatToHoursAndMins(daySleepMins)}`;
+            
+            // תיקון: הצגת זמן שינה בפורמט שעות ודקות בתוך היומן
             document.getElementById('cal-list').innerHTML = `<h3 style="text-align:center;">${sel}</h3>` + 
-                (logs.length ? logs.map(l => `<div class="card"><b>${l.time}</b> | ${l.type}: ${l.detail}</div>`).join('') : `<p style="text-align:center; color:gray;">אין נתונים</p>`);
+                (logs.length ? logs.map(l => {
+                    let displayDetail = l.detail;
+                    if(l.type === 'שינה') {
+                        const mins = parseInt(l.detail) || 0;
+                        displayDetail = this.formatToHoursAndMins(mins);
+                    }
+                    return `<div class="card"><b>${l.time}</b> | ${l.type}: ${displayDetail}</div>`;
+                }).join('') : `<p style="text-align:center; color:gray;">אין נתונים</p>`);
         },
         sleep() {
             const today = new Date().toLocaleDateString('en-GB');
